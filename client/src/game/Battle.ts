@@ -24,6 +24,10 @@ export class Battle {
     );
   }
 
+  pair(index: number) {
+    return new Battle([this.attackerDice[index]], [this.defenderDice[index]]);
+  }
+
   get attackerLosses() {
     return this.attackerDice.filter((die, index) => die < this.defenderDice[index]).length;
   }

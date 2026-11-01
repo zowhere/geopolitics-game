@@ -1,5 +1,6 @@
 import Die from "../components/Die";
 import Island from "../components/Island";
+import MissileStrike from "../components/MissileStrike";
 import SoldierCount from "../components/SoldierCount";
 import { Battle } from "../game/Battle";
 import type { Game } from "../game/Game";
@@ -13,6 +14,7 @@ type WarScreenProps = {
   game: Game;
   from: Territory;
   to: Territory;
+  onHit: () => void;
   onEnd: () => void;
 };
 
@@ -40,10 +42,19 @@ function dieResult(attacker: number, defender: number) {
   return attacker > defender ? ["landed", "landed lost"] : ["landed lost", "landed"];
 }
 
-function WarScreen({ game, from, to, onEnd }: WarScreenProps) {
-  const { phase, battle, battleNumber, canRoll, roll, stop, advance } = useWar(game, from, to, onEnd);
+function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
+  const { phase, battle, battleNumber, salvos, canRoll, roll, stop, hit, advance } = useWar(game, from, to, onHit, onEnd);
   const pairs = battle ? battle.attackerDice.length : Battle.diceCount(from, to);
   const stamp = stampText(phase, game);
+
+  if (phase === "strike" || stamp) {
+    return (
+      <div className="war-map" onClick={advance}>
+        {phase === "strike" && <MissileStrike from={from} to={to} salvos={salvos} onHit={hit} />}
+        {stamp && <div className={`stamp ${phase}`}>{stamp}</div>}
+      </div>
+    );
+  }
 
   function side(territory: Territory) {
     const owner = game.players[territory.owner];
@@ -103,8 +114,6 @@ function WarScreen({ game, from, to, onEnd }: WarScreenProps) {
           </button>
         )}
       </footer>
-
-      {stamp && <div className={`stamp ${phase}`}>{stamp}</div>}
     </div>
   );
 }

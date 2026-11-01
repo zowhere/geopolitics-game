@@ -1,3 +1,4 @@
+import { useReducer } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
@@ -39,6 +40,7 @@ function captionFor(phase: Phase, plan: TurnPlan | null) {
 
 function BoardScreen({ game }: BoardScreenProps) {
   const { phase, plan, advance, endWar } = useTurnFlow(game);
+  const [, refresh] = useReducer((count: number) => count + 1, 0);
   const current = game.current;
   const attack = plan?.attack.kind === "attack" ? plan.attack : null;
   const attackFrom = phase === "decision" ? attack?.from : null;
@@ -69,8 +71,9 @@ function BoardScreen({ game }: BoardScreenProps) {
             const classes = ["board-country"];
             if (owner.human) classes.push("you");
             if (territory === attackFrom) classes.push("attacking");
+            if (phase === "war" && territory !== attack?.from && territory !== attack?.to) classes.push("dim");
             return (
-              <div key={territory.name} className={classes.join(" ")}>
+              <div key={territory.name} className={classes.join(" ")} data-territory={territory.name}>
                 <Island
                   shape={countryShape(territory.country.mapName)}
                   flag={flagUrl(owner.country.code)}
@@ -102,7 +105,9 @@ function BoardScreen({ game }: BoardScreenProps) {
           {phase === "yourTurn" && <p className="board-skip">Click to end turn</p>}
         </footer>
       </main>
-      {phase === "war" && attack && <WarScreen game={game} from={attack.from} to={attack.to} onEnd={endWar} />}
+      {phase === "war" && attack && (
+        <WarScreen game={game} from={attack.from} to={attack.to} onHit={refresh} onEnd={endWar} />
+      )}
     </>
   );
 }

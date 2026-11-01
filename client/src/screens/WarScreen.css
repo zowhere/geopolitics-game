@@ -11,6 +11,13 @@
   background: radial-gradient(110% 80% at 50% 45%, var(--sea-1), var(--sea-0));
 }
 
+.war-map {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  cursor: pointer;
+}
+
 .war-top {
   display: grid;
   justify-items: center;

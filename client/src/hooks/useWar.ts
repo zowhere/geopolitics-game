@@ -1,12 +1,26 @@
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { Battle } from "../game/Battle";
 import type { Game } from "../game/Game";
 import { NpcPlayer } from "../game/NpcPlayer";
 import type { Territory } from "../game/Territory";
 
-export type WarPhase = "ready" | "rolling" | "score" | "between" | "conquered" | "failed" | "retreat";
+export type WarPhase = "ready" | "rolling" | "score" | "strike" | "between" | "conquered" | "failed" | "retreat";
 
-const durations: Record<WarPhase, number> = {
+export type Salvo = {
+  pair: number;
+  attackerWins: boolean;
+  start: number;
+};
+
+export const strike = {
+  pairGap: 500,
+  missileGap: 240,
+  flight: 1700,
+  afterHit: 2000,
+  shortest: 6000,
+};
+
+const durations: Record<Exclude<WarPhase, "strike">, number> = {
   ready: 1300,
   rolling: 1700,
   score: 2600,
@@ -16,11 +30,26 @@ const durations: Record<WarPhase, number> = {
   retreat: 1600,
 };
 
-export function useWar(game: Game, from: Territory, to: Territory, onEnd: () => void) {
+function salvosFor(battle: Battle): Salvo[] {
+  return battle.attackerDice.flatMap((attacker, pair) => {
+    const defender = battle.defenderDice[pair];
+    if (attacker === defender) return [];
+    return [{ pair, attackerWins: attacker > defender, start: pair * strike.pairGap }];
+  });
+}
+
+function strikeDuration(salvos: Salvo[]) {
+  const lastStart = Math.max(...salvos.map((salvo) => salvo.start));
+  return Math.max(strike.shortest, lastStart + 2 * strike.missileGap + strike.flight + strike.afterHit);
+}
+
+export function useWar(game: Game, from: Territory, to: Territory, onHit: () => void, onEnd: () => void) {
   const npc = game.current instanceof NpcPlayer ? game.current : null;
   const [phase, setPhase] = useState<WarPhase>("ready");
   const [battle, setBattle] = useState<Battle | null>(null);
   const [battleNumber, setBattleNumber] = useState(1);
+  const [landed, setLanded] = useState(0);
+  const salvos = useMemo(() => (battle ? salvosFor(battle) : []), [battle]);
 
   function roll() {
     setBattle(Battle.roll(from, to));
@@ -31,8 +60,27 @@ export function useWar(game: Game, from: Territory, to: Territory, onEnd: () => 
     setPhase("retreat");
   }
 
+  function land(count: number) {
+    if (!battle) return;
+    for (const salvo of salvos.slice(landed, count)) game.fight(from, to, battle.pair(salvo.pair));
+    setLanded(count);
+    onHit();
+  }
+
+  function hit() {
+    land(landed + 1);
+  }
+
+  function endBattle() {
+    if (to.soldiers === 0) setPhase("conquered");
+    else if (from.soldiers < 2) setPhase("failed");
+    else if (npc && !npc.keepAttacking(from)) setPhase("retreat");
+    else nextBattle();
+  }
+
   function nextBattle() {
     setBattle(null);
+    setLanded(0);
     setBattleNumber((count) => count + 1);
     setPhase(npc ? "between" : "ready");
   }
@@ -40,14 +88,16 @@ export function useWar(game: Game, from: Territory, to: Territory, onEnd: () => 
   function advance() {
     if (phase === "ready") {
       if (npc) roll();
-    } else if (phase === "rolling" && battle) {
-      game.fight(from, to, battle);
+    } else if (phase === "rolling") {
       setPhase("score");
-    } else if (phase === "score") {
-      if (to.soldiers === 0) setPhase("conquered");
-      else if (from.soldiers < 2) setPhase("failed");
-      else if (npc && !npc.keepAttacking(from)) setPhase("retreat");
-      else nextBattle();
+    } else if (phase === "score" && salvos.length) {
+      setPhase("strike");
+    } else if (phase === "score" && battle) {
+      game.fight(from, to, battle);
+      endBattle();
+    } else if (phase === "strike") {
+      land(salvos.length);
+      endBattle();
     } else if (phase === "between") {
       setPhase("ready");
     } else {
@@ -57,12 +107,13 @@ export function useWar(game: Game, from: Territory, to: Territory, onEnd: () => 
   }
 
   const timeUp = useEffectEvent(advance);
+  const wait = phase === "strike" ? strikeDuration(salvos) : durations[phase];
 
   useEffect(() => {
     if (phase === "ready" && !npc) return;
-    const timer = setTimeout(timeUp, durations[phase]);
+    const timer = setTimeout(timeUp, wait);
     return () => clearTimeout(timer);
-  }, [phase, npc]);
+  }, [phase, npc, wait]);
 
-  return { phase, battle, battleNumber, canRoll: phase === "ready" && !npc, roll, stop, advance };
+  return { phase, battle, battleNumber, salvos, canRoll: phase === "ready" && !npc, roll, stop, hit, advance };
 }

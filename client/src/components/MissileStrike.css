@@ -1,0 +1,42 @@
+.missile-strike {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.fx-body {
+  fill: var(--cream);
+}
+
+.fx-nose {
+  fill: var(--red);
+}
+
+.fx-fin {
+  fill: var(--gold);
+}
+
+.fx-flame,
+.fx-ember {
+  fill: var(--fire);
+}
+
+.fx-flash {
+  fill: var(--cream);
+}
+
+.fx-ring {
+  fill: none;
+  stroke: var(--fire);
+}
+
+.fx-spark {
+  fill: var(--gold);
+}
+
+.fx-smoke {
+  fill: var(--smoke);
+}

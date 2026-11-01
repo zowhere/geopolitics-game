@@ -102,6 +102,14 @@
   stroke-width: 3.6;
 }
 
+.board-country.dim .island {
+  filter: grayscale(1) brightness(0.4);
+}
+
+.board-country.dim .board-label {
+  opacity: 0.3;
+}
+
 .board-footer {
   min-height: 76px;
   display: grid;
