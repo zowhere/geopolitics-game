@@ -89,7 +89,7 @@
   {"name": "Guinea-Bissau", "mapName": "Guinea-Bissau", "population": 2297808, "color": "#85694c"},
   {"name": "Guyana", "mapName": "Guyana", "population": 840890, "color": "#a65a48"},
   {"name": "Haiti", "mapName": "Haiti", "population": 12037506, "color": "#b9824d"},
-  {"name": "Holy See", "mapName": "Vatican", "population": 506, "color": "#c2a462"},
+  {"name": "Vatican City", "mapName": "Vatican", "population": 506, "color": "#c2a462"},
   {"name": "Honduras", "mapName": "Honduras", "population": 11184760, "color": "#7a9fb3"},
   {"name": "Hong Kong", "mapName": "Hong Kong", "population": 7378602, "color": "#3d6f6a"},
   {"name": "Hungary", "mapName": "Hungary", "population": 9585818, "color": "#7d7f4a"},
