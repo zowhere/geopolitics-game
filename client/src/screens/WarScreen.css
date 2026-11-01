@@ -101,14 +101,14 @@
   user-select: none;
 }
 
-.war-dice.ready .war-pair .die:first-child {
+.war-dice.ready .war-pair .die:nth-child(2) {
   animation: wobble 1.3s ease-in-out infinite;
   box-shadow: 0 3px 0 rgba(3, 12, 18, 0.78), 0 0 0 3px color-mix(in srgb, var(--gold) 45%, transparent);
 }
 
 .war-pair {
   display: grid;
-  grid-template-columns: 42px 52px 42px;
+  grid-template-columns: 22px 42px 52px 42px 22px;
   align-items: center;
   justify-items: center;
   gap: 6px;
@@ -121,12 +121,90 @@
   text-shadow: 0 2px 0 var(--sea-0);
 }
 
-.war-hint {
-  margin-top: 2px;
-  font: 600 0.7rem var(--font-label);
+.war-name .soldier-count {
+  transform: scale(1.4);
+  margin-left: 6px;
+}
+
+.war-home,
+.war-battle-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.war-battle-head {
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.war-label {
+  font: 600 0.72rem var(--font-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--muted);
+}
+
+.war-troops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px 3px;
+  max-width: 150px;
+  min-height: 27px;
+}
+
+.war-soldier {
+  width: 16px;
+  height: 27px;
+  filter: drop-shadow(0 1px 0 rgba(3, 12, 18, 0.6));
+}
+
+.war-number {
+  font: 400 2rem / 1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+  text-shadow: 0 3px 0 var(--sea-0);
+}
+
+.war-fighter {
+  width: 22px;
+  height: 36px;
+  overflow: visible;
+  filter: drop-shadow(0 1px 0 rgba(3, 12, 18, 0.6));
+}
+
+.war-x {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.war-fighter.marked {
+  filter: drop-shadow(0 0 4px var(--red));
+}
+
+.war-fighter.dying {
+  animation: fall 1s ease-in forwards;
+}
+
+.war-fighter.gone {
+  visibility: hidden;
+}
+
+.war-pair .war-fighter.returning:first-child {
+  animation: return-left 0.9s ease-in forwards;
+}
+
+.war-pair .war-fighter.returning:last-child {
+  animation: return-right 0.9s ease-in forwards;
+}
+
+.war-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 .war-bottom {
@@ -146,6 +224,31 @@
   color: var(--cream);
 }
 
+@keyframes fall {
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(85deg) translateY(8px);
+    opacity: 0;
+  }
+}
+
+@keyframes return-left {
+  to {
+    transform: translateX(-90px);
+    opacity: 0;
+  }
+}
+
+@keyframes return-right {
+  to {
+    transform: translateX(90px);
+    opacity: 0;
+  }
+}
+
 @keyframes wobble {
   50% {
     transform: rotate(-6deg) translateY(-3px);
@@ -158,8 +261,13 @@
   }
 
   .war-pair {
-    grid-template-columns: 32px 40px 32px;
+    grid-template-columns: 16px 32px 40px 32px 16px;
     gap: 4px;
+  }
+
+  .war-fighter {
+    width: 16px;
+    height: 27px;
   }
 
   .war-pair .die {

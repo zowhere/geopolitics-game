@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
 import { strike, type Salvo } from "../hooks/useWar";
 import { StrikeFx, type Point } from "../map/StrikeFx";
@@ -8,7 +8,6 @@ type MissileStrikeProps = {
   from: Territory;
   to: Territory;
   salvos: Salvo[];
-  onHit: () => void;
 };
 
 const shake = [
@@ -27,9 +26,8 @@ function centreOf(territory: Territory): Point {
   return box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : { x: 0, y: 0 };
 }
 
-function MissileStrike({ from, to, salvos, onHit }: MissileStrikeProps) {
+function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
   const svg = useRef<SVGSVGElement>(null);
-  const hit = useEffectEvent(onHit);
 
   useEffect(() => {
     if (!svg.current) return;
@@ -51,10 +49,10 @@ function MissileStrike({ from, to, salvos, onHit }: MissileStrikeProps) {
           salvo.start + missile * strike.missileGap,
         ),
       );
-      const landing = setTimeout(() => {
-        hit();
-        document.querySelector(".board-map")?.animate(shake, 600);
-      }, salvo.start + 2 * strike.missileGap + strike.flight);
+      const landing = setTimeout(
+        () => document.querySelector(".board-map")?.animate(shake, 600),
+        salvo.start + 2 * strike.missileGap + strike.flight,
+      );
       return [...missiles, landing];
     });
 

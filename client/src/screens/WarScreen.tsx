@@ -15,9 +15,11 @@ type WarScreenProps = {
   game: Game;
   from: Territory;
   to: Territory;
-  onHit: () => void;
+  onChange: () => void;
   onEnd: () => void;
 };
+
+type FighterState = "" | "marked" | "dying" | "gone" | "returning";
 
 function stampText(phase: WarPhase, game: Game) {
   if (phase === "occupied") return "Occupied";
@@ -31,11 +33,47 @@ function dieResult(attacker: number, defender: number) {
   return attacker > defender ? ["landed", "landed lost"] : ["landed lost", "landed"];
 }
 
-function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
-  const { phase, battle, battleNumber, comment, salvos, canRoll, autoMoveIn, roll, stop, hit, occupy, advance } =
-    useWar(game, from, to, onHit, onEnd);
+function fighterState(phase: WarPhase, lost: boolean): FighterState {
+  if (phase === "score") return lost ? "marked" : "";
+  if (phase === "casualties") return lost ? "dying" : "";
+  if (phase === "regroup") return lost ? "gone" : "returning";
+  return "";
+}
+
+function Fighter({ state }: { state: FighterState }) {
+  return (
+    <svg className={`war-fighter ${state}`} viewBox="0 0 12 20" aria-hidden="true">
+      <use href="#soldier" />
+      {(state === "marked" || state === "dying") && <path className="war-x" d="M1 3l10 14M11 3L1 17" />}
+    </svg>
+  );
+}
+
+function Home({ count }: { count: number }) {
+  return (
+    <div className="war-home">
+      <span className="war-label">Home</span>
+      <div className="war-troops">
+        {Array.from({ length: Math.min(count, 12) }, (_, index) => (
+          <svg key={index} className="war-soldier" viewBox="0 0 12 20" aria-hidden="true">
+            <use href="#soldier" />
+          </svg>
+        ))}
+      </div>
+      <b className="war-number">{count}</b>
+    </div>
+  );
+}
+
+function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
+  const { phase, battle, battleNumber, comment, salvos, canRoll, autoMoveIn, roll, stop, occupy, advance } =
+    useWar(game, from, to, onChange, onEnd);
   const pairs = battle ? battle.attackerDice.length : Battle.diceCount(from, to);
   const stamp = stampText(phase, game);
+  const lossesApplied = phase === "casualties" || phase === "regroup";
+  const attackerSurvivors = pairs - (lossesApplied && battle ? battle.attackerLosses : 0);
+  const defenderSurvivors = pairs - (lossesApplied && battle ? battle.defenderLosses : 0);
+  const showResult = phase === "score" || lossesApplied;
 
   if (phase === "occupation") {
     return <OccupationScreen game={game} from={from} to={to} autoMoveIn={autoMoveIn} onDone={occupy} />;
@@ -44,25 +82,22 @@ function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
   if (phase === "strike" || stamp) {
     return (
       <div className="war-map" onClick={advance}>
-        {phase === "strike" && <MissileStrike from={from} to={to} salvos={salvos} onHit={hit} />}
+        {phase === "strike" && <MissileStrike from={from} to={to} salvos={salvos} />}
         {stamp && <div className={`stamp ${phase}`}>{stamp}</div>}
       </div>
     );
   }
 
-  function side(territory: Territory) {
+  function side(territory: Territory, survivors: number) {
     const owner = game.players[territory.owner];
     return (
       <div className="war-side">
-        <Island
-          shape={countryShape(territory.country.mapName)}
-          flag={flagUrl(owner.country.code)}
-          soldiers={territory.soldiers}
-        />
+        <Island shape={countryShape(territory.country.mapName)} flag={flagUrl(owner.country.code)} />
         <h3 className="war-name">
           {territory.name}
           <SoldierCount count={territory.soldiers} />
         </h3>
+        <Home count={territory.soldiers - survivors} />
       </div>
     );
   }
@@ -81,31 +116,42 @@ function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
       </header>
 
       <div className="war-arena">
-        {side(from)}
+        {side(from, attackerSurvivors)}
         <div className={canRoll ? "war-dice ready" : "war-dice"} onClick={canRoll ? roll : undefined}>
+          <div className="war-battle-head">
+            <b className="war-number">{attackerSurvivors}</b>
+            <span className="war-label">Battle</span>
+            <b className="war-number">{defenderSurvivors}</b>
+          </div>
           {Array.from({ length: pairs }, (_, index) => {
             const attacker = battle?.attackerDice[index] ?? 0;
             const defender = battle?.defenderDice[index] ?? 0;
-            const [attackerClass, defenderClass] = phase === "score" ? dieResult(attacker, defender) : ["", ""];
+            const [attackerClass, defenderClass] = showResult ? dieResult(attacker, defender) : ["", ""];
             return (
               <div key={index} className="war-pair">
+                <Fighter state={fighterState(phase, attacker < defender)} />
                 <Die value={attacker} rolling={phase === "rolling"} className={attackerClass} />
-                <span className="war-mark">{phase === "score" && `${attacker}–${defender}`}</span>
+                <span className="war-mark">{showResult && `${attacker}–${defender}`}</span>
                 <Die value={defender} rolling={phase === "rolling"} className={defenderClass} />
+                <Fighter state={fighterState(phase, defender < attacker)} />
               </div>
             );
           })}
-          {canRoll && <span className="war-hint">Click to roll</span>}
         </div>
-        {side(to)}
+        {side(to, defenderSurvivors)}
       </div>
 
       <footer className="war-bottom">
-        <p className="war-line">{phase === "score" && comment}</p>
+        <p className="war-line">{showResult && comment}</p>
         {canRoll && (
-          <button className="btn btn-outline" type="button" onClick={stop}>
-            Stop attack
-          </button>
+          <div className="war-actions">
+            <button className="btn btn-gold" type="button" onClick={roll}>
+              {battleNumber === 1 ? "Roll" : "Roll again"}
+            </button>
+            <button className="btn btn-outline" type="button" onClick={stop}>
+              Stop attack
+            </button>
+          </div>
         )}
       </footer>
     </div>

@@ -9,6 +9,8 @@ export type WarPhase =
   | "ready"
   | "rolling"
   | "score"
+  | "casualties"
+  | "regroup"
   | "strike"
   | "between"
   | "occupied"
@@ -17,7 +19,6 @@ export type WarPhase =
   | "retreat";
 
 export type Salvo = {
-  pair: number;
   attackerWins: boolean;
   start: number;
 };
@@ -34,6 +35,8 @@ const durations: Partial<Record<WarPhase, number>> = {
   ready: 1300,
   rolling: 1700,
   score: 2600,
+  casualties: 1200,
+  regroup: 1000,
   between: 800,
   occupied: 1800,
   failed: 2200,
@@ -44,7 +47,7 @@ function salvosFor(battle: Battle): Salvo[] {
   return battle.attackerDice.flatMap((attacker, pair) => {
     const defender = battle.defenderDice[pair];
     if (attacker === defender) return [];
-    return [{ pair, attackerWins: attacker > defender, start: pair * strike.pairGap }];
+    return [{ attackerWins: attacker > defender, start: pair * strike.pairGap }];
   });
 }
 
@@ -53,12 +56,11 @@ function strikeDuration(salvos: Salvo[]) {
   return Math.max(strike.shortest, lastStart + 2 * strike.missileGap + strike.flight + strike.afterHit);
 }
 
-export function useWar(game: Game, from: Territory, to: Territory, onHit: () => void, onEnd: () => void) {
+export function useWar(game: Game, from: Territory, to: Territory, onChange: () => void, onEnd: () => void) {
   const npc = game.current instanceof NpcPlayer ? game.current : null;
   const [phase, setPhase] = useState<WarPhase>("ready");
   const [battle, setBattle] = useState<Battle | null>(null);
   const [battleNumber, setBattleNumber] = useState(1);
-  const [landed, setLanded] = useState(0);
   const [comment, setComment] = useState("");
   const salvos = useMemo(() => (battle ? salvosFor(battle) : []), [battle]);
 
@@ -76,17 +78,6 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     finish("retreat");
   }
 
-  function land(count: number) {
-    if (!battle) return;
-    for (const salvo of salvos.slice(landed, count)) game.fight(from, to, battle.pair(salvo.pair));
-    setLanded(count);
-    onHit();
-  }
-
-  function hit() {
-    land(landed + 1);
-  }
-
   function endBattle() {
     if (to.soldiers === 0) finish("occupied");
     else if (from.soldiers < 2) finish("failed");
@@ -96,7 +87,6 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
 
   function nextBattle() {
     setBattle(null);
-    setLanded(0);
     setBattleNumber((count) => count + 1);
     setPhase(npc ? "between" : "ready");
   }
@@ -107,13 +97,15 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     } else if (phase === "rolling" && battle) {
       setComment(game.commentator.battle(battle, from, to));
       setPhase("score");
-    } else if (phase === "score" && salvos.length) {
-      setPhase("strike");
     } else if (phase === "score" && battle) {
       game.fight(from, to, battle);
-      endBattle();
-    } else if (phase === "strike") {
-      land(salvos.length);
+      onChange();
+      setPhase("casualties");
+    } else if (phase === "casualties") {
+      setPhase("regroup");
+    } else if (phase === "regroup" && salvos.length) {
+      setPhase("strike");
+    } else if (phase === "regroup" || phase === "strike") {
       endBattle();
     } else if (phase === "between") {
       setPhase("ready");
@@ -148,7 +140,6 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     autoMoveIn: npc ? npc.soldiersToMoveIn(game, from, to) : null,
     roll,
     stop,
-    hit,
     occupy,
     advance,
   };

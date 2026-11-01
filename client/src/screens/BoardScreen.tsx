@@ -178,7 +178,7 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
       {(phase === "airdrop" || placing) && (
         <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
       )}
-      {war && <WarScreen game={game} from={war.from} to={war.to} onHit={refresh} onEnd={endWar} />}
+      {war && <WarScreen game={game} from={war.from} to={war.to} onChange={refresh} onEnd={endWar} />}
       {phase === "defeated" && (
         <EndScreen headline="Defeated" tone="lose" player={current} onNewGame={onNewGame} onWatch={watch} />
       )}
