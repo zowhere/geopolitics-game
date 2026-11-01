@@ -1,9 +1,9 @@
 import { countries, type Country } from "./countries";
 
 export type Player = {
-  country: Country;
-  soldiers: number;
-  human: boolean;
+  readonly country: Country;
+  readonly soldiers: number;
+  readonly human: boolean;
 };
 
 function shuffle<T>(items: T[]): T[] {
@@ -16,9 +16,9 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export class Game {
-  readonly players: Player[];
-  round = 1;
-  turn = 0;
+  readonly players: readonly Player[];
+  private roundNumber = 1;
+  private turnIndex = 0;
 
   constructor(humanCountry: string) {
     const human = countries.find((country) => country.name === humanCountry)!;
@@ -30,7 +30,11 @@ export class Game {
     }));
   }
 
+  get round() {
+    return this.roundNumber;
+  }
+
   get current() {
-    return this.players[this.turn];
+    return this.players[this.turnIndex];
   }
 }
