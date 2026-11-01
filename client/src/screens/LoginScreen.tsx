@@ -5,6 +5,10 @@ import "./LoginScreen.css";
 
 type Mode = "login" | "signup";
 
+type LoginScreenProps = {
+  onLogin: (username: string) => void;
+};
+
 const drifters = [
   { name: "South Africa", color: "#c4553f", left: "0%", top: "6%" },
   {
@@ -25,7 +29,7 @@ function validate(username: string, password: string) {
   return "";
 }
 
-function LoginScreen() {
+function LoginScreen({ onLogin }: LoginScreenProps) {
   const [mode, setMode] = useState<Mode>("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +42,10 @@ function LoginScreen() {
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    setError(validate(username.trim(), password));
+    const name = username.trim();
+    const problem = validate(name, password);
+    setError(problem);
+    if (!problem) onLogin(name);
   }
 
   return (
