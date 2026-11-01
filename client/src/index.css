@@ -53,6 +53,12 @@ body {
   filter: brightness(1.07);
 }
 
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-gold {
   background: var(--gold);
 }

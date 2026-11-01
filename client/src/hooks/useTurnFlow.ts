@@ -12,6 +12,7 @@ export type Phase =
   | "afterHold"
   | "war"
   | "afterWar"
+  | "airdrop"
   | "yourTurn";
 
 const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
@@ -23,6 +24,7 @@ const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
   skipStamp: 1000,
   afterHold: 3000,
   afterWar: 3500,
+  airdrop: 3200,
 };
 
 export function useTurnFlow(game: Game) {
@@ -44,13 +46,15 @@ export function useTurnFlow(game: Game) {
     if (phase === "announce") {
       const next = game.current.takeTurn(game);
       setPlan(next);
-      return setPhase(next ? "thinking" : "yourTurn");
+      if (next) return setPhase("thinking");
+      return setPhase(game.reserve > 0 ? "airdrop" : "yourTurn");
     }
     if (phase === "thinking") return setPhase(plan?.deployed ? "deploy" : "decision");
     if (phase === "deploy") return setPhase("decision");
     if (phase === "decision") return setPhase(plan?.attack.kind === "attack" ? "war" : "skipStamp");
     if (phase === "skipStamp") return setPhase("afterHold");
-    if (phase === "war") return;
+    if (phase === "airdrop") return setPhase("yourTurn");
+    if (phase === "war" || phase === "yourTurn") return;
     endTurn();
   }
 
@@ -62,5 +66,5 @@ export function useTurnFlow(game: Game) {
     return () => clearTimeout(timer);
   }, [phase]);
 
-  return { phase, plan, advance, endWar };
+  return { phase, plan, advance, endWar, endTurn };
 }

@@ -1,8 +1,10 @@
 import { useReducer } from "react";
 import Island from "../components/Island";
+import ReserveBox from "../components/ReserveBox";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
 import type { TurnPlan } from "../game/Player";
+import type { Territory } from "../game/Territory";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
@@ -39,12 +41,24 @@ function captionFor(phase: Phase, plan: TurnPlan | null) {
 }
 
 function BoardScreen({ game }: BoardScreenProps) {
-  const { phase, plan, advance, endWar } = useTurnFlow(game);
+  const { phase, plan, advance, endWar, endTurn } = useTurnFlow(game);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
+  const placing = phase === "yourTurn" && game.reserve > 0;
   const current = game.current;
   const attack = plan?.attack.kind === "attack" ? plan.attack : null;
   const attackFrom = phase === "decision" ? attack?.from : null;
   const caption = captionFor(phase, plan);
+
+  function place(territory: Territory) {
+    if (!placing || territory.owner !== game.currentIndex) return;
+    game.placeReinforcements(territory, 1);
+    refresh();
+  }
+
+  function placeOn(territoryName: string) {
+    const territory = game.territories.find((candidate) => candidate.name === territoryName);
+    if (territory) place(territory);
+  }
 
   return (
     <>
@@ -72,8 +86,14 @@ function BoardScreen({ game }: BoardScreenProps) {
             if (owner.human) classes.push("you");
             if (territory === attackFrom) classes.push("attacking");
             if (phase === "war" && territory !== attack?.from && territory !== attack?.to) classes.push("dim");
+            if (placing && territory.owner === game.currentIndex) classes.push("droppable");
             return (
-              <div key={territory.name} className={classes.join(" ")} data-territory={territory.name}>
+              <div
+                key={territory.name}
+                className={classes.join(" ")}
+                data-territory={territory.name}
+                onClick={() => place(territory)}
+              >
                 <Island
                   shape={countryShape(territory.country.mapName)}
                   flag={flagUrl(owner.country.code)}
@@ -102,9 +122,16 @@ function BoardScreen({ game }: BoardScreenProps) {
               <span>{caption.reason}</span>
             </p>
           )}
-          {phase === "yourTurn" && <p className="board-skip">Click to end turn</p>}
+          {phase === "yourTurn" && (
+            <button className="btn btn-gold board-end" type="button" disabled={placing} onClick={endTurn}>
+              End turn
+            </button>
+          )}
         </footer>
       </main>
+      {(phase === "airdrop" || placing) && (
+        <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
+      )}
       {phase === "war" && attack && (
         <WarScreen game={game} from={attack.from} to={attack.to} onHit={refresh} onEnd={endWar} />
       )}

@@ -110,6 +110,15 @@
   opacity: 0.3;
 }
 
+.board-country.droppable {
+  cursor: pointer;
+}
+
+.board-country.droppable .island-coast {
+  stroke: var(--gold);
+  animation: pulse 1.3s ease-in-out infinite;
+}
+
 .board-footer {
   min-height: 76px;
   display: grid;
@@ -148,12 +157,10 @@
   }
 }
 
-.board-skip {
-  margin: 0;
-  font: 600 0.72rem var(--font-label);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+.board-end {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
 }
 
 @media (max-width: 640px) {
@@ -163,5 +170,11 @@
 
   .board-country:nth-child(even) {
     margin-top: 24px;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    stroke-width: 3;
   }
 }
