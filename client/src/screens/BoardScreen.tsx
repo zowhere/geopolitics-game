@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
 import SoldierCount from "../components/SoldierCount";
@@ -40,24 +40,42 @@ function captionFor(phase: Phase, plan: TurnPlan | null) {
   return null;
 }
 
+function strongest(territories: Territory[]) {
+  return territories.reduce<Territory | null>(
+    (best, territory) => (!best || territory.soldiers > best.soldiers ? territory : best),
+    null,
+  );
+}
+
 function BoardScreen({ game }: BoardScreenProps) {
-  const { phase, plan, advance, endWar, endTurn } = useTurnFlow(game);
+  const { phase, plan, war, advance, startWar, endWar, endTurn } = useTurnFlow(game);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
+  const [chosen, setChosen] = useState<Territory | null>(null);
   const placing = phase === "yourTurn" && game.reserve > 0;
   const current = game.current;
-  const attack = plan?.attack.kind === "attack" ? plan.attack : null;
-  const attackFrom = phase === "decision" ? attack?.from : null;
+  const npcAttack = phase === "decision" && plan?.attack.kind === "attack" ? plan.attack.from : null;
   const caption = captionFor(phase, plan);
 
+  const armies = phase === "yourTurn" ? game.territoriesOf(game.currentIndex).filter((territory) => territory.soldiers >= 2) : [];
+  const source = chosen && armies.includes(chosen) ? chosen : strongest(armies);
+  const targets = source ? game.territories.filter((territory) => game.canAttack(source, territory)) : [];
+  const attacker = targets.length ? source : npcAttack;
+
   function place(territory: Territory) {
-    if (!placing || territory.owner !== game.currentIndex) return;
+    if (territory.owner !== game.currentIndex) return;
     game.placeReinforcements(territory, 1);
     refresh();
   }
 
+  function choose(territory: Territory) {
+    if (placing) place(territory);
+    else if (source && targets.includes(territory)) startWar(source, territory);
+    else if (armies.includes(territory)) setChosen(territory);
+  }
+
   function placeOn(territoryName: string) {
     const territory = game.territories.find((candidate) => candidate.name === territoryName);
-    if (territory) place(territory);
+    if (territory && placing) place(territory);
   }
 
   return (
@@ -84,15 +102,16 @@ function BoardScreen({ game }: BoardScreenProps) {
             const owner = game.players[territory.owner];
             const classes = ["board-country"];
             if (owner.human) classes.push("you");
-            if (territory === attackFrom) classes.push("attacking");
-            if (phase === "war" && territory !== attack?.from && territory !== attack?.to) classes.push("dim");
+            if (territory === attacker) classes.push("attacking");
+            if (targets.includes(territory)) classes.push("target");
+            if (war && territory !== war.from && territory !== war.to) classes.push("dim");
             if (placing && territory.owner === game.currentIndex) classes.push("droppable");
             return (
               <div
                 key={territory.name}
                 className={classes.join(" ")}
                 data-territory={territory.name}
-                onClick={() => place(territory)}
+                onClick={() => choose(territory)}
               >
                 <Island
                   shape={countryShape(territory.country.mapName)}
@@ -132,9 +151,7 @@ function BoardScreen({ game }: BoardScreenProps) {
       {(phase === "airdrop" || placing) && (
         <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
       )}
-      {phase === "war" && attack && (
-        <WarScreen game={game} from={attack.from} to={attack.to} onHit={refresh} onEnd={endWar} />
-      )}
+      {war && <WarScreen game={game} from={war.from} to={war.to} onHit={refresh} onEnd={endWar} />}
     </>
   );
 }

@@ -18,6 +18,7 @@ export class Game {
   private turnIndex = 0;
   private reserveCount = 0;
   private war: War | null = null;
+  private warOver = false;
 
   constructor(humanCountry: string) {
     const human = countries.find((country) => country.name === humanCountry)!;
@@ -78,6 +79,7 @@ export class Game {
     const sameWar = !this.war || (this.war.from === from && this.war.to === to);
     return (
       sameWar &&
+      !this.warOver &&
       this.reserveCount === 0 &&
       from.owner === this.turnIndex &&
       to.owner !== this.turnIndex &&
@@ -104,8 +106,13 @@ export class Game {
     return bonus;
   }
 
+  endWar() {
+    this.warOver = true;
+  }
+
   nextTurn() {
     this.war = null;
+    this.warOver = false;
     do {
       this.turnIndex = (this.turnIndex + 1) % this.players.length;
       if (this.turnIndex === 0) this.roundNumber++;

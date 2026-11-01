@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState } from "react";
 import type { Game } from "../game/Game";
 import type { TurnPlan } from "../game/Player";
+import type { Territory } from "../game/Territory";
 
 export type Phase =
   | "start"
@@ -14,6 +15,11 @@ export type Phase =
   | "afterWar"
   | "airdrop"
   | "yourTurn";
+
+type War = {
+  from: Territory;
+  to: Territory;
+};
 
 const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
   start: 1000,
@@ -30,6 +36,7 @@ const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
 export function useTurnFlow(game: Game) {
   const [phase, setPhase] = useState<Phase>("start");
   const [plan, setPlan] = useState<TurnPlan | null>(null);
+  const [war, setWar] = useState<War | null>(null);
 
   function endTurn() {
     game.nextTurn();
@@ -37,8 +44,15 @@ export function useTurnFlow(game: Game) {
     setPhase("announce");
   }
 
+  function startWar(from: Territory, to: Territory) {
+    setWar({ from, to });
+    setPhase("war");
+  }
+
   function endWar() {
-    setPhase("afterWar");
+    game.endWar();
+    setWar(null);
+    setPhase(game.current.human ? "yourTurn" : "afterWar");
   }
 
   function advance() {
@@ -51,7 +65,8 @@ export function useTurnFlow(game: Game) {
     }
     if (phase === "thinking") return setPhase(plan?.deployed ? "deploy" : "decision");
     if (phase === "deploy") return setPhase("decision");
-    if (phase === "decision") return setPhase(plan?.attack.kind === "attack" ? "war" : "skipStamp");
+    if (phase === "decision" && plan?.attack.kind === "attack") return startWar(plan.attack.from, plan.attack.to);
+    if (phase === "decision") return setPhase("skipStamp");
     if (phase === "skipStamp") return setPhase("afterHold");
     if (phase === "airdrop") return setPhase("yourTurn");
     if (phase === "war" || phase === "yourTurn") return;
@@ -66,5 +81,5 @@ export function useTurnFlow(game: Game) {
     return () => clearTimeout(timer);
   }, [phase]);
 
-  return { phase, plan, advance, endWar, endTurn };
+  return { phase, plan, war, advance, startWar, endWar, endTurn };
 }

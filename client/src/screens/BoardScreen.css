@@ -119,6 +119,15 @@
   animation: pulse 1.3s ease-in-out infinite;
 }
 
+.board-country.target {
+  cursor: crosshair;
+}
+
+.board-country.target .island-coast {
+  stroke: var(--red);
+  animation: pulse 1s ease-in-out infinite;
+}
+
 .board-footer {
   min-height: 76px;
   display: grid;
