@@ -1,10 +1,5 @@
 import { PriorityQueue } from "./PriorityQueue";
-
-export type Territory = {
-  name: string;
-  owner: number;
-  soldiers: number;
-};
+import type { Territory } from "./Territory";
 
 export type Reinforcement = {
   to: Territory;

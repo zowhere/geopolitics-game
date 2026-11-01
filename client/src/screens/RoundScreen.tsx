@@ -29,7 +29,7 @@ function RoundScreen({ game, onStart }: RoundScreenProps) {
             />
             <span className="round-name">
               {player.country.name}
-              <SoldierCount count={player.soldiers} />
+              <SoldierCount count={game.territories[index].soldiers} />
             </span>
             {player.human && <span className="round-you">You</span>}
           </li>

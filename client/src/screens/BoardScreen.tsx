@@ -50,22 +50,23 @@ function BoardScreen({ game }: BoardScreenProps) {
       </header>
 
       <div className="board-map">
-        {game.players.map((player, index) => {
+        {game.territories.map((territory, index) => {
           const [x, y, tilt] = scatter[index];
+          const owner = game.players[territory.owner];
           return (
             <div
-              key={player.country.name}
-              className={player.human ? "board-country you" : "board-country"}
+              key={territory.name}
+              className={owner.human ? "board-country you" : "board-country"}
             >
               <Island
-                shape={countryShape(player.country.mapName)}
-                flag={flagUrl(player.country.code)}
-                soldiers={player.soldiers}
+                shape={countryShape(territory.country.mapName)}
+                flag={flagUrl(owner.country.code)}
+                soldiers={territory.soldiers}
                 style={{ transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)` }}
               />
               <span className="board-label">
-                {player.country.name}
-                <SoldierCount count={player.soldiers} />
+                {territory.name}
+                <SoldierCount count={territory.soldiers} />
               </span>
             </div>
           );
