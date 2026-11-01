@@ -32,53 +32,6 @@ body {
   background: radial-gradient(130% 100% at 50% 0%, var(--sea-2), var(--sea-1) 45%, var(--sea-0)) fixed var(--sea-0);
 }
 
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  inset: -24px;
-  z-index: -1;
-  pointer-events: none;
-}
-
-body::before {
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='64'%3E%3Cpath d='M0 40 Q32 30 65 40 T130 40 T195 40 T260 40' fill='none' stroke='rgba(159,208,224,0.16)' stroke-width='1.6'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='120'%3E%3Cpath d='M0 70 C70 56 140 84 210 70 S350 56 420 70' fill='none' stroke='rgba(159,208,224,0.1)' stroke-width='2.6'/%3E%3C/svg%3E");
-  animation:
-    current 32s linear infinite,
-    swell 5s ease-in-out infinite alternate;
-}
-
-body::after {
-  background:
-    radial-gradient(40% 30% at 30% 22%, rgba(159, 208, 224, 0.13), transparent 70%),
-    radial-gradient(34% 26% at 74% 64%, rgba(159, 208, 224, 0.1), transparent 70%);
-  animation: shimmer 16s ease-in-out infinite alternate;
-}
-
-@keyframes current {
-  to {
-    background-position: 520px 0, -420px 0;
-  }
-}
-
-@keyframes swell {
-  to {
-    transform: translateY(18px);
-  }
-}
-
-@keyframes shimmer {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
-    transform: translate(-3%, 2%) scale(1.06);
-  }
-}
-
 .btn {
   appearance: none;
   border: 0;
@@ -131,11 +84,4 @@ body::after {
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body::before,
-  body::after {
-    animation: none;
-  }
 }

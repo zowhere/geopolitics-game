@@ -1,0 +1,236 @@
+.choose-screen {
+  min-height: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 16px 110px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.choose-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.choose-title {
+  margin: 0;
+  font: 400 1.5rem / 1.1 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.choose-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.country-picker {
+  flex: 0 1 300px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid var(--line);
+}
+
+.country-picker:focus-within {
+  border-color: var(--gold);
+}
+
+.country-picker-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55em 0;
+  font: 500 1.1rem var(--font-body);
+  color: var(--cream);
+  background: transparent;
+  border: 0;
+}
+
+.country-picker-input:focus {
+  outline: none;
+}
+
+.country-picker-input::placeholder {
+  color: var(--muted);
+}
+
+.country-picker-toggle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.country-picker-toggle svg {
+  width: 14px;
+  height: 9px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.country-options {
+  z-index: 10;
+  width: var(--input-width);
+  max-height: 300px;
+  margin-top: 6px;
+  padding: 6px 0;
+  overflow-y: auto;
+  background: var(--sea-0);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px rgba(3, 12, 18, 0.6);
+}
+
+.country-option {
+  padding: 8px 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.country-option[data-focus] {
+  background: var(--sea-1);
+  color: var(--cream);
+}
+
+.country-option[data-selected] {
+  color: var(--gold);
+}
+
+.country-options-empty {
+  margin: 0;
+  padding: 8px 14px;
+  color: var(--muted);
+}
+
+.choose-ranges {
+  display: flex;
+  gap: 6px;
+}
+
+.choose-ranges button {
+  padding: 4px 6px;
+  font: 600 0.95rem var(--font-label);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.choose-ranges button[aria-pressed='true'] {
+  color: var(--cream);
+  border-color: var(--gold);
+}
+
+.choose-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px 12px;
+}
+
+.choose-country {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 6px;
+  color: inherit;
+  font: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.choose-country svg {
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 4 / 3;
+  overflow: visible;
+  transition: transform 0.2s ease;
+}
+
+.choose-country:hover svg {
+  transform: translateY(-4px);
+}
+
+.choose-country.selected .island-coast {
+  stroke: var(--gold);
+  stroke-width: 3;
+}
+
+.choose-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 0.8rem / 1.05 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-shadow: 0 2px 0 var(--sea-0);
+}
+
+.choose-country.selected .choose-label {
+  color: var(--gold);
+}
+
+.choose-population {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  padding: 4px 8px;
+  font: 600 0.78rem var(--font-label);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--sea-0);
+  background: var(--cream);
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.choose-country:hover .choose-population,
+.choose-country:focus-visible .choose-population {
+  opacity: 1;
+  transform: translate(-50%, -6px);
+}
+
+.choose-more {
+  grid-column: 1 / -1;
+  justify-self: center;
+  font: 400 2.4rem / 1 var(--font-display);
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.choose-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px 18px;
+  background: linear-gradient(transparent, var(--sea-0) 40%);
+}
+
+.choose-bar-name {
+  font: 400 1.2rem var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}

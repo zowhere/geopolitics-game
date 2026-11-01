@@ -2,7 +2,7 @@ import { geoArea, geoAzimuthalEqualArea, geoCentroid, geoDistance, geoPath } fro
 import { feature } from 'topojson-client'
 import type { Feature, Geometry, Polygon } from 'geojson'
 import type { GeometryCollection, Topology } from 'topojson-specification'
-import world from 'world-atlas/countries-110m.json'
+import world from 'world-atlas/countries-50m.json'
 
 type CountryProperties = { name: string }
 type Country = Feature<Geometry, CountryProperties>
@@ -10,7 +10,9 @@ type Country = Feature<Geometry, CountryProperties>
 const topology = world as unknown as Topology<{ countries: GeometryCollection<CountryProperties> }>
 const countries = feature(topology, topology.objects.countries).features
 
-const mainlandOnly = ['United States of America']
+const mainlandOnly = ['United States of America', 'France', 'Norway', 'Netherlands', 'Spain', 'Portugal']
+const roundIsland = 'M70 75a30 30 0 1 0 60 0a30 30 0 1 0 -60 0z'
+const paths = new Map<string, string>()
 
 function mainland(country: Country): Country {
   if (country.geometry.type !== 'MultiPolygon') return country
@@ -23,13 +25,18 @@ function mainland(country: Country): Country {
   return { ...country, geometry: { type: 'MultiPolygon', coordinates: nearby.map(part => part.coordinates) } }
 }
 
-export function countryPath(name: string): string {
+function drawCountry(name: string): string {
   const found = countries.find(country => country.properties.name === name)
-  if (!found) throw new Error(`No map shape for ${name}`)
+  if (!found) return roundIsland
   const shape = mainlandOnly.includes(name) ? mainland(found) : found
   const [longitude, latitude] = geoCentroid(shape)
   const projection = geoAzimuthalEqualArea()
     .rotate([-longitude, -latitude])
     .fitExtent([[12, 12], [188, 138]], shape)
-  return geoPath(projection)(shape) ?? ''
+  return geoPath(projection)(shape) ?? roundIsland
+}
+
+export function countryPath(name: string): string {
+  if (!paths.has(name)) paths.set(name, drawCountry(name))
+  return paths.get(name)!
 }

@@ -1,3 +1,8 @@
+.island {
+  overflow: visible;
+  filter: drop-shadow(0 8px 6px rgba(3, 12, 18, 0.45));
+}
+
 .island-halo {
   fill: var(--foam);
   fill-opacity: 0.12;
