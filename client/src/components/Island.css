@@ -1,0 +1,21 @@
+.island-halo {
+  fill: var(--foam);
+  fill-opacity: 0.12;
+  stroke: var(--foam);
+  stroke-opacity: 0.26;
+  stroke-width: 9;
+  stroke-linejoin: round;
+  filter: url(#island-blur);
+}
+
+.island-land {
+  filter: url(#island-texture);
+}
+
+.island-coast {
+  fill: none;
+  stroke: var(--cream);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}

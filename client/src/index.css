@@ -1,3 +1,102 @@
+:root {
+  --sea-0: #0b2232;
+  --sea-1: #133a52;
+  --sea-2: #1f5574;
+  --foam: #9fd0e0;
+  --cream: #f1e6c8;
+  --gold: #e3b04b;
+  --text: #e8eef2;
+  --muted: #8ea7b9;
+  --line: #2b4b62;
+  --red: #d65a48;
+  --font-display: 'Saira Stencil One', 'Arial Narrow', Impact, sans-serif;
+  --font-label: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  color: var(--text);
+  font: 15px / 1.45 var(--font-body);
+  background: radial-gradient(130% 100% at 50% 0%, var(--sea-2), var(--sea-1) 45%, var(--sea-0)) fixed var(--sea-0);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='64'%3E%3Cpath d='M0 40 Q32 30 65 40 T130 40 T195 40 T260 40' fill='none' stroke='rgba(159,208,224,0.08)' stroke-width='1.4'/%3E%3C/svg%3E");
+  animation: drift 90s linear infinite;
+}
+
+@keyframes drift {
+  to {
+    background-position: 520px 0;
+  }
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  padding: 0.85em 1.4em 0.8em;
+  font: 400 1rem / 1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sea-0);
+  background: var(--cream);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+}
+
+.btn-gold {
+  background: var(--gold);
+}
+
+.line-input {
+  width: 100%;
+  padding: 0.55em 0;
+  font: 500 1.1rem var(--font-body);
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--line);
+  border-radius: 0;
+}
+
+.line-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.line-input::placeholder {
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
 }

@@ -1,0 +1,94 @@
+.login-screen {
+  position: relative;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.login-drifters {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.login-drifter {
+  position: absolute;
+  width: min(30vw, 240px);
+  opacity: 0.55;
+  animation: bob 7s ease-in-out infinite;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+.login-panel {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  display: grid;
+  gap: 22px;
+  text-align: center;
+}
+
+.login-logo {
+  margin: 0;
+  font: 400 clamp(2.6rem, 9vw, 4.4rem) / 0.95 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--cream);
+  text-shadow: 0 4px 0 var(--sea-0);
+}
+
+.login-logo em {
+  font-style: normal;
+  color: var(--gold);
+}
+
+.login-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.login-tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 4px 2px;
+  font: 600 1rem var(--font-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.login-tabs button[aria-selected='true'] {
+  color: var(--cream);
+  border-color: var(--gold);
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.login-form .btn {
+  justify-self: center;
+  margin-top: 10px;
+}
+
+.login-error {
+  margin: 0;
+  color: var(--red);
+  font-size: 0.88rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-drifter {
+    animation: none;
+  }
+}
