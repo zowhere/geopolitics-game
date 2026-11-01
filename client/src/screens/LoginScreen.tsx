@@ -43,6 +43,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
   function submit(event: FormEvent) {
     event.preventDefault();
     const name = username.trim();
+    if (!name && !password) return onLogin("guest");
     const problem = validate(name, password);
     setError(problem);
     if (!problem) onLogin(name);
