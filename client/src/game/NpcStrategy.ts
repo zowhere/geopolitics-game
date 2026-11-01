@@ -1,4 +1,4 @@
-import { PriorityQueue } from "./PriorityQueue";
+import { PriorityQueue } from "../utils/PriorityQueue";
 import type { Territory } from "./Territory";
 
 export type Reinforcement = {
