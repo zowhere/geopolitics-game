@@ -118,6 +118,9 @@
 }
 
 .choose-ranges button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 6px;
   font: 600 0.95rem var(--font-label);
   letter-spacing: 0.06em;
@@ -126,6 +129,11 @@
   border: 0;
   border-bottom: 2px solid transparent;
   cursor: pointer;
+}
+
+.choose-range-helmet {
+  width: 17px;
+  height: 12px;
 }
 
 .choose-ranges button[aria-pressed='true'] {

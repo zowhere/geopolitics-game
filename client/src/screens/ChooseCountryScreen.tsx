@@ -6,6 +6,7 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/react";
+import Helmet from "../components/Helmet";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import { countries } from "../game/countries";
@@ -124,6 +125,9 @@ function ChooseCountryScreen({ onBack }: ChooseCountryScreenProps) {
               aria-pressed={option === range}
               onClick={() => setRange(option)}
             >
+              {option !== soldierRanges[0] && (
+                <Helmet className="choose-range-helmet" />
+              )}
               {option.label}
             </button>
           ))}

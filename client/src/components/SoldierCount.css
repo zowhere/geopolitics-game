@@ -15,14 +15,6 @@
   filter: drop-shadow(0 1px 0 var(--sea-0));
 }
 
-.soldier-count-helmet {
-  fill: #6b7240;
-}
-
-.soldier-count-brim {
-  fill: #565c33;
-}
-
 .soldier-count b {
   position: relative;
   margin-top: -3px;
