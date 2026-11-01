@@ -8,6 +8,7 @@
 }
 
 .board-hud {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -51,6 +52,66 @@
 .board-turn.now {
   transform: translateY(5px) scale(1.25);
   box-shadow: 0 0 0 2px var(--sea-0), 0 0 0 4px var(--gold);
+}
+
+.board-log-button {
+  padding: 4px 2px;
+  font: 600 0.78rem var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.board-log-button[aria-expanded="true"] {
+  color: var(--cream);
+  border-color: var(--gold);
+}
+
+.board-log {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  width: min(380px, 100%);
+  max-height: 55vh;
+  margin: 0;
+  padding: 10px 14px;
+  overflow: auto;
+  list-style: none;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+  cursor: default;
+  background: var(--sea-0);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px rgba(3, 12, 18, 0.78);
+}
+
+.board-log li + li {
+  margin-top: 4px;
+}
+
+.board-log b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.board-log em {
+  display: block;
+  font-style: normal;
+  color: color-mix(in srgb, var(--gold) 75%, var(--muted));
+}
+
+.board-log .heading {
+  margin-top: 10px;
+  font: 600 0.72rem var(--font-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
 }
 
 .board-map {

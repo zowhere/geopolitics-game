@@ -1,4 +1,5 @@
 import { Battle } from "./Battle";
+import { Commentator } from "./Commentator";
 import { countries } from "./countries";
 import { HumanPlayer } from "./HumanPlayer";
 import { NpcPlayer } from "./NpcPlayer";
@@ -14,6 +15,7 @@ type War = {
 export class Game {
   readonly players: readonly Player[];
   readonly territories: readonly Territory[];
+  readonly commentator = new Commentator();
   private roundNumber = 1;
   private turnIndex = 0;
   private reserveCount = 0;
@@ -27,6 +29,7 @@ export class Game {
       country === human ? new HumanPlayer(country) : new NpcPlayer(country),
     );
     this.territories = this.players.map((player, index) => new Territory(player.country, index));
+    this.commentator.round(1);
   }
 
   get round() {
@@ -58,7 +61,7 @@ export class Game {
     return this.territoriesOf(player).length === 0;
   }
 
-  conquestBonus(territory: Territory) {
+  occupationBonus(territory: Territory) {
     return Math.max(2, Math.floor(territory.value / 2));
   }
 
@@ -96,10 +99,10 @@ export class Game {
     return battle;
   }
 
-  conquer(soldiersMovingIn: number) {
-    if (!this.war || this.war.to.soldiers > 0) throw new Error("There is no country to conquer");
+  occupy(soldiersMovingIn: number) {
+    if (!this.war || this.war.to.soldiers > 0) throw new Error("There is no country to occupy");
     const { from, to } = this.war;
-    const bonus = this.conquestBonus(to);
+    const bonus = this.occupationBonus(to);
     from.addSoldiers(bonus);
     to.takeOver(this.turnIndex);
     from.moveSoldiersTo(to, soldiersMovingIn);
@@ -115,7 +118,7 @@ export class Game {
     this.warOver = false;
     do {
       this.turnIndex = (this.turnIndex + 1) % this.players.length;
-      if (this.turnIndex === 0) this.roundNumber++;
+      if (this.turnIndex === 0) this.commentator.round(++this.roundNumber);
     } while (this.isEliminated(this.turnIndex) && !this.winner);
     this.reserveCount = this.roundNumber >= 2 ? this.territoriesOf(this.turnIndex).length * 2 : 0;
   }

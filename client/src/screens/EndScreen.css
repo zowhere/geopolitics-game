@@ -1,0 +1,41 @@
+.end-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  padding: 16px;
+  text-align: center;
+  background: radial-gradient(110% 80% at 50% 45%, var(--sea-1), var(--sea-0));
+}
+
+.end-headline {
+  margin: 0;
+  font: 400 clamp(2.4rem, 8vw, 4.6rem) / 1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 5px 0 var(--sea-0);
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.end-headline.win {
+  color: var(--gold);
+}
+
+.end-headline.lose {
+  color: var(--red);
+}
+
+.end-screen .island {
+  width: min(70vw, 320px);
+  aspect-ratio: 4 / 3;
+}
+
+.end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}

@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useState } from "react";
 import type { Game } from "../game/Game";
-import type { TurnPlan } from "../game/Player";
+import type { Player, TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
 
 export type Phase =
@@ -12,16 +12,20 @@ export type Phase =
   | "skipStamp"
   | "afterHold"
   | "war"
+  | "eliminated"
   | "afterWar"
   | "airdrop"
-  | "yourTurn";
+  | "yourTurn"
+  | "defeated"
+  | "gameOver";
 
 type War = {
   from: Territory;
   to: Territory;
+  defender: number;
 };
 
-const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
+const durations: Partial<Record<Phase, number>> = {
   start: 1000,
   announce: 3000,
   thinking: 700,
@@ -29,6 +33,7 @@ const durations: Record<Exclude<Phase, "war" | "yourTurn">, number> = {
   decision: 4000,
   skipStamp: 1000,
   afterHold: 3000,
+  eliminated: 1300,
   afterWar: 3500,
   airdrop: 3200,
 };
@@ -37,6 +42,7 @@ export function useTurnFlow(game: Game) {
   const [phase, setPhase] = useState<Phase>("start");
   const [plan, setPlan] = useState<TurnPlan | null>(null);
   const [war, setWar] = useState<War | null>(null);
+  const [out, setOut] = useState<Player | null>(null);
 
   function endTurn() {
     game.nextTurn();
@@ -45,17 +51,42 @@ export function useTurnFlow(game: Game) {
   }
 
   function startWar(from: Territory, to: Territory) {
-    setWar({ from, to });
+    if (game.current.human) game.commentator.invading(game.current, to);
+    setWar({ from, to, defender: to.owner });
     setPhase("war");
   }
 
   function endWar() {
     game.endWar();
+    const loser = war && game.isEliminated(war.defender) ? game.players[war.defender] : null;
     setWar(null);
-    setPhase(game.current.human ? "yourTurn" : "afterWar");
+    setOut(loser);
+    if (loser) {
+      game.commentator.eliminated(loser);
+      setPhase("eliminated");
+    } else {
+      carryOn();
+    }
+  }
+
+  function carryOn() {
+    if (game.winner) setPhase("gameOver");
+    else setPhase(game.current.human ? "yourTurn" : "afterWar");
+  }
+
+  function watch() {
+    setPhase("afterWar");
+  }
+
+  function decide(next: TurnPlan) {
+    const { attack } = next;
+    if (attack.kind === "attack") game.commentator.invading(game.current, attack.to, attack.reason);
+    else game.commentator.holding(game.current, attack.reason);
+    setPhase("decision");
   }
 
   function advance() {
+    if (durations[phase] === undefined) return;
     if (phase === "start") return setPhase("announce");
     if (phase === "announce") {
       const next = game.current.takeTurn(game);
@@ -63,23 +94,28 @@ export function useTurnFlow(game: Game) {
       if (next) return setPhase("thinking");
       return setPhase(game.reserve > 0 ? "airdrop" : "yourTurn");
     }
-    if (phase === "thinking") return setPhase(plan?.deployed ? "deploy" : "decision");
-    if (phase === "deploy") return setPhase("decision");
+    if (phase === "thinking" && plan?.deployed) {
+      game.commentator.deployed(game.current, plan.deployed);
+      return setPhase("deploy");
+    }
+    if ((phase === "thinking" || phase === "deploy") && plan) return decide(plan);
     if (phase === "decision" && plan?.attack.kind === "attack") return startWar(plan.attack.from, plan.attack.to);
     if (phase === "decision") return setPhase("skipStamp");
     if (phase === "skipStamp") return setPhase("afterHold");
     if (phase === "airdrop") return setPhase("yourTurn");
-    if (phase === "war" || phase === "yourTurn") return;
+    if (phase === "eliminated" && out?.human && !game.winner) return setPhase("defeated");
+    if (phase === "eliminated") return carryOn();
     endTurn();
   }
 
   const timeUp = useEffectEvent(advance);
 
   useEffect(() => {
-    if (phase === "war" || phase === "yourTurn") return;
-    const timer = setTimeout(timeUp, durations[phase]);
+    const wait = durations[phase];
+    if (wait === undefined) return;
+    const timer = setTimeout(timeUp, wait);
     return () => clearTimeout(timer);
   }, [phase]);
 
-  return { phase, plan, war, advance, startWar, endWar, endTurn };
+  return { phase, plan, war, out, advance, startWar, endWar, endTurn, watch };
 }

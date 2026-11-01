@@ -22,6 +22,6 @@ export class NpcPlayer extends Player {
   }
 
   soldiersToMoveIn(game: Game, from: Territory, to: Territory) {
-    return strategy.soldiersToMoveIn(from.soldiers + game.conquestBonus(to));
+    return strategy.soldiersToMoveIn(from.soldiers + game.occupationBonus(to));
   }
 }

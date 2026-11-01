@@ -18,20 +18,8 @@ type WarScreenProps = {
   onEnd: () => void;
 };
 
-function battleLine(battle: Battle, attacker: string, defender: string) {
-  const won = battle.defenderLosses;
-  const lost = battle.attackerLosses;
-  if (won === lost) return "Draw";
-  const winner = won > lost ? attacker : defender;
-  const [high, low] =
-    battle.attackerDice.length === 1
-      ? [Math.max(battle.attackerDice[0], battle.defenderDice[0]), Math.min(battle.attackerDice[0], battle.defenderDice[0])]
-      : [Math.max(won, lost), Math.min(won, lost)];
-  return `${winner} wins ${high} to ${low}`;
-}
-
 function stampText(phase: WarPhase, game: Game) {
-  if (phase === "conquered") return "Conquered";
+  if (phase === "occupied") return "Occupied";
   if (phase === "failed") return "Attack failed";
   if (phase === "retreat") return game.current.human ? "Retreat" : `${game.current.country.name} retreats`;
   return null;
@@ -43,7 +31,7 @@ function dieResult(attacker: number, defender: number) {
 }
 
 function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
-  const { phase, battle, battleNumber, salvos, canRoll, roll, stop, hit, advance } = useWar(game, from, to, onHit, onEnd);
+  const { phase, battle, battleNumber, comment, salvos, canRoll, roll, stop, hit, advance } = useWar(game, from, to, onHit, onEnd);
   const pairs = battle ? battle.attackerDice.length : Battle.diceCount(from, to);
   const stamp = stampText(phase, game);
 
@@ -107,7 +95,7 @@ function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
       </div>
 
       <footer className="war-bottom">
-        <p className="war-line">{phase === "score" && battle && battleLine(battle, from.name, to.name)}</p>
+        <p className="war-line">{phase === "score" && comment}</p>
         {canRoll && (
           <button className="btn btn-outline" type="button" onClick={stop}>
             Stop attack

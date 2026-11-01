@@ -20,6 +20,11 @@ function App() {
     setScreen("newGame");
   }
 
+  function newGame() {
+    setGame(null);
+    setScreen("choose");
+  }
+
   function play(country: string) {
     setGame(new Game(country));
     setScreen("round");
@@ -27,7 +32,7 @@ function App() {
 
   function currentScreen() {
     if (!username) return <LoginScreen onLogin={setUsername} />;
-    if (screen === "board" && game) return <BoardScreen game={game} />;
+    if (screen === "board" && game) return <BoardScreen game={game} onNewGame={newGame} />;
     if (screen === "round" && game) {
       return <RoundScreen game={game} onStart={() => setScreen("board")} />;
     }

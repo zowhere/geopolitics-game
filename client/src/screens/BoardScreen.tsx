@@ -8,11 +8,13 @@ import type { Territory } from "../game/Territory";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
+import EndScreen from "./EndScreen";
 import WarScreen from "./WarScreen";
 import "./BoardScreen.css";
 
 type BoardScreenProps = {
   game: Game;
+  onNewGame: () => void;
 };
 
 const scatter = [
@@ -47,10 +49,11 @@ function strongest(territories: Territory[]) {
   );
 }
 
-function BoardScreen({ game }: BoardScreenProps) {
-  const { phase, plan, war, advance, startWar, endWar, endTurn } = useTurnFlow(game);
+function BoardScreen({ game, onNewGame }: BoardScreenProps) {
+  const { phase, plan, war, out, advance, startWar, endWar, endTurn, watch } = useTurnFlow(game);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
   const [chosen, setChosen] = useState<Territory | null>(null);
+  const [logOpen, setLogOpen] = useState(false);
   const placing = phase === "yourTurn" && game.reserve > 0;
   const current = game.current;
   const npcAttack = phase === "decision" && plan?.attack.kind === "attack" ? plan.attack.from : null;
@@ -94,6 +97,27 @@ function BoardScreen({ game }: BoardScreenProps) {
               </li>
             ))}
           </ol>
+          <button
+            className="board-log-button"
+            type="button"
+            aria-expanded={logOpen}
+            onClick={(event) => {
+              event.stopPropagation();
+              setLogOpen(!logOpen);
+            }}
+          >
+            Log
+          </button>
+          {logOpen && (
+            <ol className="board-log" onClick={(event) => event.stopPropagation()}>
+              {[...game.commentator.entries].reverse().map((entry, index) => (
+                <li key={game.commentator.entries.length - index} className={entry.heading ? "heading" : undefined}>
+                  {entry.who && <b>{entry.who}</b>} {entry.text}
+                  {entry.reason && <em>{entry.reason}</em>}
+                </li>
+              ))}
+            </ol>
+          )}
         </header>
 
         <div className="board-map">
@@ -127,6 +151,9 @@ function BoardScreen({ game }: BoardScreenProps) {
             );
           })}
           {phase === "skipStamp" && <div className="stamp">Skip turn</div>}
+          {phase === "eliminated" && out && (
+            <div className="stamp failed">{out.human ? "You are out" : `${out.country.name} is out`}</div>
+          )}
         </div>
 
         <footer className="board-footer">
@@ -152,6 +179,17 @@ function BoardScreen({ game }: BoardScreenProps) {
         <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
       )}
       {war && <WarScreen game={game} from={war.from} to={war.to} onHit={refresh} onEnd={endWar} />}
+      {phase === "defeated" && (
+        <EndScreen headline="Defeated" tone="lose" player={current} onNewGame={onNewGame} onWatch={watch} />
+      )}
+      {phase === "gameOver" && game.winner && (
+        <EndScreen
+          headline={game.winner.human ? "Victory" : `${game.winner.country.name} wins`}
+          tone={game.winner.human ? "win" : "lose"}
+          player={game.winner}
+          onNewGame={onNewGame}
+        />
+      )}
     </>
   );
 }

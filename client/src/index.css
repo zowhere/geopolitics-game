@@ -119,7 +119,7 @@ body {
   animation: stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
 }
 
-.stamp.conquered {
+.stamp.occupied {
   color: var(--gold);
 }
 

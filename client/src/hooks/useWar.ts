@@ -1,10 +1,11 @@
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { Battle } from "../game/Battle";
+import type { WarOutcome } from "../game/Commentator";
 import type { Game } from "../game/Game";
 import { NpcPlayer } from "../game/NpcPlayer";
 import type { Territory } from "../game/Territory";
 
-export type WarPhase = "ready" | "rolling" | "score" | "strike" | "between" | "conquered" | "failed" | "retreat";
+export type WarPhase = "ready" | "rolling" | "score" | "strike" | "between" | "occupied" | "failed" | "retreat";
 
 export type Salvo = {
   pair: number;
@@ -25,7 +26,7 @@ const durations: Record<Exclude<WarPhase, "strike">, number> = {
   rolling: 1700,
   score: 2600,
   between: 800,
-  conquered: 1800,
+  occupied: 1800,
   failed: 2200,
   retreat: 1600,
 };
@@ -49,6 +50,7 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
   const [battle, setBattle] = useState<Battle | null>(null);
   const [battleNumber, setBattleNumber] = useState(1);
   const [landed, setLanded] = useState(0);
+  const [comment, setComment] = useState("");
   const salvos = useMemo(() => (battle ? salvosFor(battle) : []), [battle]);
 
   function roll() {
@@ -56,8 +58,13 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     setPhase("rolling");
   }
 
+  function finish(outcome: WarOutcome) {
+    game.commentator.warEnded(game.current, outcome, to);
+    setPhase(outcome);
+  }
+
   function stop() {
-    setPhase("retreat");
+    finish("retreat");
   }
 
   function land(count: number) {
@@ -72,9 +79,9 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
   }
 
   function endBattle() {
-    if (to.soldiers === 0) setPhase("conquered");
-    else if (from.soldiers < 2) setPhase("failed");
-    else if (npc && !npc.keepAttacking(from)) setPhase("retreat");
+    if (to.soldiers === 0) finish("occupied");
+    else if (from.soldiers < 2) finish("failed");
+    else if (npc && !npc.keepAttacking(from)) finish("retreat");
     else nextBattle();
   }
 
@@ -88,7 +95,8 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
   function advance() {
     if (phase === "ready") {
       if (npc) roll();
-    } else if (phase === "rolling") {
+    } else if (phase === "rolling" && battle) {
+      setComment(game.commentator.battle(battle, from, to));
       setPhase("score");
     } else if (phase === "score" && salvos.length) {
       setPhase("strike");
@@ -101,7 +109,7 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     } else if (phase === "between") {
       setPhase("ready");
     } else {
-      if (phase === "conquered") game.conquer(npc ? npc.soldiersToMoveIn(game, from, to) : 1);
+      if (phase === "occupied") game.occupy(npc ? npc.soldiersToMoveIn(game, from, to) : 1);
       onEnd();
     }
   }
@@ -115,5 +123,5 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
     return () => clearTimeout(timer);
   }, [phase, npc, wait]);
 
-  return { phase, battle, battleNumber, salvos, canRoll: phase === "ready" && !npc, roll, stop, hit, advance };
+  return { phase, battle, battleNumber, comment, salvos, canRoll: phase === "ready" && !npc, roll, stop, hit, advance };
 }
