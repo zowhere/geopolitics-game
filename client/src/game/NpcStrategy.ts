@@ -3,6 +3,7 @@ import type { Territory } from "./Territory";
 
 export type Reinforcement = {
   to: Territory;
+  count: number;
   reason: string;
 };
 
@@ -41,11 +42,11 @@ export class NpcStrategy {
 
   placeReinforcements(territories: readonly Territory[], player: number, count: number): Reinforcement {
     const plan = this.bestOption(territories, player, count);
-    if (plan) return { to: plan.from, reason: `Best strategy: mass troops to strike ${plan.to.name}` };
+    if (plan) return { to: plan.from, count, reason: `Best strategy: mass troops to strike ${plan.to.name}` };
     const strongest = territories
       .filter((territory) => territory.owner === player)
       .reduce((best, territory) => (territory.soldiers > best.soldiers ? territory : best));
-    return { to: strongest, reason: "Best strategy: strengthen the strongest position" };
+    return { to: strongest, count, reason: "Best strategy: strengthen the strongest position" };
   }
 
   chooseAttack(territories: readonly Territory[], player: number): AttackDecision {

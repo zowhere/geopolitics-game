@@ -102,29 +102,6 @@
   stroke-width: 3.6;
 }
 
-.board-stamp {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  padding: 0.12em 0.32em 0.06em;
-  font: 400 clamp(2.2rem, 8vw, 5rem) / 1 var(--font-display);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--cream);
-  border: 6px solid currentColor;
-  background: color-mix(in srgb, var(--sea-0) 55%, transparent);
-  transform: translate(-50%, -50%) rotate(-8deg);
-  animation: stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
-}
-
-@keyframes stamp {
-  from {
-    transform: translate(-50%, -50%) rotate(-8deg) scale(2.6);
-    opacity: 0;
-  }
-}
-
 .board-footer {
   min-height: 76px;
   display: grid;

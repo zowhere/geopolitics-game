@@ -1,6 +1,6 @@
 import type { Territory } from "./Territory";
 
-const rollDie = () => 1 + Math.floor(Math.random() * 6);
+export const rollDie = () => 1 + Math.floor(Math.random() * 6);
 
 export class Battle {
   readonly attackerDice: readonly number[];

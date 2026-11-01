@@ -92,3 +92,36 @@ body {
     opacity: 0;
   }
 }
+
+.stamp {
+  z-index: 1;
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  padding: 0.12em 0.32em 0.06em;
+  font: 400 clamp(2.2rem, 8vw, 5rem) / 1 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cream);
+  pointer-events: none;
+  border: 6px solid currentColor;
+  background: color-mix(in srgb, var(--sea-0) 55%, transparent);
+  transform: translate(-50%, -50%) rotate(-8deg);
+  animation: stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.stamp.conquered {
+  color: var(--gold);
+}
+
+.stamp.failed {
+  color: var(--red);
+}
+
+@keyframes stamp {
+  from {
+    transform: translate(-50%, -50%) rotate(-8deg) scale(2.6);
+    opacity: 0;
+  }
+}

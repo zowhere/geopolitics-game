@@ -1,0 +1,172 @@
+.war-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  padding: 14px 16px;
+  overflow: auto;
+  cursor: pointer;
+  background: radial-gradient(110% 80% at 50% 45%, var(--sea-1), var(--sea-0));
+}
+
+.war-top {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.war-count {
+  font: 400 clamp(2rem, 6vw, 3.6rem) / 1 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 4px 0 var(--sea-0);
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.war-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font: 400 clamp(1rem, 2.4vw, 1.5rem) / 1.1 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.war-arrow {
+  width: 46px;
+  height: 18px;
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.war-arena {
+  position: relative;
+  align-self: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.war-side {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.war-side .island {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 4 / 3;
+}
+
+.war-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 400 1.15rem var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.war-dice {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 110px;
+  padding: 8px;
+  border-radius: 14px;
+  user-select: none;
+}
+
+.war-dice.ready .war-pair .die:first-child {
+  animation: wobble 1.3s ease-in-out infinite;
+  box-shadow: 0 3px 0 rgba(3, 12, 18, 0.78), 0 0 0 3px color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.war-pair {
+  display: grid;
+  grid-template-columns: 42px 52px 42px;
+  align-items: center;
+  justify-items: center;
+  gap: 6px;
+}
+
+.war-mark {
+  font: 400 1.25rem / 1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+  text-shadow: 0 2px 0 var(--sea-0);
+}
+
+.war-hint {
+  margin-top: 2px;
+  font: 600 0.7rem var(--font-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.war-bottom {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 90px;
+  text-align: center;
+}
+
+.war-line {
+  margin: 0;
+  min-height: 1.3em;
+  font: 400 1.3rem var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+@keyframes wobble {
+  50% {
+    transform: rotate(-6deg) translateY(-3px);
+  }
+}
+
+@media (max-width: 640px) {
+  .war-side .island {
+    max-width: 140px;
+  }
+
+  .war-pair {
+    grid-template-columns: 32px 40px 32px;
+    gap: 4px;
+  }
+
+  .war-pair .die {
+    width: 32px;
+    height: 32px;
+    padding: 3px;
+  }
+
+  .war-dice {
+    min-width: 84px;
+    padding: 4px;
+  }
+
+  .war-arena {
+    gap: 6px;
+  }
+}

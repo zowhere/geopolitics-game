@@ -5,7 +5,7 @@ export class HumanPlayer extends Player {
     return true;
   }
 
-  planTurn() {
+  takeTurn() {
     return null;
   }
 }
