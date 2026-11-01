@@ -1,11 +1,9 @@
 import { Battle } from "./Battle";
-import { countries, type Country } from "./countries";
+import { countries } from "./countries";
+import { HumanPlayer } from "./HumanPlayer";
+import { NpcPlayer } from "./NpcPlayer";
+import type { Player } from "./Player";
 import { Territory } from "./Territory";
-
-export type Player = {
-  readonly country: Country;
-  readonly human: boolean;
-};
 
 type War = {
   from: Territory;
@@ -32,10 +30,9 @@ export class Game {
   constructor(humanCountry: string) {
     const human = countries.find((country) => country.name === humanCountry)!;
     const rivals = shuffle(countries.filter((country) => country !== human));
-    this.players = shuffle([human, ...rivals.slice(0, 9)]).map((country) => ({
-      country,
-      human: country === human,
-    }));
+    this.players = shuffle([human, ...rivals.slice(0, 9)]).map((country) =>
+      country === human ? new HumanPlayer(country) : new NpcPlayer(country),
+    );
     this.territories = this.players.map((player, index) => new Territory(player.country, index));
   }
 

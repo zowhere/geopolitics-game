@@ -85,3 +85,10 @@ body {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
+
+@keyframes slam {
+  from {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}

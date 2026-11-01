@@ -1,7 +1,7 @@
-import { useReducer } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
+import { useTurnFlow } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
 import "./BoardScreen.css";
@@ -24,16 +24,13 @@ const scatter = [
 ];
 
 function BoardScreen({ game }: BoardScreenProps) {
-  const [, refresh] = useReducer((count: number) => count + 1, 0);
+  const { phase, decision, advance } = useTurnFlow(game);
   const current = game.current;
-
-  function skip() {
-    game.nextTurn();
-    refresh();
-  }
+  const attackFrom = phase === "decision" && decision?.kind === "attack" ? decision.from : null;
+  const showCaption = decision && phase !== "announce" && phase !== "thinking";
 
   return (
-    <main className="board-screen" onClick={skip}>
+    <main className="board-screen" onClick={advance}>
       <header className="board-hud">
         <span className="board-round">Round {game.round}</span>
         <ol className="board-turns" aria-label="Turn order">
@@ -53,11 +50,11 @@ function BoardScreen({ game }: BoardScreenProps) {
         {game.territories.map((territory, index) => {
           const [x, y, tilt] = scatter[index];
           const owner = game.players[territory.owner];
+          const classes = ["board-country"];
+          if (owner.human) classes.push("you");
+          if (territory === attackFrom) classes.push("attacking");
           return (
-            <div
-              key={territory.name}
-              className={owner.human ? "board-country you" : "board-country"}
-            >
+            <div key={territory.name} className={classes.join(" ")}>
               <Island
                 shape={countryShape(territory.country.mapName)}
                 flag={flagUrl(owner.country.code)}
@@ -71,13 +68,22 @@ function BoardScreen({ game }: BoardScreenProps) {
             </div>
           );
         })}
+        {phase === "skipStamp" && <div className="board-stamp">Skip turn</div>}
       </div>
 
       <footer className="board-footer">
-        <p className="board-announce">
-          {current.human ? "Your turn" : `${current.country.name}'s turn`}
-        </p>
-        <p className="board-skip">Click to continue</p>
+        {phase === "announce" && (
+          <p className="board-announce">
+            {current.human ? "Your turn" : `${current.country.name}'s turn`}
+          </p>
+        )}
+        {showCaption && (
+          <p className="board-caption">
+            {decision.kind === "hold" ? "Holding position" : `Invading ${decision.to.name}`}
+            <span>{decision.reason}</span>
+          </p>
+        )}
+        {phase === "yourTurn" && <p className="board-skip">Click to end turn</p>}
       </footer>
     </main>
   );

@@ -54,6 +54,7 @@
 }
 
 .board-map {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-content: center;
@@ -92,8 +93,42 @@
   color: var(--gold);
 }
 
+.board-country.attacking {
+  transform: translateY(-6px);
+}
+
+.board-country.attacking .island-coast {
+  stroke: var(--gold);
+  stroke-width: 3.6;
+}
+
+.board-stamp {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  padding: 0.12em 0.32em 0.06em;
+  font: 400 clamp(2.2rem, 8vw, 5rem) / 1 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cream);
+  border: 6px solid currentColor;
+  background: color-mix(in srgb, var(--sea-0) 55%, transparent);
+  transform: translate(-50%, -50%) rotate(-8deg);
+  animation: stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+@keyframes stamp {
+  from {
+    transform: translate(-50%, -50%) rotate(-8deg) scale(2.6);
+    opacity: 0;
+  }
+}
+
 .board-footer {
+  min-height: 76px;
   display: grid;
+  align-content: end;
   justify-items: center;
   gap: 4px;
 }
@@ -105,6 +140,27 @@
   text-transform: uppercase;
   color: var(--gold);
   text-shadow: 0 3px 0 var(--sea-0);
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.board-caption {
+  margin: 0;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--cream);
+  text-shadow: 0 2px 4px var(--sea-0);
+  animation: fade-out 0.8s ease 4s forwards;
+}
+
+.board-caption span {
+  display: block;
+  color: var(--muted);
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
 }
 
 .board-skip {

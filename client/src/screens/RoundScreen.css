@@ -93,13 +93,6 @@
   padding: 0.8em 2.2em 0.75em;
 }
 
-@keyframes slam {
-  from {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
 @keyframes pop {
   from {
     transform: scale(0.3);

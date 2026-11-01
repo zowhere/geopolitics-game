@@ -25,7 +25,7 @@ function isBetterOption(a: AttackOption, b: AttackOption) {
 }
 
 export class NpcStrategy {
-  private bestOption(territories: Territory[], player: number, extraSoldiers = 0) {
+  private bestOption(territories: readonly Territory[], player: number, extraSoldiers = 0) {
     const options = new PriorityQueue<AttackOption>(isBetterOption);
     const own = territories.filter((territory) => territory.owner === player);
     const enemies = territories.filter((territory) => territory.owner !== player);
@@ -39,7 +39,7 @@ export class NpcStrategy {
     return options.pop();
   }
 
-  placeReinforcements(territories: Territory[], player: number, count: number): Reinforcement {
+  placeReinforcements(territories: readonly Territory[], player: number, count: number): Reinforcement {
     const plan = this.bestOption(territories, player, count);
     if (plan) return { to: plan.from, reason: `Best strategy: mass troops to strike ${plan.to.name}` };
     const strongest = territories
@@ -48,7 +48,7 @@ export class NpcStrategy {
     return { to: strongest, reason: "Best strategy: strengthen the strongest position" };
   }
 
-  chooseAttack(territories: Territory[], player: number): AttackDecision {
+  chooseAttack(territories: readonly Territory[], player: number): AttackDecision {
     const plan = this.bestOption(territories, player);
     if (!plan) return { kind: "hold", reason: "Best strategy: build up before attacking" };
     return { kind: "attack", from: plan.from, to: plan.to, reason: "Best strategy: hit the weakest target first" };
