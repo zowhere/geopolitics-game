@@ -5,7 +5,16 @@ import type { Game } from "../game/Game";
 import { NpcPlayer } from "../game/NpcPlayer";
 import type { Territory } from "../game/Territory";
 
-export type WarPhase = "ready" | "rolling" | "score" | "strike" | "between" | "occupied" | "failed" | "retreat";
+export type WarPhase =
+  | "ready"
+  | "rolling"
+  | "score"
+  | "strike"
+  | "between"
+  | "occupied"
+  | "occupation"
+  | "failed"
+  | "retreat";
 
 export type Salvo = {
   pair: number;
@@ -21,7 +30,7 @@ export const strike = {
   shortest: 6000,
 };
 
-const durations: Record<Exclude<WarPhase, "strike">, number> = {
+const durations: Partial<Record<WarPhase, number>> = {
   ready: 1300,
   rolling: 1700,
   score: 2600,
@@ -108,20 +117,39 @@ export function useWar(game: Game, from: Territory, to: Territory, onHit: () => 
       endBattle();
     } else if (phase === "between") {
       setPhase("ready");
-    } else {
-      if (phase === "occupied") game.occupy(npc ? npc.soldiersToMoveIn(game, from, to) : 1);
+    } else if (phase === "occupied") {
+      setPhase("occupation");
+    } else if (phase !== "occupation") {
       onEnd();
     }
+  }
+
+  function occupy(soldiersMovingIn: number) {
+    game.occupy(soldiersMovingIn);
+    onEnd();
   }
 
   const timeUp = useEffectEvent(advance);
   const wait = phase === "strike" ? strikeDuration(salvos) : durations[phase];
 
   useEffect(() => {
-    if (phase === "ready" && !npc) return;
+    if (wait === undefined || (phase === "ready" && !npc)) return;
     const timer = setTimeout(timeUp, wait);
     return () => clearTimeout(timer);
   }, [phase, npc, wait]);
 
-  return { phase, battle, battleNumber, comment, salvos, canRoll: phase === "ready" && !npc, roll, stop, hit, advance };
+  return {
+    phase,
+    battle,
+    battleNumber,
+    comment,
+    salvos,
+    canRoll: phase === "ready" && !npc,
+    autoMoveIn: npc ? npc.soldiersToMoveIn(game, from, to) : null,
+    roll,
+    stop,
+    hit,
+    occupy,
+    advance,
+  };
 }

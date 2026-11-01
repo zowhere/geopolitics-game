@@ -8,6 +8,7 @@ import type { Territory } from "../game/Territory";
 import { useWar, type WarPhase } from "../hooks/useWar";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
+import OccupationScreen from "./OccupationScreen";
 import "./WarScreen.css";
 
 type WarScreenProps = {
@@ -31,9 +32,14 @@ function dieResult(attacker: number, defender: number) {
 }
 
 function WarScreen({ game, from, to, onHit, onEnd }: WarScreenProps) {
-  const { phase, battle, battleNumber, comment, salvos, canRoll, roll, stop, hit, advance } = useWar(game, from, to, onHit, onEnd);
+  const { phase, battle, battleNumber, comment, salvos, canRoll, autoMoveIn, roll, stop, hit, occupy, advance } =
+    useWar(game, from, to, onHit, onEnd);
   const pairs = battle ? battle.attackerDice.length : Battle.diceCount(from, to);
   const stamp = stampText(phase, game);
+
+  if (phase === "occupation") {
+    return <OccupationScreen game={game} from={from} to={to} autoMoveIn={autoMoveIn} onDone={occupy} />;
+  }
 
   if (phase === "strike" || stamp) {
     return (

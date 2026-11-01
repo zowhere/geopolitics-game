@@ -1,6 +1,7 @@
-import { useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { Point } from "../map/StrikeFx";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import { useSoldierDrag } from "../hooks/useSoldierDrag";
 import SoldierCount from "./SoldierCount";
+import SoldierGhost from "./SoldierGhost";
 import "./ReserveBox.css";
 
 type ReserveBoxProps = {
@@ -35,28 +36,19 @@ function Plane() {
 }
 
 function ReserveBox({ count, dropping, onDrop }: ReserveBoxProps) {
-  const [ghost, setGhost] = useState<Point | null>(null);
+  const { ghost, startDrag } = useSoldierDrag((target) => {
+    const territory = target.closest<HTMLElement>("[data-territory]")?.dataset.territory;
+    if (territory) onDrop(territory);
+  });
 
-  function startDrag(event: ReactPointerEvent) {
-    if (dropping) return;
-    event.preventDefault();
-    setGhost({ x: event.clientX, y: event.clientY });
-    const move = (moved: PointerEvent) => setGhost({ x: moved.clientX, y: moved.clientY });
-    const release = (released: PointerEvent) => {
-      window.removeEventListener("pointermove", move);
-      setGhost(null);
-      const target = document.elementFromPoint(released.clientX, released.clientY);
-      const territory = target?.closest<HTMLElement>("[data-territory]")?.dataset.territory;
-      if (territory) onDrop(territory);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", release, { once: true });
+  function grab(event: ReactPointerEvent) {
+    if (!dropping) startDrag(event);
   }
 
   return (
     <>
       {dropping && <Plane />}
-      <div className={dropping ? "reserve-box dropping" : "reserve-box"} onPointerDown={startDrag}>
+      <div className={dropping ? "reserve-box dropping" : "reserve-box"} onPointerDown={grab}>
         <div className="reserve-crate">
           {dropping && (
             <svg className="reserve-chute" viewBox="0 0 84 80" aria-hidden="true">
@@ -86,11 +78,7 @@ function ReserveBox({ count, dropping, onDrop }: ReserveBoxProps) {
         </div>
         <SoldierCount count={count} />
       </div>
-      {ghost && (
-        <svg className="reserve-ghost" style={{ left: ghost.x, top: ghost.y }} viewBox="0 0 12 20" aria-hidden="true">
-          <use href="#soldier" />
-        </svg>
-      )}
+      {ghost && <SoldierGhost at={ghost} />}
     </>
   );
 }

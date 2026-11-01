@@ -1,0 +1,9 @@
+.soldier-ghost {
+  position: fixed;
+  z-index: 30;
+  width: 22px;
+  height: 36px;
+  pointer-events: none;
+  transform: translate(-50%, -85%);
+  filter: drop-shadow(0 6px 6px rgba(3, 12, 18, 0.6));
+}

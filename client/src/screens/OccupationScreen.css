@@ -1,0 +1,122 @@
+.occupation-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 16px;
+  text-align: center;
+  background: radial-gradient(110% 80% at 50% 45%, var(--sea-1), var(--sea-0));
+}
+
+.occupation-headline {
+  margin: 0;
+  font: 400 clamp(2rem, 7vw, 4rem) / 1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 5px 0 var(--sea-0);
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.occupation-arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: min(100vw - 32px, 900px);
+}
+
+.occupation-side {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.occupation-side:active {
+  cursor: grabbing;
+}
+
+.occupation-side .island {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 4 / 3;
+}
+
+.occupation-bonus {
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  font: 400 2.2rem / 1 var(--font-display);
+  color: var(--gold);
+  text-shadow: 0 3px 0 var(--sea-0);
+  pointer-events: none;
+  animation: floaty 1.6s 0.4s ease-out both;
+}
+
+.occupation-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 400 1.15rem var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.occupation-arrow {
+  width: 70px;
+  height: 28px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.occupation-actions {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.occupation-hint {
+  margin: 0;
+  min-height: 1.2em;
+  font: 400 1.05rem var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+@keyframes floaty {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50px);
+  }
+}
+
+@media (max-width: 640px) {
+  .occupation-side .island {
+    max-width: 140px;
+  }
+
+  .occupation-arrow {
+    width: 36px;
+  }
+}
