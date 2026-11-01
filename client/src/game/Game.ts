@@ -37,4 +37,9 @@ export class Game {
   get current() {
     return this.players[this.turnIndex];
   }
+
+  nextTurn() {
+    this.turnIndex = (this.turnIndex + 1) % this.players.length;
+    if (this.turnIndex === 0) this.roundNumber++;
+  }
 }

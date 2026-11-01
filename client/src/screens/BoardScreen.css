@@ -1,5 +1,6 @@
 .board-screen {
   min-height: 100%;
+  cursor: pointer;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 6px;
@@ -92,8 +93,9 @@
 }
 
 .board-footer {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
 }
 
 .board-announce {
@@ -103,6 +105,14 @@
   text-transform: uppercase;
   color: var(--gold);
   text-shadow: 0 3px 0 var(--sea-0);
+}
+
+.board-skip {
+  margin: 0;
+  font: 600 0.72rem var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 @media (max-width: 640px) {

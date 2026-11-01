@@ -1,3 +1,4 @@
+import { useReducer } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
@@ -23,10 +24,16 @@ const scatter = [
 ];
 
 function BoardScreen({ game }: BoardScreenProps) {
+  const [, refresh] = useReducer((count: number) => count + 1, 0);
   const current = game.current;
 
+  function skip() {
+    game.nextTurn();
+    refresh();
+  }
+
   return (
-    <main className="board-screen">
+    <main className="board-screen" onClick={skip}>
       <header className="board-hud">
         <span className="board-round">Round {game.round}</span>
         <ol className="board-turns" aria-label="Turn order">
@@ -69,6 +76,7 @@ function BoardScreen({ game }: BoardScreenProps) {
         <p className="board-announce">
           {current.human ? "Your turn" : `${current.country.name}'s turn`}
         </p>
+        <p className="board-skip">Click to continue</p>
       </footer>
     </main>
   );
