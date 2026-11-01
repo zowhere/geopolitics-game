@@ -24,3 +24,7 @@
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
+
+.island-soldier {
+  filter: drop-shadow(0 1px 0.6px rgba(3, 12, 18, 0.7));
+}

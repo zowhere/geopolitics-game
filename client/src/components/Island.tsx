@@ -1,16 +1,19 @@
 import { useId, type CSSProperties } from "react";
 import type { CountryShape } from "../map/countryShape";
+import { troopSpots } from "../map/troopSpots";
 import "./Island.css";
 
 type IslandProps = {
   shape: CountryShape;
   color?: string;
   flag?: string;
+  soldiers?: number;
   className?: string;
   style?: CSSProperties;
 };
 
 const flagRatio = 4 / 3;
+const mostSoldiersShown = 12;
 
 function flagArea({ x, y, width, height }: CountryShape["box"]) {
   const boxRatio = width / height;
@@ -22,7 +25,7 @@ function flagArea({ x, y, width, height }: CountryShape["box"]) {
   return { x, y, width: height * ratio, height };
 }
 
-function Island({ shape, color, flag, className, style }: IslandProps) {
+function Island({ shape, color, flag, soldiers, className, style }: IslandProps) {
   const clipId = `coast${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const { path, box } = shape;
   const area = flagArea(box);
@@ -54,6 +57,18 @@ function Island({ shape, color, flag, className, style }: IslandProps) {
         <path className="island-land" d={path} fill={color} />
       )}
       <path className="island-coast" d={path} />
+      {soldiers !== undefined &&
+        troopSpots(path, Math.min(soldiers, mostSoldiersShown)).map(([x, y], index) => (
+          <use
+            key={index}
+            href="#soldier"
+            className="island-soldier"
+            x={x - 5}
+            y={y - 16}
+            width={10}
+            height={16}
+          />
+        ))}
     </svg>
   );
 }

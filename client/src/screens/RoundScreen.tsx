@@ -7,9 +7,10 @@ import "./RoundScreen.css";
 
 type RoundScreenProps = {
   game: Game;
+  onStart: () => void;
 };
 
-function RoundScreen({ game }: RoundScreenProps) {
+function RoundScreen({ game, onStart }: RoundScreenProps) {
   return (
     <main className="round-screen">
       <h1 className="round-title">Round {game.round}</h1>
@@ -35,7 +36,7 @@ function RoundScreen({ game }: RoundScreenProps) {
         ))}
       </ol>
 
-      <button className="btn btn-gold round-start" type="button">
+      <button className="btn btn-gold round-start" type="button" onClick={onStart}>
         Start
       </button>
     </main>

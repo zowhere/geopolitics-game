@@ -18,6 +18,7 @@ function shuffle<T>(items: T[]): T[] {
 export class Game {
   readonly players: Player[];
   round = 1;
+  turn = 0;
 
   constructor(humanCountry: string) {
     const human = countries.find((country) => country.name === humanCountry)!;
@@ -27,5 +28,9 @@ export class Game {
       soldiers: country.soldiers,
       human: country === human,
     }));
+  }
+
+  get current() {
+    return this.players[this.turn];
   }
 }
