@@ -1,24 +1,39 @@
 import { useState } from "react";
 import MapFilters from "./components/MapFilters";
+import { Game } from "./game/Game";
 import ChooseCountryScreen from "./screens/ChooseCountryScreen";
 import NewGameScreen from "./screens/NewGameScreen";
 import LoginScreen from "./screens/LoginScreen";
+import RoundScreen from "./screens/RoundScreen";
 
-type Screen = "newGame" | "choose";
+type Screen = "newGame" | "choose" | "round";
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [screen, setScreen] = useState<Screen>("newGame");
+  const [game, setGame] = useState<Game | null>(null);
 
   function logout() {
     setUsername(null);
+    setGame(null);
     setScreen("newGame");
+  }
+
+  function play(country: string) {
+    setGame(new Game(country));
+    setScreen("round");
   }
 
   function currentScreen() {
     if (!username) return <LoginScreen onLogin={setUsername} />;
+    if (screen === "round" && game) return <RoundScreen game={game} />;
     if (screen === "choose") {
-      return <ChooseCountryScreen onBack={() => setScreen("newGame")} />;
+      return (
+        <ChooseCountryScreen
+          onBack={() => setScreen("newGame")}
+          onPlay={play}
+        />
+      );
     }
     return (
       <NewGameScreen

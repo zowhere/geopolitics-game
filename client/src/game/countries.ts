@@ -12,3 +12,5 @@ export const countries = data.map((country) => ({
   ...country,
   soldiers: soldiersFor(country.population),
 }));
+
+export type Country = (typeof countries)[number];

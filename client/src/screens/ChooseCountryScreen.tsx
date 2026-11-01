@@ -10,11 +10,12 @@ import Helmet from "../components/Helmet";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import { countries } from "../game/countries";
-import { countryPath } from "../map/countryPath";
+import { countryShape } from "../map/countryShape";
 import "./ChooseCountryScreen.css";
 
 type ChooseCountryScreenProps = {
   onBack: () => void;
+  onPlay: (country: string) => void;
 };
 
 const choices = [...countries].sort((a, b) => a.name.localeCompare(b.name));
@@ -41,7 +42,7 @@ function formatPopulation(population: number) {
   return `${population.toLocaleString()} people`;
 }
 
-function ChooseCountryScreen({ onBack }: ChooseCountryScreenProps) {
+function ChooseCountryScreen({ onBack, onPlay }: ChooseCountryScreenProps) {
   const [selected, setSelected] = useState("South Africa");
   const [query, setQuery] = useState("");
   const [range, setRange] = useState(soldierRanges[0]);
@@ -150,7 +151,7 @@ function ChooseCountryScreen({ onBack }: ChooseCountryScreenProps) {
             <span className="choose-population">
               {formatPopulation(country.population)}
             </span>
-            <Island path={countryPath(country.mapName)} color={country.color} />
+            <Island shape={countryShape(country.mapName)} color={country.color} />
             <span className="choose-label">
               {country.name}
               <SoldierCount count={country.soldiers} />
@@ -166,7 +167,11 @@ function ChooseCountryScreen({ onBack }: ChooseCountryScreenProps) {
 
       <footer className="choose-bar">
         <span className="choose-bar-name">{chosen.name}</span>
-        <button className="btn btn-gold" type="button">
+        <button
+          className="btn btn-gold"
+          type="button"
+          onClick={() => onPlay(selected)}
+        >
           Play
         </button>
       </footer>

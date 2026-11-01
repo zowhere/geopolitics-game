@@ -1,0 +1,125 @@
+.round-screen {
+  min-height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  padding: 16px;
+}
+
+.round-title {
+  margin: 0;
+  font: 400 clamp(1.6rem, 5vw, 2.6rem) / 1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-shadow: 0 5px 0 var(--sea-0);
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.round-order {
+  width: min(900px, 100%);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px 10px;
+}
+
+.round-player {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  animation: pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.round-player .island {
+  width: 100%;
+  max-width: 150px;
+  aspect-ratio: 4 / 3;
+}
+
+.round-turn {
+  position: absolute;
+  top: 0;
+  left: 4%;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sea-0);
+  font: 700 0.72rem / 1 var(--font-label);
+  color: var(--cream);
+  text-shadow: 0 1px 2px var(--sea-0);
+  box-shadow: 0 0 0 1.5px var(--sea-0), 0 0 0 3px var(--cream);
+}
+
+.round-player.you .round-turn {
+  box-shadow: 0 0 0 1.5px var(--sea-0), 0 0 0 3px var(--gold);
+}
+
+.round-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font: 400 0.7rem / 1.05 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--cream);
+  text-shadow: 0 2px 0 var(--sea-0);
+}
+
+.round-player.you .round-name {
+  color: var(--gold);
+}
+
+.round-you {
+  margin-top: 3px;
+  padding: 2px 7px;
+  font: 700 0.62rem / 1.2 var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sea-0);
+  background: var(--gold);
+}
+
+.round-start {
+  font-size: 1.4rem;
+  padding: 0.8em 2.2em 0.75em;
+}
+
+@keyframes slam {
+  from {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .round-name {
+    font-size: 0.56rem;
+  }
+
+  .round-order {
+    gap: 10px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .round-title,
+  .round-player {
+    animation: none;
+  }
+}

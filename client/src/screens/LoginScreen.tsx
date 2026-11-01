@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import Island from "../components/Island";
-import { countryPath } from "../map/countryPath";
+import { countryShape } from "../map/countryShape";
 import "./LoginScreen.css";
 
 type Mode = "login" | "signup";
@@ -20,7 +20,7 @@ const drifters = [
   { name: "Egypt", color: "#d8b44a", left: "10%", top: "66%" },
   { name: "Chile", color: "#3f6fae", left: "42%", top: "72%" },
   { name: "Brazil", color: "#c46b8f", left: "74%", top: "56%" },
-].map((drifter) => ({ ...drifter, path: countryPath(drifter.name) }));
+].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
 function validate(username: string, password: string) {
   if (!/^[A-Za-z0-9_]{3,20}$/.test(username))
@@ -54,7 +54,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
         {drifters.map((drifter, index) => (
           <Island
             key={drifter.name}
-            path={drifter.path}
+            shape={drifter.shape}
             color={drifter.color}
             className="login-drifter"
             style={{
