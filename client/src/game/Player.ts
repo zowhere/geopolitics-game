@@ -1,6 +1,6 @@
 import type { Country } from "./countries";
 import type { Game } from "./Game";
-import type { AttackDecision, Reinforcement } from "./NpcStrategy";
+import type { AttackDecision, Reinforcement, Transfer } from "./NpcStrategy";
 
 export type TurnPlan = {
   deployed: Reinforcement | null;
@@ -17,4 +17,6 @@ export abstract class Player {
   abstract get human(): boolean;
 
   abstract takeTurn(game: Game): TurnPlan | null;
+
+  abstract fortify(game: Game): Transfer | null;
 }

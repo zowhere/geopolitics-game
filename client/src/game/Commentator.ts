@@ -1,5 +1,5 @@
 import type { Battle } from "./Battle";
-import type { Reinforcement } from "./NpcStrategy";
+import type { Reinforcement, Transfer } from "./NpcStrategy";
 import type { Player } from "./Player";
 import type { Territory } from "./Territory";
 
@@ -60,6 +60,10 @@ export class Commentator {
 
   warEnded(player: Player, outcome: WarOutcome, target: Territory) {
     this.lines.push({ who: nameOf(player), text: outcomeText[outcome](target.name) });
+  }
+
+  transferred(player: Player, { from, to, count, reason }: Transfer) {
+    this.lines.push({ who: nameOf(player), text: `Moved ${count} soldiers from ${from.name} to ${to.name}`, reason });
   }
 
   eliminated(player: Player) {

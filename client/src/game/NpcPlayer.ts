@@ -17,6 +17,12 @@ export class NpcPlayer extends Player {
     return { deployed, attack: strategy.chooseAttack(game.territories, player) };
   }
 
+  fortify(game: Game) {
+    const transfer = strategy.planTransfer(game.territories, game.currentIndex);
+    if (transfer) game.moveSoldiers(transfer.from, transfer.to, transfer.count);
+    return transfer;
+  }
+
   keepAttacking(from: Territory) {
     return strategy.keepAttacking(from);
   }

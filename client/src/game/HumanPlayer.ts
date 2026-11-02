@@ -8,4 +8,8 @@ export class HumanPlayer extends Player {
   takeTurn() {
     return null;
   }
+
+  fortify() {
+    return null;
+  }
 }

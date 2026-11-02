@@ -1,0 +1,28 @@
+.soldier-march {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.march-soldier,
+.march-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.march-soldier {
+  width: 22px;
+  height: 36px;
+  translate: -50% -80%;
+  filter: drop-shadow(0 6px 5px rgba(3, 12, 18, 0.6));
+}
+
+.march-label {
+  translate: -50% -50%;
+  font: 400 2rem / 1 var(--font-display);
+  color: var(--gold);
+  text-shadow: 0 3px 0 var(--sea-0);
+}

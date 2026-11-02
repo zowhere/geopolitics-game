@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
 import { strike, type Salvo } from "../hooks/useWar";
-import { StrikeFx, type Point } from "../map/StrikeFx";
+import { islandCentre } from "../map/islandCentre";
+import { StrikeFx } from "../map/StrikeFx";
 import "./MissileStrike.css";
 
 type MissileStrikeProps = {
@@ -20,20 +21,14 @@ const shake = [
   { transform: "none" },
 ];
 
-function centreOf(territory: Territory): Point {
-  const island = document.querySelector(`[data-territory="${CSS.escape(territory.name)}"] .island`);
-  const box = island?.getBoundingClientRect();
-  return box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : { x: 0, y: 0 };
-}
-
 function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
   const svg = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     if (!svg.current) return;
     const fx = new StrikeFx(svg.current);
-    const attacker = centreOf(from);
-    const defender = centreOf(to);
+    const attacker = islandCentre(from);
+    const defender = islandCentre(to);
 
     const timers = salvos.flatMap((salvo, index) => {
       const [start, end] = salvo.attackerWins ? [attacker, defender] : [defender, attacker];

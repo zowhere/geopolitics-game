@@ -48,6 +48,10 @@ export class Game {
     return this.reserveCount;
   }
 
+  get attacked() {
+    return this.warOver;
+  }
+
   get winner() {
     const owner = this.territories[0].owner;
     return this.territories.every((territory) => territory.owner === owner) ? this.players[owner] : undefined;

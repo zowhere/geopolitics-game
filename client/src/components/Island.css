@@ -17,6 +17,10 @@
   filter: url(#island-texture);
 }
 
+.island-ground {
+  fill: #f4efe1;
+}
+
 .island-coast {
   fill: none;
   stroke: var(--cream);

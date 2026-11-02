@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useState } from "react";
 import type { Game } from "../game/Game";
+import type { Transfer } from "../game/NpcStrategy";
 import type { Player, TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
 
@@ -14,6 +15,7 @@ export type Phase =
   | "war"
   | "eliminated"
   | "afterWar"
+  | "transfer"
   | "airdrop"
   | "yourTurn"
   | "defeated"
@@ -35,6 +37,7 @@ const durations: Partial<Record<Phase, number>> = {
   afterHold: 3000,
   eliminated: 1300,
   afterWar: 3500,
+  transfer: 2000,
   airdrop: 3200,
 };
 
@@ -43,10 +46,12 @@ export function useTurnFlow(game: Game) {
   const [plan, setPlan] = useState<TurnPlan | null>(null);
   const [war, setWar] = useState<War | null>(null);
   const [out, setOut] = useState<Player | null>(null);
+  const [transfer, setTransfer] = useState<Transfer | null>(null);
 
   function endTurn() {
     game.nextTurn();
     setPlan(null);
+    setTransfer(null);
     setPhase("announce");
   }
 
@@ -72,6 +77,14 @@ export function useTurnFlow(game: Game) {
   function carryOn() {
     if (game.winner) setPhase("gameOver");
     else setPhase(game.current.human ? "yourTurn" : "afterWar");
+  }
+
+  function fortify() {
+    const move = game.current.fortify(game);
+    if (!move) return endTurn();
+    game.commentator.transferred(game.current, move);
+    setTransfer(move);
+    setPhase("transfer");
   }
 
   function watch() {
@@ -105,6 +118,7 @@ export function useTurnFlow(game: Game) {
     if (phase === "airdrop") return setPhase("yourTurn");
     if (phase === "eliminated" && out?.human && !game.winner) return setPhase("defeated");
     if (phase === "eliminated") return carryOn();
+    if (phase === "afterHold" || phase === "afterWar") return fortify();
     endTurn();
   }
 
@@ -117,5 +131,5 @@ export function useTurnFlow(game: Game) {
     return () => clearTimeout(timer);
   }, [phase]);
 
-  return { phase, plan, war, out, advance, startWar, endWar, endTurn, watch };
+  return { phase, plan, war, out, transfer, advance, startWar, endWar, endTurn, watch };
 }

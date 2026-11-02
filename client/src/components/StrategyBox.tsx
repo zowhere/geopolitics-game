@@ -1,6 +1,6 @@
 import { Battle } from "../game/Battle";
 import type { Game } from "../game/Game";
-import { fewestToAttackFrom } from "../game/NpcStrategy";
+import { fewestToAttackFrom, type Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
 import "./StrategyBox.css";
 
@@ -8,9 +8,15 @@ type StrategyBoxProps = {
   game: Game;
   plan: TurnPlan;
   deploying: boolean;
+  transfer: Transfer | null;
 };
 
-function linesFor(game: Game, { deployed, attack }: TurnPlan, deploying: boolean) {
+function linesFor(game: Game, { deployed, attack }: TurnPlan, deploying: boolean, transfer: Transfer | null) {
+  if (transfer) {
+    const { from, to, count, reason } = transfer;
+    const numbers = `${from.name} ${from.soldiers + count} → ${from.soldiers} · ${to.name} ${to.soldiers - count} → ${to.soldiers}`;
+    return { reason, target: to.name, numbers };
+  }
   if (deploying && deployed) {
     const { to, count, target, reason } = deployed;
     const build = `${to.name} ${to.soldiers - count} + ${count} → ${to.soldiers}`;
@@ -29,8 +35,8 @@ function linesFor(game: Game, { deployed, attack }: TurnPlan, deploying: boolean
   return { reason: attack.reason, target: "None", numbers: `${strongest.name} ${strongest.soldiers} · ${blocker}` };
 }
 
-function StrategyBox({ game, plan, deploying }: StrategyBoxProps) {
-  const { reason, target, numbers } = linesFor(game, plan, deploying);
+function StrategyBox({ game, plan, deploying, transfer }: StrategyBoxProps) {
+  const { reason, target, numbers } = linesFor(game, plan, deploying, transfer);
   return (
     <aside className="strategy-box">
       <h2 className="strategy-title">Strategy</h2>

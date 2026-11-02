@@ -41,6 +41,7 @@ function Island({ shape, flag, soldiers, className, style }: IslandProps) {
         <clipPath id={clipId}>
           <path d={path} />
         </clipPath>
+        <path className="island-ground" d={path} />
         <image
           href={flag}
           clipPath={`url(#${clipId})`}

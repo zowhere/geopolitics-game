@@ -8,6 +8,13 @@ export type Reinforcement = {
   reason: string;
 };
 
+export type Transfer = {
+  from: Territory;
+  to: Territory;
+  count: number;
+  reason: string;
+};
+
 export type AttackDecision =
   | { kind: "attack"; from: Territory; to: Territory; reason: string }
   | { kind: "hold"; reason: string };
@@ -20,10 +27,19 @@ type AttackOption = {
 
 export const fewestToAttackFrom = 3;
 const stopAttackingAt = 2;
+const smallestTransfer = 2;
 
 function isBetterOption(a: AttackOption, b: AttackOption) {
   if (a.advantage !== b.advantage) return a.advantage > b.advantage;
   return a.to.soldiers < b.to.soldiers;
+}
+
+function strongest(territories: Territory[]) {
+  return territories.reduce((best, territory) => (territory.soldiers > best.soldiers ? territory : best));
+}
+
+function weakest(territories: Territory[]) {
+  return territories.reduce((worst, territory) => (territory.soldiers < worst.soldiers ? territory : worst));
 }
 
 function strengthOf(territories: readonly Territory[], player: number) {
@@ -53,16 +69,23 @@ export class NpcStrategy {
   placeReinforcements(territories: readonly Territory[], player: number, count: number): Reinforcement {
     const plan = this.bestOption(territories, player, count);
     if (plan) return { to: plan.from, count, target: plan.to, reason: `Mass troops to strike ${plan.to.name}` };
-    const strongest = territories
-      .filter((territory) => territory.owner === player)
-      .reduce((best, territory) => (territory.soldiers > best.soldiers ? territory : best));
-    return { to: strongest, count, reason: "Strengthen the strongest position" };
+    const own = territories.filter((territory) => territory.owner === player);
+    return { to: weakest(own), count, reason: "Shore up the weakest country" };
   }
 
   chooseAttack(territories: readonly Territory[], player: number): AttackDecision {
     const plan = this.bestOption(territories, player);
     if (!plan) return { kind: "hold", reason: "Build up before attacking" };
     return { kind: "attack", from: plan.from, to: plan.to, reason: "Hit the weakest link" };
+  }
+
+  planTransfer(territories: readonly Territory[], player: number): Transfer | null {
+    const own = territories.filter((territory) => territory.owner === player);
+    const from = strongest(own);
+    const to = weakest(own);
+    const count = Math.floor((from.soldiers - to.soldiers) / 2);
+    if (from === to || count < smallestTransfer) return null;
+    return { from, to, count, reason: "Shore up the weakest country" };
   }
 
   keepAttacking(from: Territory) {
