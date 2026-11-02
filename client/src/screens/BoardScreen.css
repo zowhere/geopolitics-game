@@ -209,16 +209,13 @@
 
 .board-caption {
   margin: 0;
-  font-size: 0.95rem;
+  font: 400 1.3rem / 1.1 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   text-align: center;
   color: var(--cream);
   text-shadow: 0 2px 4px var(--sea-0);
   animation: fade-out 0.8s ease 4s forwards;
-}
-
-.board-caption span {
-  display: block;
-  color: var(--muted);
 }
 
 @keyframes fade-out {

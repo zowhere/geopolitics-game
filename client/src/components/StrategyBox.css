@@ -1,0 +1,106 @@
+.strategy-box {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 5;
+  width: min(340px, calc(100vw - 32px));
+  padding: 9px 16px 10px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--cream);
+  background: color-mix(in srgb, var(--sea-0) 88%, transparent);
+  border: 1.5px solid var(--gold);
+  border-radius: 6px;
+  pointer-events: none;
+  animation:
+    strategy-in 0.4s ease-out both,
+    strategy-glow 1.6s ease-in-out infinite;
+}
+
+.strategy-title {
+  margin: 0 0 2px;
+  font: 400 1.05rem var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--gold) 60%, transparent);
+}
+
+.strategy-box p {
+  margin: 0;
+  opacity: 0;
+  animation: strategy-line 0.35s ease-out forwards;
+}
+
+.strategy-box p:nth-of-type(1) {
+  animation-delay: 0.3s;
+}
+
+.strategy-box p:nth-of-type(2) {
+  animation-delay: 0.8s;
+}
+
+.strategy-box p:nth-of-type(3) {
+  animation-delay: 2s;
+}
+
+.strategy-box p:nth-of-type(4) {
+  animation-delay: 2.5s;
+}
+
+.strategy-box b {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.strategy-calculating {
+  color: var(--muted);
+}
+
+.strategy-calculating::after {
+  content: "";
+  animation: strategy-dots 0.4s steps(1) 0.8s 3 forwards;
+}
+
+.strategy-numbers {
+  font: 600 0.95rem var(--font-label);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes strategy-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes strategy-glow {
+  50% {
+    box-shadow: 0 0 22px color-mix(in srgb, var(--gold) 55%, transparent);
+  }
+}
+
+@keyframes strategy-line {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes strategy-dots {
+  0% {
+    content: ".";
+  }
+  33% {
+    content: "..";
+  }
+  66%,
+  100% {
+    content: "...";
+  }
+}

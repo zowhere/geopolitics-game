@@ -11,6 +11,7 @@ import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import { countries } from "../game/countries";
 import { countryShape } from "../map/countryShape";
+import { flagUrl } from "../map/flagUrl";
 import "./ChooseCountryScreen.css";
 
 type ChooseCountryScreenProps = {
@@ -151,7 +152,7 @@ function ChooseCountryScreen({ onBack, onPlay }: ChooseCountryScreenProps) {
             <span className="choose-population">
               {formatPopulation(country.population)}
             </span>
-            <Island shape={countryShape(country.mapName)} color={country.color} />
+            <Island shape={countryShape(country.mapName)} flag={flagUrl(country.code)} />
             <span className="choose-label">
               {country.name}
               <SoldierCount count={country.soldiers} />

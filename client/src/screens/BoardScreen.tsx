@@ -1,6 +1,7 @@
 import { useReducer, useState } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
+import StrategyBox from "../components/StrategyBox";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
 import type { TurnPlan } from "../game/Player";
@@ -33,11 +34,9 @@ const scatter = [
 function captionFor(phase: Phase, plan: TurnPlan | null) {
   if (!plan) return null;
   const { deployed, attack } = plan;
-  if (phase === "deploy" && deployed) {
-    return { text: `Deployed ${deployed.count} soldiers to ${deployed.to.name}`, reason: deployed.reason };
-  }
+  if (phase === "deploy" && deployed) return `Deployed ${deployed.count} soldiers to ${deployed.to.name}`;
   if (phase === "decision" || phase === "skipStamp" || phase === "afterHold") {
-    return { text: attack.kind === "hold" ? "Holding position" : `Invading ${attack.to.name}`, reason: attack.reason };
+    return attack.kind === "hold" ? "Holding position" : `Invading ${attack.to.name}`;
   }
   return null;
 }
@@ -163,9 +162,8 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
             </p>
           )}
           {caption && (
-            <p key={caption.text} className="board-caption">
-              {caption.text}
-              <span>{caption.reason}</span>
+            <p key={caption} className="board-caption">
+              {caption}
             </p>
           )}
           {phase === "yourTurn" && (
@@ -175,6 +173,7 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
           )}
         </footer>
       </main>
+      {caption && plan && <StrategyBox key={caption} game={game} plan={plan} deploying={phase === "deploy"} />}
       {(phase === "airdrop" || placing) && (
         <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
       )}

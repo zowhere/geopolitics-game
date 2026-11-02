@@ -4,6 +4,7 @@ import type { Territory } from "./Territory";
 export type Reinforcement = {
   to: Territory;
   count: number;
+  target?: Territory;
   reason: string;
 };
 
@@ -17,7 +18,7 @@ type AttackOption = {
   advantage: number;
 };
 
-const fewestToAttackFrom = 3;
+export const fewestToAttackFrom = 3;
 const stopAttackingAt = 2;
 
 function isBetterOption(a: AttackOption, b: AttackOption) {
@@ -51,17 +52,17 @@ export class NpcStrategy {
 
   placeReinforcements(territories: readonly Territory[], player: number, count: number): Reinforcement {
     const plan = this.bestOption(territories, player, count);
-    if (plan) return { to: plan.from, count, reason: `Best strategy: mass troops to strike ${plan.to.name}` };
+    if (plan) return { to: plan.from, count, target: plan.to, reason: `Mass troops to strike ${plan.to.name}` };
     const strongest = territories
       .filter((territory) => territory.owner === player)
       .reduce((best, territory) => (territory.soldiers > best.soldiers ? territory : best));
-    return { to: strongest, count, reason: "Best strategy: strengthen the strongest position" };
+    return { to: strongest, count, reason: "Strengthen the strongest position" };
   }
 
   chooseAttack(territories: readonly Territory[], player: number): AttackDecision {
     const plan = this.bestOption(territories, player);
-    if (!plan) return { kind: "hold", reason: "Best strategy: build up before attacking" };
-    return { kind: "attack", from: plan.from, to: plan.to, reason: "Best strategy: hit the weakest target first" };
+    if (!plan) return { kind: "hold", reason: "Build up before attacking" };
+    return { kind: "attack", from: plan.from, to: plan.to, reason: "Hit the weakest link" };
   }
 
   keepAttacking(from: Territory) {
