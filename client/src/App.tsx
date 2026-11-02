@@ -28,6 +28,16 @@ function resetCodeFromLink() {
   return params.get("mode") === "resetPassword" ? params.get("oobCode") : null;
 }
 
+function unfinished(saved: SavedGame) {
+  return saved.status === "waiting" || saved.status === "playing";
+}
+
+function restoreSaved(saved: SavedGame, countries: readonly Country[]) {
+  const game = Game.restore(saved.snapshot, countries);
+  if (saved.status === "waiting") game.wait();
+  return game;
+}
+
 function watchIdFromLink() {
   return new URLSearchParams(window.location.search).get("watch");
 }
@@ -53,9 +63,9 @@ function App() {
     setGameId(null);
   }
 
-  function saveGame() {
-    if (!game || !gameId) return;
-    gameStore.save(gameId, game).catch((error) => console.error("Couldn't save the game", error));
+  function saveGame(id = gameId, current = game) {
+    if (!id || !current) return;
+    gameStore.save(id, current).catch((error) => console.error("Couldn't save the game", error));
   }
 
   useEffect(
@@ -80,7 +90,7 @@ function App() {
     if (screen !== "newGame" || !username) return;
     gameStore
       .list()
-      .then((games) => setSavedGames(games.filter((saved) => saved.status === "playing")))
+      .then((games) => setSavedGames(games.filter(unfinished)))
       .catch(() => setSavedGames([]));
   }, [screen, username]);
 
@@ -93,7 +103,7 @@ function App() {
         if (!saved) return setLoadError("That game doesn't exist");
         const list = await countryStore.load();
         owner ||= await gameStore.ownerName(saved.ownerId);
-        setWatched({ saved, game: Game.restore(saved.snapshot, list), owner });
+        setWatched({ saved, game: restoreSaved(saved, list), owner });
       },
       () => setLoadError("Couldn't load that game"),
     );
@@ -110,14 +120,14 @@ function App() {
     if (!watched) return;
     const { saved } = watched;
     leaveWatch();
-    if (saved.ownerId === uid && saved.status === "playing") return void resume(saved);
+    if (saved.ownerId === uid && unfinished(saved)) return void resume(saved);
     if (!username) setSignUpFirst(true);
     setScreen("newGame");
   }
 
   function watchActionLabel() {
     if (!username) return "Sign up to play your own game";
-    if (watched?.saved.ownerId === uid && watched?.saved.status === "playing") return "Continue playing";
+    if (watched && watched.saved.ownerId === uid && unfinished(watched.saved)) return "Continue playing";
     return "Play your own game";
   }
 
@@ -135,18 +145,29 @@ function App() {
 
   function play(country: string) {
     if (!countries) return;
-    setGame(Game.start(country, countries));
-    setGameId(gameStore.newId());
+    const started = Game.start(country, countries);
+    const id = gameStore.newId();
+    started.wait();
+    setGame(started);
+    setGameId(id);
+    saveGame(id, started);
     setScreen("round");
+  }
+
+  function beginGame() {
+    if (!game) return;
+    game.begin();
+    saveGame();
+    setScreen("board");
   }
 
   async function resume(saved: SavedGame) {
     try {
       const list = countries ?? (await countryStore.load());
       setCountries(list);
-      setGame(Game.restore(saved.snapshot, list));
+      setGame(restoreSaved(saved, list));
       setGameId(saved.id);
-      setScreen("board");
+      setScreen(saved.status === "waiting" ? "round" : "board");
     } catch {
       setLoadError("Couldn't load that game");
     }
@@ -185,12 +206,12 @@ function App() {
           settings={settings}
           onSettingsChange={setSettings}
           onNewGame={newGame}
-          onSave={saveGame}
+          onSave={() => saveGame()}
         />
       );
     }
     if (screen === "round" && game) {
-      return <RoundScreen game={game} onStart={() => setScreen("board")} />;
+      return <RoundScreen game={game} onStart={beginGame} />;
     }
     if (screen === "choose") {
       if (loadError) return <p className="app-message">{loadError}</p>;
