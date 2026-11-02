@@ -15,6 +15,7 @@ const submitLabel: Record<Mode, string> = {
 };
 
 type LoginScreenProps = {
+  startMode?: Mode;
   onLogin: (username: string) => void;
 };
 
@@ -37,8 +38,8 @@ function validate(mode: Mode, email: string, username: string, password: string)
   return "";
 }
 
-function LoginScreen({ onLogin }: LoginScreenProps) {
-  const [mode, setMode] = useState<Mode>("login");
+function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
+  const [mode, setMode] = useState<Mode>(startMode);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -10,7 +10,8 @@ import "./WatchScreen.css";
 type WatchScreenProps = {
   game: Game;
   owner: string;
-  onSignUp: () => void;
+  actionLabel: string;
+  onAction: () => void;
 };
 
 function headline(game: Game, owner: string) {
@@ -19,7 +20,7 @@ function headline(game: Game, owner: string) {
   return game.current.human ? `${owner}'s turn` : `${game.current.country.name}'s turn`;
 }
 
-function WatchScreen({ game, owner, onSignUp }: WatchScreenProps) {
+function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
   return (
     <main className="board-screen watch-screen">
       <header className="board-hud">
@@ -65,8 +66,8 @@ function WatchScreen({ game, owner, onSignUp }: WatchScreenProps) {
 
       <footer className="board-footer">
         <p className="board-announce">{headline(game, owner)}</p>
-        <button className="btn btn-gold" type="button" onClick={onSignUp}>
-          Sign up to play your own game
+        <button className="btn btn-gold" type="button" onClick={onAction}>
+          {actionLabel}
         </button>
       </footer>
     </main>
