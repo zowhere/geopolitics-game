@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MapFilters from "./components/MapFilters";
+import ProfileMenu from "./components/ProfileMenu";
 import { Game } from "./game/Game";
 import BoardScreen from "./screens/BoardScreen";
 import ChooseCountryScreen from "./screens/ChooseCountryScreen";
@@ -7,8 +8,16 @@ import NewGameScreen from "./screens/NewGameScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RoundScreen from "./screens/RoundScreen";
 import { defaultSettings } from "./settings";
+import { HistoryStore, type GameResult } from "./storage/HistoryStore";
 
 type Screen = "newGame" | "choose" | "round" | "board";
+
+function resultOf(game: Game): GameResult {
+  const you = game.players.findIndex((player) => player.human);
+  if (game.winner?.human) return "won";
+  if (game.winner || game.isEliminated(you)) return "lost";
+  return "left";
+}
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
@@ -16,14 +25,22 @@ function App() {
   const [game, setGame] = useState<Game | null>(null);
   const [settings, setSettings] = useState(defaultSettings);
 
-  function logout() {
-    setUsername(null);
+  function leaveGame() {
+    if (game && username && screen === "board") {
+      const country = game.players.find((player) => player.human)!.country.name;
+      new HistoryStore(username).add({ country, result: resultOf(game), rounds: game.round });
+    }
     setGame(null);
+  }
+
+  function logout() {
+    leaveGame();
+    setUsername(null);
     setScreen("newGame");
   }
 
   function newGame() {
-    setGame(null);
+    leaveGame();
     setScreen("choose");
   }
 
@@ -38,11 +55,9 @@ function App() {
       return (
         <BoardScreen
           game={game}
-          username={username}
           settings={settings}
           onSettingsChange={setSettings}
           onNewGame={newGame}
-          onLogout={logout}
         />
       );
     }
@@ -58,11 +73,7 @@ function App() {
       );
     }
     return (
-      <NewGameScreen
-        username={username}
-        onLogout={logout}
-        onNewGame={() => setScreen("choose")}
-      />
+      <NewGameScreen onNewGame={() => setScreen("choose")} />
     );
   }
 
@@ -70,6 +81,11 @@ function App() {
     <>
       <MapFilters />
       {currentScreen()}
+      {username && (
+        <div className="app-profile">
+          <ProfileMenu game={game} username={username} onNewGame={newGame} onLogout={logout} />
+        </div>
+      )}
     </>
   );
 }
