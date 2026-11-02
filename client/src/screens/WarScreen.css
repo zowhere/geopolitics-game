@@ -167,12 +167,55 @@
   filter: drop-shadow(0 0 4px var(--red));
 }
 
-.war-fighter.dying {
-  animation: fall calc(1s / var(--pace)) ease-in forwards;
+.war-body {
+  transform-box: view-box;
+  transform-origin: 6px 19px;
 }
 
-.war-fighter.gone {
-  visibility: hidden;
+.war-pair .war-fighter.dying:first-child .war-body {
+  animation: fall-left calc(0.7s / var(--pace)) ease-in forwards;
+}
+
+.war-pair .war-fighter.dying:last-child .war-body {
+  animation: fall-right calc(0.7s / var(--pace)) ease-in forwards;
+}
+
+.war-pair .war-fighter.gone:first-child .war-body {
+  transform: rotate(-90deg);
+}
+
+.war-pair .war-fighter.gone:last-child .war-body {
+  transform: rotate(90deg);
+}
+
+.war-blood {
+  fill: #b3181c;
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.war-fighter.dying .war-blood {
+  animation: bleed calc(1.2s / var(--pace)) ease-out calc(0.5s / var(--pace)) both;
+}
+
+.war-wounds {
+  fill: #d42a2e;
+}
+
+.war-lost {
+  font: 600 0.85rem var(--font-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.war-pair .war-lost:first-child {
+  grid-column: 2;
+}
+
+.war-pair .war-lost:last-child {
+  grid-column: 4;
 }
 
 .war-pair .war-fighter.returning:first-child {
@@ -206,13 +249,27 @@
   color: var(--cream);
 }
 
-@keyframes fall {
+@keyframes fall-left {
   30% {
-    transform: translateY(-4px);
-    opacity: 1;
+    transform: translateY(-2px);
   }
   to {
-    transform: rotate(85deg) translateY(8px);
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes fall-right {
+  30% {
+    transform: translateY(-2px);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes bleed {
+  from {
+    transform: scale(0.1);
     opacity: 0;
   }
 }

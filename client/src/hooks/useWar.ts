@@ -36,7 +36,7 @@ const durations: Partial<Record<WarPhase, number>> = {
   ready: 1300,
   rolling: 1700,
   score: 2600,
-  casualties: 1200,
+  casualties: 2500,
   regroup: 1000,
   between: 800,
   occupied: 1800,

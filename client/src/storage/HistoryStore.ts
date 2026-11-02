@@ -2,8 +2,10 @@ export type GameResult = "won" | "lost" | "left";
 
 export type GameRecord = {
   country: string;
+  code: string;
   result: GameResult;
   rounds: number;
+  soldiersLost: number;
 };
 
 export class HistoryStore {

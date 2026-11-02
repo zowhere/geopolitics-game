@@ -44,10 +44,15 @@ function fighterState(phase: WarPhase, lost: boolean): FighterState {
 }
 
 function Fighter({ state }: { state: FighterState }) {
+  const down = state === "dying" || state === "gone";
   return (
     <svg className={`war-fighter ${state}`} viewBox="0 0 12 20" aria-hidden="true">
-      <use href="#soldier" />
-      {(state === "marked" || state === "dying") && <path className="war-x" d="M1 3l10 14M11 3L1 17" />}
+      <g className="war-body">
+        {down && <ellipse className="war-blood" cx="5" cy="11" rx="8" ry="12" />}
+        <use href="#soldier" />
+        {down && <path className="war-wounds" d="M3.6 7a1.4 1.4 0 1 0 0.1 0zM7.6 9a1.3 1.3 0 1 0 0.1 0zM5 12.4a1.2 1.2 0 1 0 0.1 0zM8 4.6a1 1 0 1 0 0.1 0z" />}
+      </g>
+      {state === "marked" && <path className="war-x" d="M1 3l10 14M11 3L1 17" />}
     </svg>
   );
 }
@@ -128,6 +133,12 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
             <b className="war-number">{attackerSurvivors}</b>
             <b className="war-number">{defenderSurvivors}</b>
           </div>
+          {lossesApplied && battle && (
+            <div className="war-pair">
+              <span className="war-lost">{battle.attackerLosses > 0 && `${battle.attackerLosses} lost`}</span>
+              <span className="war-lost">{battle.defenderLosses > 0 && `${battle.defenderLosses} lost`}</span>
+            </div>
+          )}
         </div>
         {side(to, defenderSurvivors)}
       </div>

@@ -27,8 +27,15 @@ function App() {
 
   function leaveGame() {
     if (game && username && screen === "board") {
-      const country = game.players.find((player) => player.human)!.country.name;
-      new HistoryStore(username).add({ country, result: resultOf(game), rounds: game.round });
+      const you = game.players.findIndex((player) => player.human);
+      const { name, code } = game.players[you].country;
+      new HistoryStore(username).add({
+        country: name,
+        code,
+        result: resultOf(game),
+        rounds: game.round,
+        soldiersLost: game.soldiersLostBy(you),
+      });
     }
     setGame(null);
   }

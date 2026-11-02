@@ -25,6 +25,40 @@
   filter: drop-shadow(0 3px 4px rgba(3, 12, 18, 0.6));
 }
 
+.avatar-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: avatar-blink 4.5s ease-in-out infinite;
+}
+
+.avatar-mouth {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: avatar-shout 3.2s ease-in-out infinite;
+}
+
+@keyframes avatar-blink {
+  0%,
+  92%,
+  100% {
+    transform: none;
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes avatar-shout {
+  0%,
+  70%,
+  100% {
+    transform: none;
+  }
+  80% {
+    transform: scale(1.12, 1.25);
+  }
+}
+
 .profile-panel {
   position: absolute;
   top: calc(100% + 6px);
@@ -57,10 +91,28 @@
 }
 
 .profile-empire {
-  margin: 0 0 10px;
+  margin: 0 0 4px;
   font: 600 0.95rem var(--font-label);
   letter-spacing: 0.04em;
   color: var(--gold);
+}
+
+.profile-empire:last-of-type {
+  margin-bottom: 10px;
+}
+
+.profile-soldiers {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.profile-soldiers svg {
+  width: 13px;
+  height: 22px;
+  filter: drop-shadow(0 1px 0 rgba(3, 12, 18, 0.6));
 }
 
 .profile-action {

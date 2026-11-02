@@ -1,75 +1,169 @@
-.analytics-backdrop {
+.record-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(3, 12, 18, 0.6);
+  background: rgba(3, 12, 18, 0.65);
 }
 
-.analytics-panel {
+.record {
+  position: relative;
   width: min(520px, 100%);
   max-height: calc(100vh - 32px);
   overflow: auto;
-  padding: 16px 20px 20px;
-  background: var(--sea-0);
-  border: 1px solid var(--line);
-  box-shadow: 0 20px 50px rgba(3, 12, 18, 0.8);
-  animation: slam 0.3s ease-out both;
+  padding: 22px 26px 24px;
+  font: 1rem / 1.5 var(--font-type);
+  color: #2b2820;
+  background:
+    repeating-linear-gradient(transparent 0 27px, rgba(120, 100, 60, 0.12) 27px 28px),
+    #ece2c6;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #c9b98f, 0 24px 50px rgba(3, 12, 18, 0.7);
+  transform: rotate(-0.6deg);
+  animation: record-in 0.35s ease-out both;
 }
 
-.analytics-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.analytics-header h2 {
-  margin: 0;
-  font: 400 1.4rem var(--font-display);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gold);
-}
-
-.analytics-close {
+.record-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
   padding: 4px 8px;
   font-size: 1.1rem;
-  color: var(--muted);
+  color: #6b604a;
   background: none;
   border: 0;
   cursor: pointer;
 }
 
-.analytics-close:hover {
-  color: var(--cream);
+.record-tab {
+  display: inline-block;
+  margin: 0;
+  padding: 2px 10px;
+  font: 400 0.85rem var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ece2c6;
+  background: #4f5a2e;
 }
 
-.analytics-grid {
-  margin-top: 14px;
+.record-name {
+  margin: 8px 0 14px;
+  font: 400 1.6rem var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2b2820;
+}
+
+.record-overall {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  padding: 10px 0;
+  border-top: 2px solid #2b2820;
+  border-bottom: 2px solid #2b2820;
 }
 
-.analytics-tile {
+.record-overall p {
   display: grid;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: #5d5442;
+}
+
+.record-overall b {
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #2b2820;
+}
+
+.record-section h3 {
+  margin: 16px 0 6px;
+  font: 400 0.95rem var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f5a2e;
+}
+
+.record-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.record img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px #2b2820;
+}
+
+.record-fallen {
+  display: inline-flex;
+  flex-wrap: wrap;
   gap: 2px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
 }
 
-.analytics-tile b {
-  font: 400 2rem / 1.1 var(--font-display);
-  font-variant-numeric: tabular-nums;
-  color: var(--cream);
+.record-fallen svg {
+  width: 26px;
+  height: 16px;
+  overflow: visible;
 }
 
-.analytics-tile span {
-  font: 600 0.72rem var(--font-label);
+.record-games {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-games li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto 64px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed #b9ab84;
+}
+
+.record-stamp {
+  justify-self: end;
+  padding: 0 6px;
+  font: 400 0.8rem var(--font-display);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  transform: rotate(-6deg);
+  opacity: 0.85;
 }
 
+.record-stamp.won {
+  color: #3d6b2f;
+}
+
+.record-stamp.lost {
+  color: #a3221f;
+}
+
+.record-stamp.left {
+  color: #6b604a;
+}
+
+@keyframes record-in {
+  from {
+    opacity: 0;
+    transform: rotate(-3deg) translateY(16px);
+  }
+}
+
+@media (max-width: 480px) {
+  .record-overall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

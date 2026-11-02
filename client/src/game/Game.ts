@@ -21,6 +21,7 @@ export class Game {
   private reserveCount = 0;
   private war: War | null = null;
   private warOver = false;
+  private readonly losses: number[];
 
   constructor(humanCountry: string) {
     const human = countries.find((country) => country.name === humanCountry)!;
@@ -29,6 +30,7 @@ export class Game {
       country === human ? new HumanPlayer(country) : new NpcPlayer(country),
     );
     this.territories = this.players.map((player, index) => new Territory(player.country, index));
+    this.losses = this.players.map(() => 0);
     this.commentator.round(1);
   }
 
@@ -59,6 +61,10 @@ export class Game {
 
   territoriesOf(player: number) {
     return this.territories.filter((territory) => territory.owner === player);
+  }
+
+  soldiersLostBy(player: number) {
+    return this.losses[player];
   }
 
   isEliminated(player: number) {
@@ -98,6 +104,8 @@ export class Game {
   fight(from: Territory, to: Territory, battle = Battle.roll(from, to)) {
     if (!this.canAttack(from, to)) throw new Error("That attack is not allowed");
     this.war = { from, to };
+    this.losses[from.owner] += battle.attackerLosses;
+    this.losses[to.owner] += battle.defenderLosses;
     from.loseSoldiers(battle.attackerLosses);
     to.loseSoldiers(battle.defenderLosses);
     return battle;
