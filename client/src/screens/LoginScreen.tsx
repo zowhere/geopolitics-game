@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import Island from "../components/Island";
 import { countryShape } from "../map/countryShape";
+import { flagUrl } from "../map/flagUrl";
 import "./LoginScreen.css";
 
 type Mode = "login" | "signup";
@@ -10,16 +11,11 @@ type LoginScreenProps = {
 };
 
 const drifters = [
-  { name: "South Africa", color: "#c4553f", left: "0%", top: "6%" },
-  {
-    name: "United States of America",
-    color: "#5e9150",
-    left: "60%",
-    top: "2%",
-  },
-  { name: "Egypt", color: "#d8b44a", left: "10%", top: "66%" },
-  { name: "Chile", color: "#3f6fae", left: "42%", top: "72%" },
-  { name: "Brazil", color: "#c46b8f", left: "74%", top: "56%" },
+  { name: "South Africa", code: "za", left: "0%", top: "6%" },
+  { name: "United States of America", code: "us", left: "60%", top: "2%" },
+  { name: "Egypt", code: "eg", left: "10%", top: "66%" },
+  { name: "Chile", code: "cl", left: "42%", top: "72%" },
+  { name: "Brazil", code: "br", left: "74%", top: "56%" },
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
 function validate(username: string, password: string) {
@@ -56,7 +52,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
           <Island
             key={drifter.name}
             shape={drifter.shape}
-            color={drifter.color}
+            flag={flagUrl(drifter.code)}
             className="login-drifter"
             style={{
               left: drifter.left,

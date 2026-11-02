@@ -5,8 +5,7 @@ import "./Island.css";
 
 type IslandProps = {
   shape: CountryShape;
-  color?: string;
-  flag?: string;
+  flag: string;
   soldiers?: number;
   className?: string;
   style?: CSSProperties;
@@ -25,7 +24,7 @@ function flagArea({ x, y, width, height }: CountryShape["box"]) {
   return { x, y, width: height * ratio, height };
 }
 
-function Island({ shape, color, flag, soldiers, className, style }: IslandProps) {
+function Island({ shape, flag, soldiers, className, style }: IslandProps) {
   const clipId = `coast${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const { path, box } = shape;
   const area = flagArea(box);
@@ -38,24 +37,20 @@ function Island({ shape, color, flag, soldiers, className, style }: IslandProps)
       aria-hidden="true"
     >
       <path className="island-halo" d={path} />
-      {flag ? (
-        <g className="island-land">
-          <clipPath id={clipId}>
-            <path d={path} />
-          </clipPath>
-          <image
-            href={flag}
-            clipPath={`url(#${clipId})`}
-            x={area.x}
-            y={area.y}
-            width={area.width}
-            height={area.height}
-            preserveAspectRatio="none"
-          />
-        </g>
-      ) : (
-        <path className="island-land" d={path} fill={color} />
-      )}
+      <g className="island-land">
+        <clipPath id={clipId}>
+          <path d={path} />
+        </clipPath>
+        <image
+          href={flag}
+          clipPath={`url(#${clipId})`}
+          x={area.x}
+          y={area.y}
+          width={area.width}
+          height={area.height}
+          preserveAspectRatio="none"
+        />
+      </g>
       <path className="island-coast" d={path} />
       {soldiers !== undefined &&
         troopSpots(path, Math.min(soldiers, mostSoldiersShown)).map(([x, y], index) => (
