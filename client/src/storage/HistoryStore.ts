@@ -11,8 +11,8 @@ export type GameRecord = {
 export class HistoryStore {
   private readonly key: string;
 
-  constructor(userId: string) {
-    this.key = `geopolitics-101-history-${userId}`;
+  constructor(username: string) {
+    this.key = `geopolitics-101-history-${username}`;
   }
 
   load(): GameRecord[] {
