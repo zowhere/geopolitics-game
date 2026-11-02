@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import MapFilters from "./components/MapFilters";
 import ProfileMenu from "./components/ProfileMenu";
 import { accounts } from "./db/AccountStore";
+import { countryStore } from "./db/CountryStore";
+import type { Country } from "./game/countries";
 import { Game } from "./game/Game";
 import BoardScreen from "./screens/BoardScreen";
 import ChooseCountryScreen from "./screens/ChooseCountryScreen";
@@ -23,6 +25,8 @@ function resultOf(game: Game): GameResult {
 function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [checkedLogin, setCheckedLogin] = useState(false);
+  const [countries, setCountries] = useState<Country[] | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [screen, setScreen] = useState<Screen>("newGame");
   const [game, setGame] = useState<Game | null>(null);
   const [settings, setSettings] = useState(defaultSettings);
@@ -51,6 +55,13 @@ function App() {
     [],
   );
 
+  useEffect(() => {
+    countryStore
+      .load()
+      .then(setCountries)
+      .catch(() => setLoadError("Couldn't reach the database"));
+  }, []);
+
   function logout() {
     leaveGame();
     void accounts.logOut();
@@ -64,7 +75,8 @@ function App() {
   }
 
   function play(country: string) {
-    setGame(new Game(country));
+    if (!countries) return;
+    setGame(new Game(country, countries));
     setScreen("round");
   }
 
@@ -85,8 +97,11 @@ function App() {
       return <RoundScreen game={game} onStart={() => setScreen("board")} />;
     }
     if (screen === "choose") {
+      if (loadError) return <p className="app-message">{loadError}</p>;
+      if (!countries) return null;
       return (
         <ChooseCountryScreen
+          countries={countries}
           onBack={() => setScreen("newGame")}
           onPlay={play}
         />

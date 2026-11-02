@@ -1,6 +1,6 @@
 import { Battle } from "./Battle";
 import { Commentator } from "./Commentator";
-import { countries } from "./countries";
+import type { Country } from "./countries";
 import { HumanPlayer } from "./HumanPlayer";
 import { NpcPlayer } from "./NpcPlayer";
 import type { Player } from "./Player";
@@ -23,7 +23,7 @@ export class Game {
   private warOver = false;
   private readonly losses: number[];
 
-  constructor(humanCountry: string) {
+  constructor(humanCountry: string, countries: readonly Country[]) {
     const human = countries.find((country) => country.name === humanCountry)!;
     const rivals = shuffle(countries.filter((country) => country !== human));
     this.players = shuffle([human, ...rivals.slice(0, 9)]).map((country) =>

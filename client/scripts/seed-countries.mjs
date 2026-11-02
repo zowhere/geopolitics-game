@@ -8,22 +8,13 @@ const projectIdArg = process.argv.find((arg) => arg.startsWith("--project="));
 const projectId =
   projectIdArg?.split("=")[1] ?? process.env.GOOGLE_CLOUD_PROJECT;
 const confirmed = process.argv.includes("--confirm");
-const countriesPath = new URL("../src/data/countries.json", import.meta.url);
+const countriesPath = new URL("./countries.json", import.meta.url);
 const countries = JSON.parse(await readFile(countriesPath, "utf8"));
-const soldierTiers = [5, 10, 25, 50, 75, 100, 125, 150];
-
-function soldiersFor(population) {
-  const tier = soldierTiers.findIndex(
-    (limit) => population / 1_000_000 <= limit,
-  );
-  return tier === -1 ? 9 : tier + 1;
-}
-
-const countryDocs = countries.map((country) => ({
-  ...country,
-  soldiers: soldiersFor(country.population),
-  populationYear: 2026,
-  populationSource: sourceUrl,
+const countryDocs = countries.map(({ name, code, mapName, population }) => ({
+  name,
+  code,
+  mapName,
+  population,
 }));
 
 if (!confirmed) {
@@ -55,10 +46,12 @@ const db = getFirestore(app);
 const batch = db.batch();
 
 for (const country of countryDocs) {
-  batch.set(db.collection("countries").doc(country.code), country, {
-    merge: true,
-  });
+  batch.set(db.collection("countries").doc(country.code), country);
 }
+batch.set(db.collection("meta").doc("countries"), {
+  populationYear: 2026,
+  populationSource: sourceUrl,
+});
 
 await batch.commit();
 console.log(

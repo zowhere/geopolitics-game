@@ -1,4 +1,13 @@
-import data from "../data/countries.json";
+export type CountryRecord = {
+  name: string;
+  code: string;
+  mapName: string;
+  population: number;
+};
+
+export type Country = CountryRecord & {
+  soldiers: number;
+};
 
 const soldierTiers = [5, 10, 25, 50, 75, 100, 125, 150];
 
@@ -8,9 +17,6 @@ export function soldiersFor(population: number) {
   return tier === -1 ? 9 : tier + 1;
 }
 
-export const countries = data.map((country) => ({
-  ...country,
-  soldiers: soldiersFor(country.population),
-}));
-
-export type Country = (typeof countries)[number];
+export function withSoldiers(record: CountryRecord): Country {
+  return { ...record, soldiers: soldiersFor(record.population) };
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Combobox,
   ComboboxButton,
@@ -9,25 +9,16 @@ import {
 import Helmet from "../components/Helmet";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
-import { countries } from "../game/countries";
+import type { Country } from "../game/countries";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
 import "./ChooseCountryScreen.css";
 
 type ChooseCountryScreenProps = {
+  countries: readonly Country[];
   onBack: () => void;
   onPlay: (country: string) => void;
 };
-
-const choices = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-
-const byPopulation = [...countries].sort((a, b) => b.population - a.population);
-const middle = Math.floor(byPopulation.length / 2);
-const featured = [
-  ...byPopulation.slice(0, 6),
-  ...byPopulation.slice(middle - 1, middle + 2),
-  ...byPopulation.slice(-4),
-];
 
 const soldierRanges = [
   { label: "All", min: 1, max: 9 },
@@ -43,7 +34,22 @@ function formatPopulation(population: number) {
   return `${population.toLocaleString()} people`;
 }
 
-function ChooseCountryScreen({ onBack, onPlay }: ChooseCountryScreenProps) {
+function featuredFrom(countries: readonly Country[]) {
+  const byPopulation = [...countries].sort((a, b) => b.population - a.population);
+  const middle = Math.floor(byPopulation.length / 2);
+  return [
+    ...byPopulation.slice(0, 6),
+    ...byPopulation.slice(middle - 1, middle + 2),
+    ...byPopulation.slice(-4),
+  ];
+}
+
+function ChooseCountryScreen({ countries, onBack, onPlay }: ChooseCountryScreenProps) {
+  const choices = useMemo(
+    () => [...countries].sort((a, b) => a.name.localeCompare(b.name)),
+    [countries],
+  );
+  const featured = useMemo(() => featuredFrom(countries), [countries]);
   const [selected, setSelected] = useState("South Africa");
   const [query, setQuery] = useState("");
   const [range, setRange] = useState(soldierRanges[0]);

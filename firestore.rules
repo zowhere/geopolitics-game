@@ -2,17 +2,53 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validUsername(username) {
+      return username is string && username.matches('^[A-Za-z0-9_]{3,20}$');
+    }
+
+    function ownEmail(data) {
+      return data.email == request.auth.token.email;
+    }
+
     match /countries/{id} {
       allow read: if true;
+      allow write: if false;
+    }
+
+    match /meta/{id} {
+      allow read: if true;
+      allow write: if false;
     }
 
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['username', 'createdAt'])
+        && validUsername(request.resource.data.username)
+        && request.resource.data.createdAt == request.time
+        && existsAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username.lower()));
+      allow update: if isOwner(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['username', 'createdAt']);
+      allow delete: if false;
     }
 
     match /usernames/{name} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow create: if signedIn()
+        && name.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid', 'email'])
+        && request.resource.data.uid == request.auth.uid
+        && ownEmail(request.resource.data)
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
+      allow update, delete: if false;
     }
   }
 }

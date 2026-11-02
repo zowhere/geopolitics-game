@@ -142,3 +142,11 @@ body {
   right: 16px;
   z-index: 40;
 }
+
+.app-message {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  margin: 0;
+  opacity: 0.8;
+}

@@ -18,7 +18,7 @@ export type Account = {
 const messages: Record<string, string> = {
   "auth/email-already-in-use": "That email already has an account",
   "auth/invalid-email": "That email doesn't look right",
-  "auth/weak-password": "Password: at least 6 characters",
+  "auth/weak-password": "Password: at least 8 characters",
   "auth/invalid-credential": "Wrong username or password",
   "auth/too-many-requests": "Too many tries, wait a bit",
   "auth/network-request-failed": "No connection",
@@ -31,10 +31,11 @@ export class AccountStore {
       if ((await getDoc(name)).exists()) throw new Error("That username is taken");
 
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      const savedEmail = user.email ?? email;
       try {
         const batch = writeBatch(db);
-        batch.set(doc(db, "users", user.uid), { username, email, createdAt: serverTimestamp() });
-        batch.set(name, { uid: user.uid, email });
+        batch.set(doc(db, "users", user.uid), { username, createdAt: serverTimestamp() });
+        batch.set(name, { uid: user.uid, email: savedEmail });
         await batch.commit();
         await updateProfile(user, { displayName: username });
       } catch (error) {
