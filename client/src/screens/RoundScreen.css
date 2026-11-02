@@ -88,6 +88,14 @@
   background: var(--gold);
 }
 
+.round-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
 .round-start {
   font-size: 1.4rem;
   padding: 0.8em 2.2em 0.75em;

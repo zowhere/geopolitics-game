@@ -211,7 +211,7 @@ function App() {
       );
     }
     if (screen === "round" && game) {
-      return <RoundScreen game={game} onStart={beginGame} />;
+      return <RoundScreen game={game} gameId={gameId} onStart={beginGame} />;
     }
     if (screen === "choose") {
       if (loadError) return <p className="app-message">{loadError}</p>;

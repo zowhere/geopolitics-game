@@ -1,4 +1,5 @@
 import Island from "../components/Island";
+import ShareButton from "../components/ShareButton";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
 import { countryShape } from "../map/countryShape";
@@ -7,10 +8,11 @@ import "./RoundScreen.css";
 
 type RoundScreenProps = {
   game: Game;
+  gameId: string | null;
   onStart: () => void;
 };
 
-function RoundScreen({ game, onStart }: RoundScreenProps) {
+function RoundScreen({ game, gameId, onStart }: RoundScreenProps) {
   return (
     <main className="round-screen">
       <h1 className="round-title">Round {game.round}</h1>
@@ -36,9 +38,12 @@ function RoundScreen({ game, onStart }: RoundScreenProps) {
         ))}
       </ol>
 
-      <button className="btn btn-gold round-start" type="button" onClick={onStart}>
-        Start
-      </button>
+      <div className="round-actions">
+        <button className="btn btn-gold round-start" type="button" onClick={onStart}>
+          Start
+        </button>
+        {gameId && <ShareButton gameId={gameId} className="btn btn-outline" />}
+      </div>
     </main>
   );
 }

@@ -16,6 +16,7 @@ type WatchScreenProps = {
 };
 
 function headline(game: Game, owner: string) {
+  if (game.status === "waiting") return `Waiting for ${owner} to start`;
   if (game.status === "won") return `${owner} won`;
   if (game.status === "lost") return `${owner} lost`;
   return game.current.human ? `${owner}'s turn` : `${game.current.country.name}'s turn`;
