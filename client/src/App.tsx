@@ -100,9 +100,10 @@ function App() {
     return gameStore.watch(
       watchId,
       async (saved) => {
-        if (!saved) return setLoadError("That game doesn't exist");
+        if (!saved) return setLoadError("Looking for this game…");
         const list = await countryStore.load();
         owner ||= await gameStore.ownerName(saved.ownerId);
+        setLoadError("");
         setWatched({ saved, game: restoreSaved(saved, list), owner });
       },
       () => setLoadError("Couldn't load that game"),
