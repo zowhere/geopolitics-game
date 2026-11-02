@@ -17,6 +17,7 @@ import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
 import EndScreen from "./EndScreen";
 import PauseScreen from "./PauseScreen";
+import { scatter } from "./scatter";
 import WarScreen from "./WarScreen";
 import type { Settings } from "../settings";
 import "./BoardScreen.css";
@@ -28,19 +29,6 @@ type BoardScreenProps = {
   onNewGame: () => void;
   onSave: () => void;
 };
-
-const scatter = [
-  [-7, 4, -6, 0.95],
-  [8, -24, 4, 1.04],
-  [-3, 22, 6, 0.9],
-  [6, -10, -4, 1.06],
-  [-8, 12, 3, 0.92],
-  [8, 46, -6, 1],
-  [-6, 74, 5, 1.04],
-  [4, 34, -3, 0.9],
-  [-8, 84, 6, 1],
-  [7, 56, -5, 0.95],
-];
 
 const homeRule = "At least 1 soldier must stay home during an attack";
 

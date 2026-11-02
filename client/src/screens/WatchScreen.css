@@ -1,0 +1,19 @@
+.watch-label {
+  padding: 3px 8px;
+  border: 2px solid var(--fire);
+  border-radius: 3px;
+  font: 400 0.85rem var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fire);
+  white-space: nowrap;
+}
+
+.watch-screen .board-footer {
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.watch-screen .board-country {
+  cursor: default;
+}
