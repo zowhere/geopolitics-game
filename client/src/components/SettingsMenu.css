@@ -50,6 +50,30 @@
   color: var(--gold);
 }
 
+.settings-transfer {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 0;
+  font: 600 0.95rem var(--font-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sea-0);
+  background: var(--gold);
+  border: 0;
+  cursor: pointer;
+}
+
+.settings-transfer:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.settings-note {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 .settings-label {
   margin: 10px 0 6px;
   font: 600 0.72rem var(--font-label);

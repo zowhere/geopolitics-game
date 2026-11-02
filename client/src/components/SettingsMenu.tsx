@@ -5,10 +5,16 @@ import "./SettingsMenu.css";
 type SettingsMenuProps = {
   settings: Settings;
   onChange: (settings: Settings) => void;
+  onTransfer?: () => void;
 };
 
-function SettingsMenu({ settings, onChange }: SettingsMenuProps) {
+function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
+
+  function transfer() {
+    setOpen(false);
+    onTransfer?.();
+  }
 
   return (
     <div className="settings" onClick={(event) => event.stopPropagation()}>
@@ -26,6 +32,10 @@ function SettingsMenu({ settings, onChange }: SettingsMenuProps) {
       {open && (
         <div className="settings-panel">
           <h2 className="settings-title">Settings</h2>
+          <button className="settings-transfer" type="button" disabled={!onTransfer} onClick={transfer}>
+            Transfer soldiers
+          </button>
+          {!onTransfer && <p className="settings-note">On your turn, after placing new soldiers</p>}
           <p className="settings-label">Fast-forward speed</p>
           <div className="settings-choices">
             {speeds.map((speed) => (

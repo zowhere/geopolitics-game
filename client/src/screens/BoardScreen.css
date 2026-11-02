@@ -159,12 +159,13 @@
 }
 
 .board-country .island {
-  width: 100%;
-  max-width: 200px;
+  width: 74%;
+  max-width: 170px;
   aspect-ratio: 4 / 3;
 }
 
 .board-label {
+  max-width: 82%;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -278,6 +279,20 @@
   color: var(--sea-0);
   background: var(--gold);
   box-shadow: none;
+}
+
+.board-country.movable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.board-hint {
+  margin: 0;
+  font: 400 1.05rem var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 2px 4px var(--sea-0);
 }
 
 .board-notice {

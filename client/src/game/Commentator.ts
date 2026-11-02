@@ -63,7 +63,12 @@ export class Commentator {
   }
 
   transferred(player: Player, { from, to, count, reason }: Transfer) {
-    this.lines.push({ who: nameOf(player), text: `Moved ${count} soldiers from ${from.name} to ${to.name}`, reason });
+    this.moved(player, from, to, count, reason);
+  }
+
+  moved(player: Player, from: Territory, to: Territory, count: number, reason?: string) {
+    const soldiers = count === 1 ? "soldier" : "soldiers";
+    this.lines.push({ who: nameOf(player), text: `Moved ${count} ${soldiers} from ${from.name} to ${to.name}`, reason });
   }
 
   eliminated(player: Player) {

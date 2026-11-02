@@ -1,7 +1,8 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState, type PointerEvent } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
 import SettingsMenu from "../components/SettingsMenu";
+import SoldierGhost from "../components/SoldierGhost";
 import SoldierMarch from "../components/SoldierMarch";
 import StrategyBox from "../components/StrategyBox";
 import SoldierCount from "../components/SoldierCount";
@@ -10,6 +11,7 @@ import type { Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
 import { PaceContext, PausedContext } from "../hooks/PaceContext";
+import { useSoldierDrag } from "../hooks/useSoldierDrag";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
@@ -27,16 +29,16 @@ type BoardScreenProps = {
 };
 
 const scatter = [
-  [-18, 4, -6, 0.95],
-  [22, -26, 4, 1.05],
-  [-6, 24, 7, 0.9],
-  [16, -12, -4, 1.1],
-  [-24, 14, 3, 0.92],
-  [26, 48, -6, 1],
-  [-14, 74, 5, 1.08],
-  [12, 36, -3, 0.9],
-  [-28, 86, 7, 1.02],
-  [20, 56, -5, 0.95],
+  [-7, 4, -6, 0.95],
+  [8, -24, 4, 1.04],
+  [-3, 22, 6, 0.9],
+  [6, -10, -4, 1.06],
+  [-8, 12, 3, 0.92],
+  [8, 46, -6, 1],
+  [-6, 74, 5, 1.04],
+  [4, 34, -3, 0.9],
+  [-8, 84, 6, 1],
+  [7, 56, -5, 0.95],
 ];
 
 const homeRule = "At least 1 soldier must stay home during an attack";
@@ -67,6 +69,9 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
   const [logOpen, setLogOpen] = useState(false);
   const [aiming, setAiming] = useState(false);
   const [notice, setNotice] = useState("");
+  const [transferring, setTransferring] = useState(false);
+  const [moves, setMoves] = useState<{ from: Territory; to: Territory }[]>([]);
+  const dragFrom = useRef<Territory | null>(null);
   const placing = phase === "yourTurn" && game.reserve > 0;
   const current = game.current;
   const npcAttack = phase === "decision" && plan?.attack.kind === "attack" ? plan.attack.from : null;
@@ -108,7 +113,40 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
     refresh();
   }
 
+  const transferDrag = useSoldierDrag((target) => {
+    const name = target.closest<HTMLElement>("[data-territory]")?.dataset.territory;
+    const to = game.territories.find((territory) => territory.name === name);
+    const from = dragFrom.current;
+    if (!from || !to || to === from || to.owner !== game.currentIndex) return;
+    game.moveSoldiers(from, to, 1);
+    setMoves([...moves, { from, to }]);
+  });
+
+  function startTransfer() {
+    setAiming(false);
+    setTransferring(true);
+  }
+
+  function grab(event: PointerEvent, territory: Territory) {
+    if (!transferring || territory.owner !== game.currentIndex || territory.soldiers < 2) return;
+    dragFrom.current = territory;
+    transferDrag.startDrag(event);
+  }
+
+  function finishTransfer() {
+    const grouped = new Map<string, { from: Territory; to: Territory; count: number }>();
+    for (const { from, to } of moves) {
+      const key = `${from.name}>${to.name}`;
+      const move = grouped.get(key) ?? { from, to, count: 0 };
+      grouped.set(key, { ...move, count: move.count + 1 });
+    }
+    for (const move of grouped.values()) game.commentator.moved(current, move.from, move.to, move.count);
+    setMoves([]);
+    setTransferring(false);
+  }
+
   function choose(territory: Territory) {
+    if (transferring) return;
     if (placing) place(territory);
     else if (targets.includes(territory)) attack(territory);
     else if (armies.includes(territory)) setChosen(territory);
@@ -172,7 +210,11 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
                   ))}
                 </ol>
               )}
-              <SettingsMenu settings={settings} onChange={onSettingsChange} />
+              <SettingsMenu
+                settings={settings}
+                onChange={onSettingsChange}
+                onTransfer={phase === "yourTurn" && !placing && !transferring ? startTransfer : undefined}
+              />
             </header>
 
             <div className="board-map">
@@ -184,14 +226,16 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
                 if (territory === attacker || territory === moving?.from || territory === moving?.to) classes.push("attacking");
                 if (aiming && targets.includes(territory)) classes.push("target");
                 if (war && territory !== war.from && territory !== war.to) classes.push("dim");
-                if (placing && territory.owner === game.currentIndex) classes.push("droppable");
+                if ((placing || transferring) && territory.owner === game.currentIndex) classes.push("droppable");
+                if (transferring && territory.owner === game.currentIndex && territory.soldiers >= 2) classes.push("movable");
                 return (
                   <div
                     key={territory.name}
                     className={classes.join(" ")}
                     data-territory={territory.name}
-                    style={{ translate: `${x}px ${y}px` }}
+                    style={{ translate: `${x}% ${y}px` }}
                     onClick={() => choose(territory)}
+                    onPointerDown={(event) => grab(event, territory)}
                   >
                     <Island
                       shape={countryShape(territory.country.mapName)}
@@ -224,9 +268,14 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
                 </p>
               )}
               {notice && <p className="board-notice">{notice}</p>}
+              {transferring && <p className="board-hint">Drag soldiers between your countries</p>}
               {phase === "yourTurn" && (
                 <div className="board-actions">
-                  {game.attacked ? (
+                  {transferring ? (
+                    <button className="btn btn-gold" type="button" onClick={finishTransfer}>
+                      Done
+                    </button>
+                  ) : game.attacked ? (
                     <button className="btn btn-gold" type="button" onClick={endTurn}>
                       End turn
                     </button>
@@ -250,6 +299,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
               )}
             </footer>
           </main>
+          {transferDrag.ghost && <SoldierGhost at={transferDrag.ghost} />}
           {caption && plan && (
             <StrategyBox key={caption} game={game} plan={plan} deploying={phase === "deploy"} transfer={moving} />
           )}
