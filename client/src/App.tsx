@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MapFilters from "./components/MapFilters";
 import ProfileMenu from "./components/ProfileMenu";
+import { accounts } from "./db/AccountStore";
 import { Game } from "./game/Game";
 import BoardScreen from "./screens/BoardScreen";
 import ChooseCountryScreen from "./screens/ChooseCountryScreen";
@@ -21,6 +22,7 @@ function resultOf(game: Game): GameResult {
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
+  const [checkedLogin, setCheckedLogin] = useState(false);
   const [screen, setScreen] = useState<Screen>("newGame");
   const [game, setGame] = useState<Game | null>(null);
   const [settings, setSettings] = useState(defaultSettings);
@@ -40,8 +42,18 @@ function App() {
     setGame(null);
   }
 
+  useEffect(
+    () =>
+      accounts.onChange((account) => {
+        setUsername(account?.username ?? null);
+        setCheckedLogin(true);
+      }),
+    [],
+  );
+
   function logout() {
     leaveGame();
+    void accounts.logOut();
     setUsername(null);
     setScreen("newGame");
   }
@@ -57,6 +69,7 @@ function App() {
   }
 
   function currentScreen() {
+    if (!checkedLogin) return null;
     if (!username) return <LoginScreen onLogin={setUsername} />;
     if (screen === "board" && game) {
       return (

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import Island from "../components/Island";
+import { accounts } from "../db/AccountStore";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
 import "./LoginScreen.css";
@@ -18,7 +19,9 @@ const drifters = [
   { name: "Brazil", code: "br", left: "74%", top: "56%" },
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
-function validate(username: string, password: string) {
+function validate(mode: Mode, email: string, username: string, password: string) {
+  if (mode === "signup" && !/^\S+@\S+\.\S+$/.test(email))
+    return "That email doesn't look right";
   if (!/^[A-Za-z0-9_]{3,20}$/.test(username))
     return "Username: 3 to 20 letters, numbers or _";
   if (password.length < 6) return "Password: at least 6 characters";
@@ -27,22 +30,35 @@ function validate(username: string, password: string) {
 
 function LoginScreen({ onLogin }: LoginScreenProps) {
   const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   function switchMode(next: Mode) {
     setMode(next);
     setError("");
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const name = username.trim();
-    if (!name && !password) return onLogin("guest");
-    const problem = validate(name, password);
+    const problem = validate(mode, email.trim(), name, password);
     setError(problem);
-    if (!problem) onLogin(name);
+    if (problem) return;
+
+    setBusy(true);
+    try {
+      const account =
+        mode === "signup"
+          ? await accounts.signUp(email.trim(), name, password)
+          : await accounts.logIn(name, password);
+      onLogin(account.username);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Something went wrong");
+      setBusy(false);
+    }
   }
 
   return (
@@ -88,6 +104,17 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
         </div>
 
         <form className="login-form" onSubmit={submit} noValidate>
+          {mode === "signup" && (
+            <input
+              className="line-input"
+              type="email"
+              placeholder="Email"
+              aria-label="Email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          )}
           <input
             className="line-input"
             placeholder="Username"
@@ -108,7 +135,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             onChange={(event) => setPassword(event.target.value)}
           />
           {error && <p className="login-error">{error}</p>}
-          <button className="btn btn-gold" type="submit">
+          <button className="btn btn-gold" type="submit" disabled={busy}>
             {mode === "login" ? "Play" : "Create account"}
           </button>
         </form>
