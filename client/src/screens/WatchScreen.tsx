@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
@@ -22,7 +22,28 @@ function headline(game: Game, owner: string) {
   return game.current.human ? `${owner}'s turn` : `${game.current.country.name}'s turn`;
 }
 
+type Board = { owner: number; soldiers: number }[];
+
+function boardOf(game: Game): Board {
+  return game.territories.map((territory) => ({ owner: territory.owner, soldiers: territory.soldiers }));
+}
+
 function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
+  const [shown, setShown] = useState(game);
+  const [before, setBefore] = useState<Board | null>(null);
+  if (game !== shown) {
+    setBefore(boardOf(shown));
+    setShown(game);
+  }
+
+  const nameOf = (player: number) => (game.players[player].human ? owner : game.players[player].country.name);
+  const occupied = before
+    ? game.territories
+        .filter((territory, index) => territory.owner !== before[index].owner)
+        .map((territory) => `${nameOf(territory.owner)} occupied ${territory.name}`)
+    : [];
+  const update = `${game.round}-${game.currentIndex}`;
+
   return (
     <main className="board-screen watch-screen">
       <header className="board-hud">
@@ -45,10 +66,14 @@ function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
         {game.territories.map((territory, index) => {
           const [x, y, tilt, size] = scatter[index];
           const holder = game.players[territory.owner];
+          const change = before ? territory.soldiers - before[index].soldiers : 0;
+          const classes = ["board-country"];
+          if (holder.human) classes.push("you");
+          if (before && territory.owner !== before[index].owner) classes.push("watch-taken");
           return (
             <div
-              key={territory.name}
-              className={holder.human ? "board-country you" : "board-country"}
+              key={`${territory.name}-${update}`}
+              className={classes.join(" ")}
               style={{ "--x": `${x}%`, "--y": `${y}px` } as CSSProperties}
             >
               <Island
@@ -61,12 +86,22 @@ function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
                 {territory.name}
                 <SoldierCount count={territory.soldiers} />
               </span>
+              {change !== 0 && (
+                <span className={change > 0 ? "watch-change up" : "watch-change down"}>
+                  {change > 0 ? `+${change}` : `−${-change}`}
+                </span>
+              )}
             </div>
           );
         })}
       </div>
 
       <footer className="board-footer">
+        {occupied.slice(0, 3).map((line) => (
+          <p key={`${line}-${update}`} className="watch-news">
+            {line}
+          </p>
+        ))}
         <p className="board-announce">{headline(game, owner)}</p>
         <button className="btn btn-gold" type="button" onClick={onAction}>
           {actionLabel}

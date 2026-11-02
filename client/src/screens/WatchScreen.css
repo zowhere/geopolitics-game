@@ -15,5 +15,69 @@
 }
 
 .watch-screen .board-country {
+  position: relative;
   cursor: default;
+}
+
+.watch-change {
+  position: absolute;
+  top: 8%;
+  right: 14%;
+  font: 400 1.1rem var(--font-display);
+  text-shadow: 0 2px 0 var(--sea-0);
+  pointer-events: none;
+  animation: watch-pop 2.4s ease-out both;
+}
+
+.watch-change.up {
+  color: #8fd16a;
+}
+
+.watch-change.down {
+  color: var(--red);
+}
+
+.watch-taken .island {
+  animation: watch-flash 0.9s ease-in-out 3;
+}
+
+.watch-news {
+  margin: 0;
+  font: 600 1rem var(--font-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fire);
+  text-shadow: 0 2px 4px var(--sea-0);
+  animation: slam 0.4s ease-out both;
+}
+
+@keyframes watch-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes watch-flash {
+  50% {
+    filter: brightness(1.7) drop-shadow(0 0 10px var(--fire));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .watch-change,
+  .watch-taken .island {
+    animation: none;
+  }
 }
