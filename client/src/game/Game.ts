@@ -1,6 +1,6 @@
 import { Battle } from "./Battle";
 import { Commentator } from "./Commentator";
-import { countries } from "./countries";
+import type { Country } from "./countries";
 import { HumanPlayer } from "./HumanPlayer";
 import { NpcPlayer } from "./NpcPlayer";
 import type { Player } from "./Player";
@@ -23,13 +23,15 @@ export class Game {
   private warOver = false;
   private readonly losses: number[];
 
-  constructor(humanCountry: string) {
+  constructor(humanCountry: string, countries: readonly Country[]) {
     const human = countries.find((country) => country.name === humanCountry)!;
     const rivals = shuffle(countries.filter((country) => country !== human));
     this.players = shuffle([human, ...rivals.slice(0, 9)]).map((country) =>
       country === human ? new HumanPlayer(country) : new NpcPlayer(country),
     );
-    this.territories = this.players.map((player, index) => new Territory(player.country, index));
+    this.territories = this.players.map(
+      (player, index) => new Territory(player.country, index),
+    );
     this.losses = this.players.map(() => 0);
     this.commentator.round(1);
   }
@@ -56,7 +58,9 @@ export class Game {
 
   get winner() {
     const owner = this.territories[0].owner;
-    return this.territories.every((territory) => territory.owner === owner) ? this.players[owner] : undefined;
+    return this.territories.every((territory) => territory.owner === owner)
+      ? this.players[owner]
+      : undefined;
   }
 
   territoriesOf(player: number) {
@@ -77,7 +81,8 @@ export class Game {
 
   placeReinforcements(territory: Territory, count: number) {
     this.mustOwn(territory);
-    if (count < 1 || count > this.reserveCount) throw new Error("Not enough soldiers in reserve");
+    if (count < 1 || count > this.reserveCount)
+      throw new Error("Not enough soldiers in reserve");
     territory.addSoldiers(count);
     this.reserveCount -= count;
   }
@@ -102,7 +107,8 @@ export class Game {
   }
 
   fight(from: Territory, to: Territory, battle = Battle.roll(from, to)) {
-    if (!this.canAttack(from, to)) throw new Error("That attack is not allowed");
+    if (!this.canAttack(from, to))
+      throw new Error("That attack is not allowed");
     this.war = { from, to };
     this.losses[from.owner] += battle.attackerLosses;
     this.losses[to.owner] += battle.defenderLosses;
@@ -112,7 +118,8 @@ export class Game {
   }
 
   occupy(soldiersMovingIn: number) {
-    if (!this.war || this.war.to.soldiers > 0) throw new Error("There is no country to occupy");
+    if (!this.war || this.war.to.soldiers > 0)
+      throw new Error("There is no country to occupy");
     const { from, to } = this.war;
     const bonus = this.occupationBonus(to);
     from.addSoldiers(bonus);
@@ -132,14 +139,17 @@ export class Game {
       this.turnIndex = (this.turnIndex + 1) % this.players.length;
       if (this.turnIndex === 0) this.commentator.round(++this.roundNumber);
     } while (this.isEliminated(this.turnIndex) && !this.winner);
-    this.reserveCount = this.roundNumber >= 2 ? this.territoriesOf(this.turnIndex).length * 2 : 0;
+    this.reserveCount =
+      this.roundNumber >= 2 ? this.territoriesOf(this.turnIndex).length * 2 : 0;
   }
 
   private mustOwn(territory: Territory) {
-    if (territory.owner !== this.turnIndex) throw new Error("You can only use countries you own");
+    if (territory.owner !== this.turnIndex)
+      throw new Error("You can only use countries you own");
   }
 
   private mustPlaceReserveFirst() {
-    if (this.reserveCount > 0) throw new Error("Place all your new soldiers first");
+    if (this.reserveCount > 0)
+      throw new Error("Place all your new soldiers first");
   }
 }

@@ -4,6 +4,7 @@ import { HistoryStore } from "../storage/HistoryStore";
 import "./AnalyticsPanel.css";
 
 type AnalyticsPanelProps = {
+  userId: string;
   username: string;
   game: Game | null;
   onClose: () => void;
@@ -26,21 +27,37 @@ function Fallen({ count }: { count: number }) {
   );
 }
 
-function AnalyticsPanel({ username, game, onClose }: AnalyticsPanelProps) {
-  const history = new HistoryStore(username).load();
+function AnalyticsPanel({
+  userId,
+  username,
+  game,
+  onClose,
+}: AnalyticsPanelProps) {
+  const history = new HistoryStore(userId).load();
   const wins = history.filter((record) => record.result === "won");
-  const winRate = history.length ? Math.round((wins.length / history.length) * 100) : 0;
+  const winRate = history.length
+    ? Math.round((wins.length / history.length) * 100)
+    : 0;
   const averageRounds = wins.length
-    ? (wins.reduce((total, record) => total + record.rounds, 0) / wins.length).toFixed(1)
+    ? (
+        wins.reduce((total, record) => total + record.rounds, 0) / wins.length
+      ).toFixed(1)
     : "–";
   const you = game ? game.players.findIndex((player) => player.human) : -1;
   const lostThisGame = game ? game.soldiersLostBy(you) : 0;
-  const lostEver = history.reduce((total, record) => total + record.soldiersLost, 0) + lostThisGame;
+  const lostEver =
+    history.reduce((total, record) => total + record.soldiersLost, 0) +
+    lostThisGame;
 
   return (
     <div className="record-backdrop" onClick={onClose}>
       <section className="record" onClick={(event) => event.stopPropagation()}>
-        <button className="record-close" type="button" aria-label="Close" onClick={onClose}>
+        <button
+          className="record-close"
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+        >
           ✕
         </button>
         <p className="record-tab">Service record</p>
@@ -89,7 +106,9 @@ function AnalyticsPanel({ username, game, onClose }: AnalyticsPanelProps) {
                   <span>{record.country}</span>
                   <span>{record.rounds} rounds</span>
                   <span>{record.soldiersLost} lost</span>
-                  <span className={`record-stamp ${record.result}`}>{record.result}</span>
+                  <span className={`record-stamp ${record.result}`}>
+                    {record.result}
+                  </span>
                 </li>
               ))}
             </ol>

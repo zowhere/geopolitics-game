@@ -9,25 +9,16 @@ import {
 import Helmet from "../components/Helmet";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
-import { countries } from "../game/countries";
+import type { Country } from "../game/countries";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
 import "./ChooseCountryScreen.css";
 
 type ChooseCountryScreenProps = {
+  countries: Country[];
   onBack: () => void;
   onPlay: (country: string) => void;
 };
-
-const choices = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-
-const byPopulation = [...countries].sort((a, b) => b.population - a.population);
-const middle = Math.floor(byPopulation.length / 2);
-const featured = [
-  ...byPopulation.slice(0, 6),
-  ...byPopulation.slice(middle - 1, middle + 2),
-  ...byPopulation.slice(-4),
-];
 
 const soldierRanges = [
   { label: "All", min: 1, max: 9 },
@@ -43,8 +34,25 @@ function formatPopulation(population: number) {
   return `${population.toLocaleString()} people`;
 }
 
-function ChooseCountryScreen({ onBack, onPlay }: ChooseCountryScreenProps) {
-  const [selected, setSelected] = useState("South Africa");
+function ChooseCountryScreen({
+  countries,
+  onBack,
+  onPlay,
+}: ChooseCountryScreenProps) {
+  const choices = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+  const byPopulation = [...countries].sort(
+    (a, b) => b.population - a.population,
+  );
+  const middle = Math.floor(byPopulation.length / 2);
+  const featured = [
+    ...byPopulation.slice(0, 6),
+    ...byPopulation.slice(middle - 1, middle + 2),
+    ...byPopulation.slice(-4),
+  ];
+  const [selected, setSelected] = useState(
+    countries.find((country) => country.name === "South Africa")?.name ??
+      countries[0].name,
+  );
   const [query, setQuery] = useState("");
   const [range, setRange] = useState(soldierRanges[0]);
 
@@ -152,7 +160,10 @@ function ChooseCountryScreen({ onBack, onPlay }: ChooseCountryScreenProps) {
             <span className="choose-population">
               {formatPopulation(country.population)}
             </span>
-            <Island shape={countryShape(country.mapName)} flag={flagUrl(country.code)} />
+            <Island
+              shape={countryShape(country.mapName)}
+              flag={flagUrl(country.code)}
+            />
             <span className="choose-label">
               {country.name}
               <SoldierCount count={country.soldiers} />

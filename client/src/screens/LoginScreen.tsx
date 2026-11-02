@@ -1,14 +1,11 @@
 import { useState, type FormEvent } from "react";
+import { createAccount, loginWithEmail } from "../db/firebase";
 import Island from "../components/Island";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
 import "./LoginScreen.css";
 
 type Mode = "login" | "signup";
-
-type LoginScreenProps = {
-  onLogin: (username: string) => void;
-};
 
 const drifters = [
   { name: "South Africa", code: "za", left: "0%", top: "6%" },
@@ -18,31 +15,87 @@ const drifters = [
   { name: "Brazil", code: "br", left: "74%", top: "56%" },
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
-function validate(username: string, password: string) {
-  if (!/^[A-Za-z0-9_]{3,20}$/.test(username))
-    return "Username: 3 to 20 letters, numbers or _";
-  if (password.length < 6) return "Password: at least 6 characters";
-  return "";
+function authErrorMessage(error: unknown, mode: Mode) {
+  const code =
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+      ? error.code
+      : "";
+
+  switch (code) {
+    case "auth/email-already-in-use":
+      return "An account with this email already exists.";
+    case "auth/invalid-credential":
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+      return "Email or password is incorrect.";
+    case "auth/invalid-email":
+      return mode === "login"
+        ? "Use the email address linked to your account. Usernames are display names."
+        : "Enter a valid email address.";
+    case "auth/weak-password":
+      return "Choose a stronger password with at least 6 characters.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Try again later.";
+    default:
+      return error instanceof Error ? error.message : "Unable to authenticate.";
+  }
 }
 
-function LoginScreen({ onLogin }: LoginScreenProps) {
+function LoginScreen() {
   const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   function switchMode(next: Mode) {
     setMode(next);
     setError("");
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    const name = username.trim();
-    if (!name && !password) return onLogin("guest");
-    const problem = validate(name, password);
-    setError(problem);
-    if (!problem) onLogin(name);
+    const normalizedEmail = email.trim();
+    const normalizedUsername = username.trim();
+
+    if (!normalizedEmail || !password) {
+      setError("Enter your email and password.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setError(
+        mode === "login"
+          ? "Use the email address linked to your account. Usernames are display names."
+          : "Enter a valid email address.",
+      );
+      return;
+    }
+    if (mode === "signup" && !/^[A-Za-z0-9_]{3,20}$/.test(normalizedUsername)) {
+      setError("Username: 3 to 20 letters, numbers or _");
+      return;
+    }
+    if (mode === "signup" && password.length < 6) {
+      setError("Password: at least 6 characters");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    try {
+      if (mode === "signup") {
+        await createAccount(normalizedEmail, password, normalizedUsername);
+      } else {
+        await loginWithEmail(normalizedEmail, password);
+      }
+    } catch (authError) {
+      setError(authErrorMessage(authError, mode));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -73,6 +126,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             type="button"
             role="tab"
             aria-selected={mode === "login"}
+            disabled={busy}
             onClick={() => switchMode("login")}
           >
             Log in
@@ -81,6 +135,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             type="button"
             role="tab"
             aria-selected={mode === "signup"}
+            disabled={busy}
             onClick={() => switchMode("signup")}
           >
             Sign up
@@ -88,13 +143,26 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
         </div>
 
         <form className="login-form" onSubmit={submit} noValidate>
+          {mode === "signup" && (
+            <input
+              className="line-input"
+              placeholder="Username"
+              aria-label="Username"
+              autoComplete="nickname"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              disabled={busy}
+            />
+          )}
           <input
             className="line-input"
-            placeholder="Username"
-            aria-label="Username"
-            autoComplete="username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            type="email"
+            placeholder="Email address"
+            aria-label="Email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            disabled={busy}
           />
           <input
             className="line-input"
@@ -106,10 +174,17 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             }
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            disabled={busy}
           />
           {error && <p className="login-error">{error}</p>}
-          <button className="btn btn-gold" type="submit">
-            {mode === "login" ? "Play" : "Create account"}
+          <button className="btn btn-gold" type="submit" disabled={busy}>
+            {busy
+              ? mode === "login"
+                ? "Signing in..."
+                : "Creating account..."
+              : mode === "login"
+                ? "Log in"
+                : "Create account"}
           </button>
         </form>
       </div>
