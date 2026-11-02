@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useEffectEvent, useReducer, useRef, useState, type PointerEvent } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
 import SettingsMenu from "../components/SettingsMenu";
@@ -26,6 +26,7 @@ type BoardScreenProps = {
   settings: Settings;
   onSettingsChange: (settings: Settings) => void;
   onNewGame: () => void;
+  onSave: () => void;
 };
 
 const scatter = [
@@ -61,7 +62,7 @@ function strongest(territories: Territory[]) {
   );
 }
 
-function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScreenProps) {
+function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: BoardScreenProps) {
   const { phase, plan, war, out, transfer, pace, paused, setPaused, advance, startWar, endWar, endTurn, watch, toggleFast } =
     useTurnFlow(game, settings.speed);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
@@ -82,6 +83,11 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
   const source = chosen && armies.includes(chosen) ? chosen : strongest(armies);
   const targets = source ? game.territories.filter((territory) => game.canAttack(source, territory)) : [];
   const attacker = aiming && targets.length ? source : npcAttack;
+
+  const save = useEffectEvent(onSave);
+  useEffect(() => {
+    if (phase === "announce" || phase === "gameOver" || phase === "defeated") save();
+  }, [phase]);
 
   useEffect(() => {
     if (!notice) return;

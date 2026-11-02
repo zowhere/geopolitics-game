@@ -1,3 +1,4 @@
+//battle engine code
 import type { Territory } from "./Territory";
 
 export const rollDie = () => 1 + Math.floor(Math.random() * 6);

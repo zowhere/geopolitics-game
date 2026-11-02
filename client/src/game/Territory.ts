@@ -5,10 +5,10 @@ export class Territory {
   private ownerIndex: number;
   private soldierCount: number;
 
-  constructor(country: Country, owner: number) {
+  constructor(country: Country, owner: number, soldiers = country.soldiers) {
     this.country = country;
     this.ownerIndex = owner;
-    this.soldierCount = country.soldiers;
+    this.soldierCount = soldiers;
   }
 
   get name() {

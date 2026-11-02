@@ -1,3 +1,6 @@
+//game engine
+//runs rules of game incl turns, reinforcements, attacks, occupation, eliminations, winner
+//saves game state.
 import { Battle } from "./Battle";
 import { Commentator } from "./Commentator";
 import type { Country } from "./countries";
@@ -12,6 +15,24 @@ type War = {
   to: Territory;
 };
 
+export type GameStatus = "playing" | "won" | "lost";
+
+// Saved state of one country: who holds it, its soldiers, and how many its starting player has lost
+export type Nation = {
+  code: string;
+  owner: number;
+  soldiers: number;
+  soldiersLost: number;
+};
+
+export type GameSnapshot = {
+  human: number;
+  round: number;
+  turn: number;
+  reserve: number;
+  nations: Nation[];
+};
+
 export class Game {
   readonly players: readonly Player[];
   readonly territories: readonly Territory[];
@@ -23,15 +44,71 @@ export class Game {
   private warOver = false;
   private readonly losses: number[];
 
-  constructor(humanCountry: string, countries: readonly Country[]) {
+  private constructor(
+    countries: readonly Country[],
+    human: number,
+    saved?: GameSnapshot,
+  ) {
+    this.players = countries.map((country, index) =>
+      index === human ? new HumanPlayer(country) : new NpcPlayer(country),
+    );
+    this.territories = this.players.map((player, index) => {
+      const nation = saved?.nations[index];
+      return new Territory(
+        player.country,
+        nation?.owner ?? index,
+        nation?.soldiers,
+      );
+    });
+    this.losses = this.players.map(
+      (_, index) => saved?.nations[index].soldiersLost ?? 0,
+    );
+    if (saved) {
+      this.roundNumber = saved.round;
+      this.turnIndex = saved.turn;
+      this.reserveCount = saved.reserve;
+    }
+    this.commentator.round(this.roundNumber);
+  }
+
+  static start(humanCountry: string, countries: readonly Country[]) {
     const human = countries.find((country) => country.name === humanCountry)!;
     const rivals = shuffle(countries.filter((country) => country !== human));
-    this.players = shuffle([human, ...rivals.slice(0, 9)]).map((country) =>
-      country === human ? new HumanPlayer(country) : new NpcPlayer(country),
-    );
-    this.territories = this.players.map((player, index) => new Territory(player.country, index));
-    this.losses = this.players.map(() => 0);
-    this.commentator.round(1);
+    const order = shuffle([human, ...rivals.slice(0, 9)]);
+    return new Game(order, order.indexOf(human));
+  }
+
+  static restore(saved: GameSnapshot, countries: readonly Country[]) {
+    const byCode = new Map(countries.map((country) => [country.code, country]));
+    const order = saved.nations.map((nation) => byCode.get(nation.code));
+    if (order.some((country) => !country))
+      throw new Error("Saved game has an unknown country");
+    return new Game(order as Country[], saved.human, saved);
+  }
+
+  get humanIndex() {
+    return this.players.findIndex((player) => player.human);
+  }
+
+  get status(): GameStatus {
+    if (this.winner?.human) return "won";
+    if (this.winner || this.isEliminated(this.humanIndex)) return "lost";
+    return "playing";
+  }
+
+  snapshot(): GameSnapshot {
+    return {
+      human: this.humanIndex,
+      round: this.roundNumber,
+      turn: this.turnIndex,
+      reserve: this.reserveCount,
+      nations: this.territories.map((territory, index) => ({
+        code: territory.country.code,
+        owner: territory.owner,
+        soldiers: territory.soldiers,
+        soldiersLost: this.losses[index],
+      })),
+    };
   }
 
   get round() {
@@ -56,7 +133,9 @@ export class Game {
 
   get winner() {
     const owner = this.territories[0].owner;
-    return this.territories.every((territory) => territory.owner === owner) ? this.players[owner] : undefined;
+    return this.territories.every((territory) => territory.owner === owner)
+      ? this.players[owner]
+      : undefined;
   }
 
   territoriesOf(player: number) {
@@ -77,7 +156,8 @@ export class Game {
 
   placeReinforcements(territory: Territory, count: number) {
     this.mustOwn(territory);
-    if (count < 1 || count > this.reserveCount) throw new Error("Not enough soldiers in reserve");
+    if (count < 1 || count > this.reserveCount)
+      throw new Error("Not enough soldiers in reserve");
     territory.addSoldiers(count);
     this.reserveCount -= count;
   }
@@ -102,7 +182,8 @@ export class Game {
   }
 
   fight(from: Territory, to: Territory, battle = Battle.roll(from, to)) {
-    if (!this.canAttack(from, to)) throw new Error("That attack is not allowed");
+    if (!this.canAttack(from, to))
+      throw new Error("That attack is not allowed");
     this.war = { from, to };
     this.losses[from.owner] += battle.attackerLosses;
     this.losses[to.owner] += battle.defenderLosses;
@@ -112,7 +193,8 @@ export class Game {
   }
 
   occupy(soldiersMovingIn: number) {
-    if (!this.war || this.war.to.soldiers > 0) throw new Error("There is no country to occupy");
+    if (!this.war || this.war.to.soldiers > 0)
+      throw new Error("There is no country to occupy");
     const { from, to } = this.war;
     const bonus = this.occupationBonus(to);
     from.addSoldiers(bonus);
@@ -132,14 +214,17 @@ export class Game {
       this.turnIndex = (this.turnIndex + 1) % this.players.length;
       if (this.turnIndex === 0) this.commentator.round(++this.roundNumber);
     } while (this.isEliminated(this.turnIndex) && !this.winner);
-    this.reserveCount = this.roundNumber >= 2 ? this.territoriesOf(this.turnIndex).length * 2 : 0;
+    this.reserveCount =
+      this.roundNumber >= 2 ? this.territoriesOf(this.turnIndex).length * 2 : 0;
   }
 
   private mustOwn(territory: Territory) {
-    if (territory.owner !== this.turnIndex) throw new Error("You can only use countries you own");
+    if (territory.owner !== this.turnIndex)
+      throw new Error("You can only use countries you own");
   }
 
   private mustPlaceReserveFirst() {
-    if (this.reserveCount > 0) throw new Error("Place all your new soldiers first");
+    if (this.reserveCount > 0)
+      throw new Error("Place all your new soldiers first");
   }
 }

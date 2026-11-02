@@ -3,6 +3,7 @@ import MapFilters from "./components/MapFilters";
 import ProfileMenu from "./components/ProfileMenu";
 import { accounts } from "./db/AccountStore";
 import { countryStore } from "./db/CountryStore";
+import { gameStore, type SavedGame } from "./db/GameStore";
 import type { Country } from "./game/countries";
 import { Game } from "./game/Game";
 import BoardScreen from "./screens/BoardScreen";
@@ -11,16 +12,8 @@ import NewGameScreen from "./screens/NewGameScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RoundScreen from "./screens/RoundScreen";
 import { defaultSettings } from "./settings";
-import { HistoryStore, type GameResult } from "./storage/HistoryStore";
 
 type Screen = "newGame" | "choose" | "round" | "board";
-
-function resultOf(game: Game): GameResult {
-  const you = game.players.findIndex((player) => player.human);
-  if (game.winner?.human) return "won";
-  if (game.winner || game.isEliminated(you)) return "lost";
-  return "left";
-}
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
@@ -29,21 +22,18 @@ function App() {
   const [loadError, setLoadError] = useState("");
   const [screen, setScreen] = useState<Screen>("newGame");
   const [game, setGame] = useState<Game | null>(null);
+  const [gameId, setGameId] = useState<string | null>(null);
+  const [savedGames, setSavedGames] = useState<SavedGame[]>([]);
   const [settings, setSettings] = useState(defaultSettings);
 
   function leaveGame() {
-    if (game && username && screen === "board") {
-      const you = game.players.findIndex((player) => player.human);
-      const { name, code } = game.players[you].country;
-      new HistoryStore(username).add({
-        country: name,
-        code,
-        result: resultOf(game),
-        rounds: game.round,
-        soldiersLost: game.soldiersLostBy(you),
-      });
-    }
     setGame(null);
+    setGameId(null);
+  }
+
+  function saveGame() {
+    if (!game || !gameId) return;
+    gameStore.save(gameId, game).catch((error) => console.error("Couldn't save the game", error));
   }
 
   useEffect(
@@ -63,6 +53,14 @@ function App() {
       .catch(() => setLoadError("Couldn't reach the database"));
   }, [screen, countries]);
 
+  useEffect(() => {
+    if (screen !== "newGame" || !username) return;
+    gameStore
+      .list()
+      .then((games) => setSavedGames(games.filter((saved) => saved.status === "playing")))
+      .catch(() => setSavedGames([]));
+  }, [screen, username]);
+
   function logout() {
     leaveGame();
     void accounts.logOut();
@@ -77,8 +75,21 @@ function App() {
 
   function play(country: string) {
     if (!countries) return;
-    setGame(new Game(country, countries));
+    setGame(Game.start(country, countries));
+    setGameId(gameStore.newId());
     setScreen("round");
+  }
+
+  async function resume(saved: SavedGame) {
+    try {
+      const list = countries ?? (await countryStore.load());
+      setCountries(list);
+      setGame(Game.restore(saved.snapshot, list));
+      setGameId(saved.id);
+      setScreen("board");
+    } catch {
+      setLoadError("Couldn't load that game");
+    }
   }
 
   function currentScreen() {
@@ -91,6 +102,7 @@ function App() {
           settings={settings}
           onSettingsChange={setSettings}
           onNewGame={newGame}
+          onSave={saveGame}
         />
       );
     }
@@ -109,7 +121,11 @@ function App() {
       );
     }
     return (
-      <NewGameScreen onNewGame={() => setScreen("choose")} />
+      <NewGameScreen
+        savedGames={savedGames}
+        onNewGame={() => setScreen("choose")}
+        onResume={resume}
+      />
     );
   }
 
@@ -119,7 +135,7 @@ function App() {
       {currentScreen()}
       {username && (
         <div className="app-profile">
-          <ProfileMenu game={game} username={username} onNewGame={newGame} onLogout={logout} />
+          <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onLogout={logout} />
         </div>
       )}
     </>

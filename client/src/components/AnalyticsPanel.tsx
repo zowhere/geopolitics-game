@@ -1,15 +1,46 @@
-import type { Game } from "../game/Game";
+import { useEffect, useState } from "react";
+import { countryStore } from "../db/CountryStore";
+import { gameStore } from "../db/GameStore";
+import type { Game, GameStatus } from "../game/Game";
 import { squareFlagUrl } from "../map/flagUrl";
-import { HistoryStore } from "../storage/HistoryStore";
 import "./AnalyticsPanel.css";
 
 type AnalyticsPanelProps = {
   username: string;
   game: Game | null;
+  gameId: string | null;
   onClose: () => void;
 };
 
+type PastGame = {
+  id: string;
+  code: string;
+  country: string;
+  status: GameStatus;
+  rounds: number;
+  soldiersLost: number;
+};
+
 const mostFallenShown = 12;
+const stampText: Record<GameStatus, string> = { won: "won", lost: "lost", playing: "unfinished" };
+
+async function loadPastGames(currentId: string | null): Promise<PastGame[]> {
+  const [games, countries] = await Promise.all([gameStore.list(), countryStore.load()]);
+  const names = new Map(countries.map((country) => [country.code, country.name]));
+  return games
+    .filter((saved) => saved.id !== currentId)
+    .map(({ id, status, snapshot }) => {
+      const start = snapshot.nations[snapshot.human];
+      return {
+        id,
+        code: start.code,
+        country: names.get(start.code) ?? start.code,
+        status,
+        rounds: snapshot.round,
+        soldiersLost: start.soldiersLost,
+      };
+    });
+}
 
 function Fallen({ count }: { count: number }) {
   return (
@@ -26,9 +57,16 @@ function Fallen({ count }: { count: number }) {
   );
 }
 
-function AnalyticsPanel({ username, game, onClose }: AnalyticsPanelProps) {
-  const history = new HistoryStore(username).load();
-  const wins = history.filter((record) => record.result === "won");
+function AnalyticsPanel({ username, game, gameId, onClose }: AnalyticsPanelProps) {
+  const [history, setHistory] = useState<PastGame[]>([]);
+
+  useEffect(() => {
+    loadPastGames(gameId)
+      .then(setHistory)
+      .catch(() => setHistory([]));
+  }, [gameId]);
+
+  const wins = history.filter((record) => record.status === "won");
   const winRate = history.length ? Math.round((wins.length / history.length) * 100) : 0;
   const averageRounds = wins.length
     ? (wins.reduce((total, record) => total + record.rounds, 0) / wins.length).toFixed(1)
@@ -83,13 +121,13 @@ function AnalyticsPanel({ username, game, onClose }: AnalyticsPanelProps) {
           <div className="record-section">
             <h3>Past games</h3>
             <ol className="record-games">
-              {[...history].reverse().map((record, index) => (
-                <li key={history.length - index}>
+              {history.map((record) => (
+                <li key={record.id}>
                   <img src={squareFlagUrl(record.code)} alt="" />
                   <span>{record.country}</span>
                   <span>{record.rounds} rounds</span>
                   <span>{record.soldiersLost} lost</span>
-                  <span className={`record-stamp ${record.result}`}>{record.result}</span>
+                  <span className={`record-stamp ${record.status}`}>{stampText[record.status]}</span>
                 </li>
               ))}
             </ol>

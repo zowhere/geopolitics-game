@@ -5,6 +5,7 @@ import "./ProfileMenu.css";
 
 type ProfileMenuProps = {
   game: Game | null;
+  gameId: string | null;
   username: string;
   onNewGame: () => void;
   onLogout: () => void;
@@ -48,7 +49,7 @@ function Avatar() {
   );
 }
 
-function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) {
+function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const held = game ? game.territoriesOf(game.players.findIndex((player) => player.human)) : [];
@@ -107,7 +108,7 @@ function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) 
           </button>
         </div>
       )}
-      {showAnalytics && <AnalyticsPanel username={username} game={game} onClose={() => setShowAnalytics(false)} />}
+      {showAnalytics && <AnalyticsPanel username={username} game={game} gameId={gameId} onClose={() => setShowAnalytics(false)} />}
     </div>
   );
 }

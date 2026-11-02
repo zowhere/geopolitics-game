@@ -55,6 +55,48 @@
   }
 }
 
+.new-game-menu {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+}
+
+.saved-games {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  max-width: 420px;
+}
+
+.saved-game {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cream);
+  font-family: var(--font-label);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.saved-game img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.saved-game:hover,
+.saved-game:focus-visible {
+  transform: translateY(-3px) scale(1.06);
+}
+
 .new-game-button {
   font-size: 1.4rem;
   padding: 0.8em 2em 0.75em;

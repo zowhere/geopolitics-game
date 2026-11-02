@@ -18,6 +18,17 @@ service cloud.firestore {
       return data.email == request.auth.token.email;
     }
 
+    function validGame(game) {
+      return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'createdAt', 'updatedAt'])
+        && game.status in ['playing', 'won', 'lost']
+        && game.human is int && game.human >= 0 && game.human < 10
+        && game.turn is int && game.turn >= 0 && game.turn < 10
+        && game.round is int && game.round >= 1
+        && game.reserve is int && game.reserve >= 0
+        && game.nations is list && game.nations.size() == 10
+        && game.updatedAt == request.time;
+    }
+
     match /countries/{id} {
       allow read: if true;
       allow write: if false;
@@ -49,6 +60,23 @@ service cloud.firestore {
         && ownEmail(request.resource.data)
         && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
       allow update, delete: if false;
+    }
+
+    match /games/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == 'playing'
+        && request.resource.data.createdAt == request.time
+        && validGame(request.resource.data);
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && resource.data.status == 'playing'
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.human == resource.data.human
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validGame(request.resource.data);
+      allow delete: if false;
     }
   }
 }
