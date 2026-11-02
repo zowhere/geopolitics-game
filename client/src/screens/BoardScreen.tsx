@@ -335,7 +335,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
             />
           )}
           {!current.human && phase !== "gameOver" && phase !== "defeated" && (
-            <button className="btn btn-outline board-fast" type="button" aria-pressed={pace > 1} onClick={toggleFast}>
+            <button className="btn btn-gold board-fast" type="button" aria-pressed={pace > 1} onClick={toggleFast}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" />
               </svg>
