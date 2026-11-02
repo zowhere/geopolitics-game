@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import PasswordInput from "../components/PasswordInput";
 import { accounts } from "../db/AccountStore";
 import "./LoginScreen.css";
 
@@ -56,23 +57,17 @@ function ResetPasswordScreen({ code, onDone }: ResetPasswordScreenProps) {
         {stage === "ready" && (
           <form className="login-form" onSubmit={submit} noValidate>
             <p className="reset-title">Choose a new password</p>
-            <input
-              className="line-input"
-              type="password"
+            <PasswordInput
               placeholder="New password"
-              aria-label="New password"
               autoComplete="new-password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={setPassword}
             />
-            <input
-              className="line-input"
-              type="password"
+            <PasswordInput
               placeholder="New password again"
-              aria-label="New password again"
               autoComplete="new-password"
               value={again}
-              onChange={(event) => setAgain(event.target.value)}
+              onChange={setAgain}
             />
             {error && <p className="login-error">{error}</p>}
             <button className="btn btn-gold" type="submit" disabled={busy}>

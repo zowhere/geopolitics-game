@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import Island from "../components/Island";
+import PasswordInput from "../components/PasswordInput";
 import { accounts } from "../db/AccountStore";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
@@ -146,16 +147,11 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             onChange={(event) => setUsername(event.target.value)}
           />
           {mode !== "reset" && (
-            <input
-              className="line-input"
-              type="password"
+            <PasswordInput
               placeholder="Password"
-              aria-label="Password"
-              autoComplete={
-                mode === "login" ? "current-password" : "new-password"
-              }
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={setPassword}
             />
           )}
           {error && <p className="login-error">{error}</p>}
