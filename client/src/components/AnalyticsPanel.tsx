@@ -22,13 +22,13 @@ type PastGame = {
 };
 
 const mostFallenShown = 12;
-const stampText: Record<GameStatus, string> = { won: "won", lost: "lost", playing: "unfinished" };
+const stampText: Partial<Record<GameStatus, string>> = { won: "won", lost: "lost", playing: "unfinished" };
 
 async function loadPastGames(currentId: string | null): Promise<PastGame[]> {
   const [games, countries] = await Promise.all([gameStore.list(), countryStore.load()]);
   const names = new Map(countries.map((country) => [country.code, country.name]));
   return games
-    .filter((saved) => saved.id !== currentId)
+    .filter((saved) => saved.id !== currentId && saved.status !== "waiting")
     .map(({ id, status, snapshot }) => {
       const start = snapshot.nations[snapshot.human];
       return {

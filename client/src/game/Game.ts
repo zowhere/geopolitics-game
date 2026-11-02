@@ -15,7 +15,7 @@ type War = {
   to: Territory;
 };
 
-export type GameStatus = "playing" | "won" | "lost";
+export type GameStatus = "waiting" | "playing" | "won" | "lost";
 
 // Saved state of one country: who holds it, its soldiers, and how many its starting player has lost
 export type Nation = {
@@ -42,6 +42,7 @@ export class Game {
   private reserveCount = 0;
   private war: War | null = null;
   private warOver = false;
+  private waitingToStart = false;
   private readonly losses: number[];
 
   private constructor(
@@ -91,9 +92,18 @@ export class Game {
   }
 
   get status(): GameStatus {
+    if (this.waitingToStart) return "waiting";
     if (this.winner?.human) return "won";
     if (this.winner || this.isEliminated(this.humanIndex)) return "lost";
     return "playing";
+  }
+
+  wait() {
+    this.waitingToStart = true;
+  }
+
+  begin() {
+    this.waitingToStart = false;
   }
 
   snapshot(): GameSnapshot {

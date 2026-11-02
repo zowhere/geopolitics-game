@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import type { Game } from "../game/Game";
 import AnalyticsPanel from "./AnalyticsPanel";
+import ShareButton from "./ShareButton";
 import "./ProfileMenu.css";
 
 type ProfileMenuProps = {
@@ -52,26 +53,8 @@ function Avatar() {
 function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const [shared, setShared] = useState("");
   const held = game ? game.territoriesOf(game.players.findIndex((player) => player.human)) : [];
   const soldiers = held.reduce((total, territory) => total + territory.soldiers, 0);
-
-  async function share() {
-    if (!gameId) return;
-    const url = `${window.location.origin}/?watch=${gameId}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Watch my Geopolitics 101 game", url });
-        setShared("Shared");
-      } else {
-        await navigator.clipboard.writeText(url);
-        setShared("Link copied");
-      }
-      setTimeout(() => setShared(""), 2000);
-    } catch {
-      return;
-    }
-  }
 
   function openAnalytics() {
     setOpen(false);
@@ -115,11 +98,7 @@ function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMen
               )}
             </>
           )}
-          {gameId && game && (
-            <button className="profile-action" type="button" onClick={share}>
-              {shared || "Share game"}
-            </button>
-          )}
+          {gameId && game && <ShareButton gameId={gameId} className="profile-action" />}
           <button className="profile-action" type="button" onClick={openAnalytics}>
             Analytics
           </button>
