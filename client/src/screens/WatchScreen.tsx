@@ -1,7 +1,8 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import Die from "../components/Die";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
-import type { Game } from "../game/Game";
+import type { Game, Roll } from "../game/Game";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
 import { scatter } from "./scatter";
@@ -11,6 +12,7 @@ import "./WatchScreen.css";
 type WatchScreenProps = {
   game: Game;
   owner: string;
+  roll: Roll | null;
   actionLabel: string;
   onAction: () => void;
 };
@@ -28,7 +30,25 @@ function boardOf(game: Game): Board {
   return game.territories.map((territory) => ({ owner: territory.owner, soldiers: territory.soldiers }));
 }
 
-function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
+function Dice({ values }: { values: number[] }) {
+  const [rolling, setRolling] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRolling(false), 900);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <span className="watch-dice">
+      {values.map((value, index) => (
+        <Die key={index} value={value} rolling={rolling} />
+      ))}
+    </span>
+  );
+}
+
+function WatchScreen({ game, owner, roll, actionLabel, onAction }: WatchScreenProps) {
+  const war = roll && roll.round === game.round && roll.turn === game.currentIndex ? roll : null;
   const [shown, setShown] = useState(game);
   const [before, setBefore] = useState<Board | null>(null);
   if (game !== shown) {
@@ -69,6 +89,8 @@ function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
           const change = before ? territory.soldiers - before[index].soldiers : 0;
           const classes = ["board-country"];
           if (holder.human) classes.push("you");
+          if (war && (index === war.from || index === war.to)) classes.push("attacking");
+          if (war && index !== war.from && index !== war.to) classes.push("dim");
           if (before && territory.owner !== before[index].owner) classes.push("watch-taken");
           return (
             <div
@@ -97,6 +119,15 @@ function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
       </div>
 
       <footer className="board-footer">
+        {war && (
+          <div key={war.count} className="watch-roll">
+            <span>{game.territories[war.from].name}</span>
+            <Dice values={war.attackerDice} />
+            <span className="watch-vs">vs</span>
+            <Dice values={war.defenderDice} />
+            <span>{game.territories[war.to].name}</span>
+          </div>
+        )}
         {occupied.slice(0, 3).map((line) => (
           <p key={`${line}-${update}`} className="watch-news">
             {line}

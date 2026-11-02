@@ -12,7 +12,7 @@ import {
   where,
   type DocumentData,
 } from "firebase/firestore";
-import type { Game, GameSnapshot, GameStatus } from "../game/Game";
+import type { Game, GameSnapshot, GameStatus, Roll } from "../game/Game";
 import { auth, db } from "./firebase";
 
 export type SavedGame = {
@@ -20,10 +20,13 @@ export type SavedGame = {
   ownerId: string;
   status: GameStatus;
   snapshot: GameSnapshot;
+  roll: Roll | null;
 };
 
 export class GameStore {
   private readonly created = new Set<string>();
+  private rollTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingRoll: { id: string; game: Game } | null = null;
 
   newId() {
     return doc(collection(db, "games")).id;
@@ -44,6 +47,25 @@ export class GameStore {
       this.created.delete(id);
       throw error;
     }
+  }
+
+  saveRoll(id: string, game: Game) {
+    this.pendingRoll = { id, game };
+    if (this.rollTimer) return;
+    this.flushRoll();
+  }
+
+  private flushRoll() {
+    const pending = this.pendingRoll;
+    this.pendingRoll = null;
+    if (!pending) {
+      this.rollTimer = null;
+      return;
+    }
+    updateDoc(doc(db, "games", pending.id), { roll: pending.game.roll, updatedAt: serverTimestamp() }).catch(
+      (error) => console.error("Couldn't send the roll", error),
+    );
+    this.rollTimer = setTimeout(() => this.flushRoll(), 1000);
   }
 
   async list(): Promise<SavedGame[]> {
@@ -75,8 +97,8 @@ export class GameStore {
   }
 
   private toSaved(id: string, data: DocumentData): SavedGame {
-    const { ownerId, status, human, round, turn, reserve, nations } = data;
-    return { id, ownerId, status, snapshot: { human, round, turn, reserve, nations } };
+    const { ownerId, status, human, round, turn, reserve, nations, roll } = data;
+    return { id, ownerId, status, snapshot: { human, round, turn, reserve, nations }, roll: roll ?? null };
   }
 }
 

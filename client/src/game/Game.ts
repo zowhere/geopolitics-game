@@ -25,6 +25,16 @@ export type Nation = {
   soldiersLost: number;
 };
 
+export type Roll = {
+  count: number;
+  round: number;
+  turn: number;
+  from: number;
+  to: number;
+  attackerDice: number[];
+  defenderDice: number[];
+};
+
 export type GameSnapshot = {
   human: number;
   round: number;
@@ -43,6 +53,8 @@ export class Game {
   private war: War | null = null;
   private warOver = false;
   private waitingToStart = false;
+  private lastRoll: Roll | null = null;
+  private rollListener: (() => void) | null = null;
   private readonly losses: number[];
 
   private constructor(
@@ -199,7 +211,28 @@ export class Game {
     this.losses[to.owner] += battle.defenderLosses;
     from.loseSoldiers(battle.attackerLosses);
     to.loseSoldiers(battle.defenderLosses);
+    this.lastRoll = {
+      count: (this.lastRoll?.count ?? 0) + 1,
+      round: this.roundNumber,
+      turn: this.turnIndex,
+      from: this.territories.indexOf(from),
+      to: this.territories.indexOf(to),
+      attackerDice: [...battle.attackerDice],
+      defenderDice: [...battle.defenderDice],
+    };
+    this.rollListener?.();
     return battle;
+  }
+
+  get roll() {
+    return this.lastRoll;
+  }
+
+  listenToRolls(listener: () => void) {
+    this.rollListener = listener;
+    return () => {
+      this.rollListener = null;
+    };
   }
 
   occupy(soldiersMovingIn: number) {

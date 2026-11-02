@@ -19,7 +19,7 @@ service cloud.firestore {
     }
 
     function validGame(game) {
-      return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'createdAt', 'updatedAt'])
+      return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'roll', 'createdAt', 'updatedAt'])
         && game.status in ['waiting', 'playing', 'won', 'lost']
         && game.human is int && game.human >= 0 && game.human < 10
         && game.turn is int && game.turn >= 0 && game.turn < 10

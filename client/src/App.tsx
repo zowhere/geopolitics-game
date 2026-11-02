@@ -95,6 +95,11 @@ function App() {
   }, [screen, username]);
 
   useEffect(() => {
+    if (!game || !gameId) return;
+    return game.listenToRolls(() => gameStore.saveRoll(gameId, game));
+  }, [game, gameId]);
+
+  useEffect(() => {
     if (!watchId) return;
     let owner = "";
     return gameStore.watch(
@@ -193,6 +198,7 @@ function App() {
         <WatchScreen
           game={watched.game}
           owner={watched.owner}
+          roll={watched.saved.roll}
           actionLabel={watchActionLabel()}
           onAction={watchAction}
         />
