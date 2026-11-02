@@ -179,8 +179,29 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                   setPaused(true);
                 }}
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="bomb-body" cx="0.35" cy="0.3" r="0.75">
+                      <stop offset="0" stopColor="#6e777d" />
+                      <stop offset="0.45" stopColor="#262b2f" />
+                      <stop offset="1" stopColor="#07090a" />
+                    </radialGradient>
+                    <linearGradient id="bomb-cap" x1="0" x2="1">
+                      <stop offset="0" stopColor="#5a6267" />
+                      <stop offset="0.5" stopColor="#b5bdc1" />
+                      <stop offset="1" stopColor="#3b4246" />
+                    </linearGradient>
+                  </defs>
+                  <path className="bomb-fuse" d="M34.5 11.5 C36 6 40 5.5 42 8 S44 13 41 13" />
+                  <g className="bomb-spark">
+                    <path d="M41 9.5 l1.2-3.3 0.9 3 3.2-1.1-2.2 2.6 3 1.4-3.3 0.4 0.6 3.3-2.3-2.4-2.1 2.6 0.3-3.4-3.3-0.2 2.9-1.6z" fill="#f08a3c" />
+                    <circle cx="42.2" cy="11" r="1.6" fill="#ffe08a" />
+                  </g>
+                  <rect x="27.5" y="9" width="8" height="6" rx="1" fill="url(#bomb-cap)" transform="rotate(40 31.5 12)" />
+                  <circle cx="22" cy="28" r="16" fill="url(#bomb-body)" />
+                  <ellipse cx="15.5" cy="20" rx="4.5" ry="2.6" fill="#fff" opacity="0.28" transform="rotate(-35 15.5 20)" />
+                  <rect x="17.6" y="22" width="3.4" height="12" rx="1" fill="var(--cream)" />
+                  <rect x="23" y="22" width="3.4" height="12" rx="1" fill="var(--cream)" />
                 </svg>
               </button>
               <span className="board-round">Round {game.round}</span>
