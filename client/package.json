@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "d3-geo": "^3.1.1",
+    "firebase": "^13.1.0",
     "flag-icons": "^7.6.0",
     "phaser": "^4.2.1",
     "react": "^19.3.1",
