@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 
 const sourceUrl =
   "https://www.worldometers.info/world-population/population-by-country/";
@@ -51,6 +51,7 @@ for (const country of countryDocs) {
 batch.set(db.collection("meta").doc("countries"), {
   populationYear: 2026,
   populationSource: sourceUrl,
+  updatedAt: FieldValue.serverTimestamp(),
 });
 
 await batch.commit();

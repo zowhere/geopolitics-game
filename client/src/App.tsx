@@ -56,11 +56,12 @@ function App() {
   );
 
   useEffect(() => {
+    if (screen !== "choose" || countries) return;
     countryStore
       .load()
       .then(setCountries)
       .catch(() => setLoadError("Couldn't reach the database"));
-  }, []);
+  }, [screen, countries]);
 
   function logout() {
     leaveGame();
