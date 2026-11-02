@@ -5,7 +5,13 @@ import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
 import "./LoginScreen.css";
 
-type Mode = "login" | "signup";
+type Mode = "login" | "signup" | "reset";
+
+const submitLabel: Record<Mode, string> = {
+  login: "Play",
+  signup: "Create account",
+  reset: "Reset password",
+};
 
 type LoginScreenProps = {
   onLogin: (username: string) => void;
@@ -20,6 +26,7 @@ const drifters = [
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
 function validate(mode: Mode, email: string, username: string, password: string) {
+  if (mode === "reset") return username ? "" : "Enter your username";
   if (mode === "login")
     return username && password ? "" : "Enter your username and password";
   if (!/^\S+@\S+\.\S+$/.test(email)) return "That email doesn't look right";
@@ -35,11 +42,23 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
 
   function switchMode(next: Mode) {
     setMode(next);
     setError("");
+    setNote("");
+  }
+
+  async function sendResetLink(name: string) {
+    try {
+      await accounts.resetPassword(name);
+      setNote("If that account exists, a reset link is in its email");
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Something went wrong");
+    }
+    setBusy(false);
   }
 
   async function submit(event: FormEvent) {
@@ -47,9 +66,11 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
     const name = username.trim();
     const problem = validate(mode, email.trim(), name, password);
     setError(problem);
+    setNote("");
     if (problem) return;
 
     setBusy(true);
+    if (mode === "reset") return sendResetLink(name);
     try {
       const account =
         mode === "signup"
@@ -89,7 +110,7 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
           <button
             type="button"
             role="tab"
-            aria-selected={mode === "login"}
+            aria-selected={mode !== "signup"}
             onClick={() => switchMode("login")}
           >
             Log in
@@ -124,21 +145,33 @@ function LoginScreen({ onLogin }: LoginScreenProps) {
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />
-          <input
-            className="line-input"
-            type="password"
-            placeholder="Password"
-            aria-label="Password"
-            autoComplete={
-              mode === "login" ? "current-password" : "new-password"
-            }
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
+          {mode !== "reset" && (
+            <input
+              className="line-input"
+              type="password"
+              placeholder="Password"
+              aria-label="Password"
+              autoComplete={
+                mode === "login" ? "current-password" : "new-password"
+              }
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          )}
           {error && <p className="login-error">{error}</p>}
+          {note && <p className="login-note">{note}</p>}
           <button className="btn btn-gold" type="submit" disabled={busy}>
-            {mode === "login" ? "Play" : "Create account"}
+            {submitLabel[mode]}
           </button>
+          {mode !== "signup" && (
+            <button
+              className="login-forgot"
+              type="button"
+              onClick={() => switchMode(mode === "login" ? "reset" : "login")}
+            >
+              {mode === "login" ? "Forgot password?" : "Back to log in"}
+            </button>
+          )}
         </form>
       </div>
     </main>

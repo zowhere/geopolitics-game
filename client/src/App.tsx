@@ -10,14 +10,21 @@ import BoardScreen from "./screens/BoardScreen";
 import ChooseCountryScreen from "./screens/ChooseCountryScreen";
 import NewGameScreen from "./screens/NewGameScreen";
 import LoginScreen from "./screens/LoginScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import RoundScreen from "./screens/RoundScreen";
 import { defaultSettings } from "./settings";
 
 type Screen = "newGame" | "choose" | "round" | "board";
 
+function resetCodeFromLink() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("mode") === "resetPassword" ? params.get("oobCode") : null;
+}
+
 function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [checkedLogin, setCheckedLogin] = useState(false);
+  const [resetCode, setResetCode] = useState(resetCodeFromLink);
   const [countries, setCountries] = useState<Country[] | null>(null);
   const [loadError, setLoadError] = useState("");
   const [screen, setScreen] = useState<Screen>("newGame");
@@ -93,6 +100,17 @@ function App() {
   }
 
   function currentScreen() {
+    if (resetCode) {
+      return (
+        <ResetPasswordScreen
+          code={resetCode}
+          onDone={() => {
+            window.history.replaceState(null, "", "/");
+            setResetCode(null);
+          }}
+        />
+      );
+    }
     if (!checkedLogin) return null;
     if (!username) return <LoginScreen onLogin={setUsername} />;
     if (screen === "board" && game) {

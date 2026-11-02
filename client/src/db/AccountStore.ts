@@ -1,11 +1,14 @@
 import { FirebaseError } from "firebase/app";
 import {
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   deleteUser,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  verifyPasswordResetCode,
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -22,6 +25,8 @@ const messages: Record<string, string> = {
   "auth/invalid-credential": "Wrong username or password",
   "auth/too-many-requests": "Too many tries, wait a bit",
   "auth/network-request-failed": "No connection",
+  "auth/expired-action-code": "This link has expired, ask for a new one",
+  "auth/invalid-action-code": "This link has already been used or is broken",
 };
 
 export class AccountStore {
@@ -54,6 +59,21 @@ export class AccountStore {
       const { user } = await signInWithEmailAndPassword(auth, name.data().email, password);
       return { uid: user.uid, username: user.displayName ?? username };
     });
+  }
+
+  async resetPassword(username: string) {
+    return this.friendly(async () => {
+      const name = await getDoc(doc(db, "usernames", username.toLowerCase()));
+      if (name.exists()) await sendPasswordResetEmail(auth, name.data().email);
+    });
+  }
+
+  checkResetLink(code: string) {
+    return this.friendly(() => verifyPasswordResetCode(auth, code));
+  }
+
+  setNewPassword(code: string, password: string) {
+    return this.friendly(() => confirmPasswordReset(auth, code, password));
   }
 
   logOut() {
