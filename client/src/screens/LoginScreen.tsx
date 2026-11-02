@@ -25,7 +25,7 @@ function validate(mode: Mode, email: string, username: string, password: string)
   if (!/^\S+@\S+\.\S+$/.test(email)) return "That email doesn't look right";
   if (!/^[A-Za-z0-9_]{3,20}$/.test(username))
     return "Username: 3 to 20 letters, numbers or _";
-  if (password.length < 8) return "Password: at least 8 characters";
+  if (password.length < 6) return "Password: at least 6 characters";
   return "";
 }
 
