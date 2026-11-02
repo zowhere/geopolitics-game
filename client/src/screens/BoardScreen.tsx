@@ -1,6 +1,8 @@
 import { useEffect, useReducer, useState } from "react";
 import Island from "../components/Island";
+import ProfileMenu from "../components/ProfileMenu";
 import ReserveBox from "../components/ReserveBox";
+import SettingsMenu from "../components/SettingsMenu";
 import SoldierMarch from "../components/SoldierMarch";
 import StrategyBox from "../components/StrategyBox";
 import SoldierCount from "../components/SoldierCount";
@@ -14,11 +16,16 @@ import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
 import EndScreen from "./EndScreen";
 import WarScreen from "./WarScreen";
+import type { Settings } from "../settings";
 import "./BoardScreen.css";
 
 type BoardScreenProps = {
   game: Game;
+  username: string;
+  settings: Settings;
+  onSettingsChange: (settings: Settings) => void;
   onNewGame: () => void;
+  onLogout: () => void;
 };
 
 const scatter = [
@@ -54,9 +61,9 @@ function strongest(territories: Territory[]) {
   );
 }
 
-function BoardScreen({ game, onNewGame }: BoardScreenProps) {
+function BoardScreen({ game, username, settings, onSettingsChange, onNewGame, onLogout }: BoardScreenProps) {
   const { phase, plan, war, out, transfer, pace, advance, startWar, endWar, endTurn, watch, toggleFast } =
-    useTurnFlow(game);
+    useTurnFlow(game, settings.speed);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
   const [chosen, setChosen] = useState<Territory | null>(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -152,6 +159,8 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
               ))}
             </ol>
           )}
+          <SettingsMenu settings={settings} onChange={onSettingsChange} />
+          <ProfileMenu game={game} username={username} onNewGame={onNewGame} onLogout={onLogout} />
         </header>
 
         <div className="board-map">
@@ -235,7 +244,16 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
       {(phase === "airdrop" || placing) && (
         <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
       )}
-      {war && <WarScreen game={game} from={war.from} to={war.to} onChange={refresh} onEnd={endWar} />}
+      {war && (
+        <WarScreen
+          game={game}
+          from={war.from}
+          to={war.to}
+          commentary={settings.commentary}
+          onChange={refresh}
+          onEnd={endWar}
+        />
+      )}
       {phase === "defeated" && (
         <EndScreen headline="Defeated" tone="lose" player={current} onNewGame={onNewGame} onWatch={watch} />
       )}

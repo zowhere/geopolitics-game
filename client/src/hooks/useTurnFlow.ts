@@ -3,7 +3,6 @@ import type { Game } from "../game/Game";
 import type { Transfer } from "../game/NpcStrategy";
 import type { Player, TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
-import { fastForward } from "./PaceContext";
 
 export type Phase =
   | "start"
@@ -42,14 +41,14 @@ const durations: Partial<Record<Phase, number>> = {
   airdrop: 3200,
 };
 
-export function useTurnFlow(game: Game) {
+export function useTurnFlow(game: Game, fastPace: number) {
   const [phase, setPhase] = useState<Phase>("start");
   const [plan, setPlan] = useState<TurnPlan | null>(null);
   const [war, setWar] = useState<War | null>(null);
   const [out, setOut] = useState<Player | null>(null);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
   const [fast, setFast] = useState(false);
-  const pace = fast ? fastForward : 1;
+  const pace = fast ? fastPace : 1;
 
   function endTurn() {
     game.nextTurn();
