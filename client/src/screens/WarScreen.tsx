@@ -104,9 +104,7 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
         <span key={battleNumber} className="war-count">Battle {battleNumber}</span>
         <h2 className="war-title">
           {from.name}
-          <svg className="war-arrow" viewBox="0 0 40 16" aria-hidden="true">
-            <path d="M2 8h32M26 2l8 6-8 6" />
-          </svg>
+          <span className="war-vs">vs</span>
           {to.name}
         </h2>
       </header>

@@ -1,4 +1,5 @@
 import { useId, type CSSProperties } from "react";
+import { useLoadedImage } from "../hooks/useLoadedImage";
 import type { CountryShape } from "../map/countryShape";
 import { troopSpots } from "../map/troopSpots";
 import "./Island.css";
@@ -26,6 +27,7 @@ function flagArea({ x, y, width, height }: CountryShape["box"]) {
 
 function Island({ shape, flag, soldiers, className, style }: IslandProps) {
   const clipId = `coast${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const flagReady = useLoadedImage(flag);
   const { path, box } = shape;
   const area = flagArea(box);
 
@@ -42,15 +44,18 @@ function Island({ shape, flag, soldiers, className, style }: IslandProps) {
           <path d={path} />
         </clipPath>
         <path className="island-ground" d={path} />
-        <image
-          href={flag}
-          clipPath={`url(#${clipId})`}
-          x={area.x}
-          y={area.y}
-          width={area.width}
-          height={area.height}
-          preserveAspectRatio="none"
-        />
+        {flagReady && (
+          <image
+            key={flag}
+            href={flag}
+            clipPath={`url(#${clipId})`}
+            x={area.x}
+            y={area.y}
+            width={area.width}
+            height={area.height}
+            preserveAspectRatio="none"
+          />
+        )}
       </g>
       <path className="island-coast" d={path} />
       {soldiers !== undefined &&
