@@ -32,7 +32,7 @@ const durations: Partial<Record<Phase, number>> = {
   announce: 3000,
   thinking: 700,
   deploy: 4000,
-  decision: 4000,
+  decision: 5000,
   skipStamp: 1000,
   afterHold: 3000,
   eliminated: 1300,

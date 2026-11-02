@@ -215,7 +215,7 @@
   text-align: center;
   color: var(--cream);
   text-shadow: 0 2px 4px var(--sea-0);
-  animation: fade-out 0.8s ease 4s forwards;
+  animation: fade-out 0.8s ease 5s forwards;
 }
 
 @keyframes fade-out {
