@@ -1,8 +1,11 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+
 const firebaseConfig = {
   apiKey: "AIzaSyB5Y-RWE1DxrtB7DruA0gH3opo5ANoTA40",
   authDomain: "geopolitics-game-b9b31.firebaseapp.com",
@@ -13,13 +16,5 @@ const firebaseConfig = {
   measurementId: "G-J0WFN5XT3D",
 };
 
-// Initialize Firebase App
-export const app = initializeApp(firebaseConfig);
-
-// Initialize Firestore Database
-export const db = getFirestore(app);
-
-// Safely initialize Analytics (only in supported browser environments)
-export const analyticsPromise = isSupported().then((supported) =>
-  supported ? getAnalytics(app) : null,
-);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
