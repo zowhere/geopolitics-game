@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import type { Game } from "../game/Game";
@@ -47,7 +48,7 @@ function WatchScreen({ game, owner, actionLabel, onAction }: WatchScreenProps) {
             <div
               key={territory.name}
               className={holder.human ? "board-country you" : "board-country"}
-              style={{ translate: `${x}% ${y}px` }}
+              style={{ "--x": `${x}%`, "--y": `${y}px` } as CSSProperties}
             >
               <Island
                 shape={countryShape(territory.country.mapName)}

@@ -183,6 +183,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  translate: var(--x, 0) var(--y, 0);
 }
 
 .board-country .island {
@@ -333,12 +334,89 @@
 }
 
 @media (max-width: 640px) {
-  .board-map {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .board-screen {
+    padding: 8px 10px 12px;
   }
 
-  .board-country:nth-child(even) {
-    margin-top: 24px;
+  .board-hud {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding-right: 104px;
+  }
+
+  .board-turns {
+    order: 3;
+    flex-basis: calc(100% + 104px);
+    margin-right: -104px;
+    gap: 5px;
+    padding: 2px 0 8px;
+  }
+
+  .board-turn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .board-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 4px;
+    padding-bottom: 56px;
+  }
+
+  .board-country {
+    translate: var(--x, 0) 0;
+  }
+
+  .board-country:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
+
+  .board-country .island {
+    width: 88%;
+  }
+
+  .board-label {
+    max-width: 100%;
+    gap: 4px;
+    font-size: 0.72rem;
+  }
+
+  .board-footer {
+    min-height: 0;
+    padding-bottom: 46px;
+  }
+
+  .board-fast {
+    right: auto;
+    left: 50%;
+    bottom: 10px;
+    translate: -50% 0;
+    padding: 0.6em 0.9em 0.55em;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 640px) and (max-height: 700px), (max-width: 340px) {
+  .board-turns {
+    gap: 4px;
+  }
+
+  .board-turn {
+    width: 23px;
+    height: 23px;
+  }
+
+  .board-map {
+    gap: 2px 4px;
+    padding-bottom: 0;
+  }
+
+  .board-country .island {
+    width: 64%;
+  }
+
+  .board-label {
+    font-size: 0.66rem;
   }
 }
 

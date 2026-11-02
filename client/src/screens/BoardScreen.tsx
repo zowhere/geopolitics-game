@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useReducer, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useEffectEvent, useReducer, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
 import SettingsMenu from "../components/SettingsMenu";
@@ -248,7 +248,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                     key={territory.name}
                     className={classes.join(" ")}
                     data-territory={territory.name}
-                    style={{ translate: `${x}% ${y}px` }}
+                    style={{ "--x": `${x}%`, "--y": `${y}px` } as CSSProperties}
                     onClick={() => choose(territory)}
                     onPointerDown={(event) => grab(event, territory)}
                   >

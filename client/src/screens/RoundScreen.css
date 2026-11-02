@@ -102,11 +102,16 @@
 
 @media (max-width: 640px) {
   .round-name {
-    font-size: 0.56rem;
+    font-size: 0.68rem;
   }
 
   .round-order {
-    gap: 10px 4px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 6px;
+  }
+
+  .round-player:last-child:nth-child(3n + 1) {
+    grid-column: 2;
   }
 }
 
