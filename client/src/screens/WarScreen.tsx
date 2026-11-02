@@ -1,3 +1,4 @@
+import { useContext, type CSSProperties } from "react";
 import Die from "../components/Die";
 import Island from "../components/Island";
 import MissileStrike from "../components/MissileStrike";
@@ -5,6 +6,7 @@ import SoldierCount from "../components/SoldierCount";
 import { Battle } from "../game/Battle";
 import type { Game } from "../game/Game";
 import type { Territory } from "../game/Territory";
+import { PaceContext } from "../hooks/PaceContext";
 import { useWar, type WarPhase } from "../hooks/useWar";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
@@ -70,6 +72,7 @@ function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
     useWar(game, from, to, onChange, onEnd);
   const pairs = battle ? battle.attackerDice.length : Battle.diceCount(from, to);
   const stamp = stampText(phase, game);
+  const pace = useContext(PaceContext);
   const lossesApplied = phase === "casualties" || phase === "regroup";
   const attackerSurvivors = pairs - (lossesApplied && battle ? battle.attackerLosses : 0);
   const defenderSurvivors = pairs - (lossesApplied && battle ? battle.defenderLosses : 0);
@@ -103,7 +106,7 @@ function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
   }
 
   return (
-    <div className="war-screen" onClick={advance}>
+    <div className="war-screen" style={{ "--pace": pace } as CSSProperties} onClick={advance}>
       <header className="war-top">
         <span key={battleNumber} className="war-count">Battle {battleNumber}</span>
         <h2 className="war-title">

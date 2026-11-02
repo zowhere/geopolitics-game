@@ -186,7 +186,7 @@
 }
 
 .war-fighter.dying {
-  animation: fall 1s ease-in forwards;
+  animation: fall calc(1s / var(--pace)) ease-in forwards;
 }
 
 .war-fighter.gone {
@@ -194,11 +194,11 @@
 }
 
 .war-pair .war-fighter.returning:first-child {
-  animation: return-left 0.9s ease-in forwards;
+  animation: return-left calc(0.9s / var(--pace)) ease-in forwards;
 }
 
 .war-pair .war-fighter.returning:last-child {
-  animation: return-right 0.9s ease-in forwards;
+  animation: return-right calc(0.9s / var(--pace)) ease-in forwards;
 }
 
 .war-actions {

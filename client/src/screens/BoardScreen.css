@@ -232,6 +232,28 @@
   gap: 10px;
 }
 
+.board-fast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 28;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.board-fast svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: currentColor;
+}
+
+.board-fast[aria-pressed="true"] {
+  color: var(--sea-0);
+  background: var(--gold);
+  box-shadow: none;
+}
+
 .board-notice {
   margin: 0;
   padding: 8px 14px;

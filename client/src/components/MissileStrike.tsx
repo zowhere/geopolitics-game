@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
+import { PaceContext } from "../hooks/PaceContext";
 import { strike, type Salvo } from "../hooks/useWar";
 import { islandCentre } from "../map/islandCentre";
 import { StrikeFx } from "../map/StrikeFx";
@@ -23,6 +24,7 @@ const shake = [
 
 function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
   const svg = useRef<SVGSVGElement>(null);
+  const pace = useContext(PaceContext);
 
   useEffect(() => {
     if (!svg.current) return;
@@ -39,14 +41,14 @@ function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
             fx.missile(
               { x: start.x + spread + (missile - 1) * 8, y: start.y },
               { x: end.x + spread + (missile - 1) * 16, y: end.y + (missile % 2) * 10 },
-              { flight: strike.flight, arc: 0.3 + missile * 0.05, blast: missile === 2 ? 2.6 : 1.5 },
+              { flight: strike.flight / pace, arc: 0.3 + missile * 0.05, blast: missile === 2 ? 2.6 : 1.5 },
             ),
-          salvo.start + missile * strike.missileGap,
+          (salvo.start + missile * strike.missileGap) / pace,
         ),
       );
       const landing = setTimeout(
         () => document.querySelector(".board-map")?.animate(shake, 600),
-        salvo.start + 2 * strike.missileGap + strike.flight,
+        (salvo.start + 2 * strike.missileGap + strike.flight) / pace,
       );
       return [...missiles, landing];
     });
@@ -55,7 +57,7 @@ function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
       timers.forEach(clearTimeout);
       fx.stop();
     };
-  }, [from, to, salvos]);
+  }, [from, to, salvos, pace]);
 
   return <svg ref={svg} className="missile-strike" aria-hidden="true" />;
 }

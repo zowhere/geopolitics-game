@@ -1,9 +1,10 @@
-import { useEffect, useEffectEvent, useState } from "react";
+import { useContext, useEffect, useEffectEvent, useState } from "react";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
 import SoldierGhost from "../components/SoldierGhost";
 import type { Game } from "../game/Game";
 import type { Territory } from "../game/Territory";
+import { PaceContext } from "../hooks/PaceContext";
 import { useSoldierDrag } from "../hooks/useSoldierDrag";
 import { countryShape } from "../map/countryShape";
 import { flagUrl } from "../map/flagUrl";
@@ -23,6 +24,7 @@ function OccupationScreen({ game, from, to, autoMoveIn, onDone }: OccupationScre
   const staying = from.soldiers + bonus - moved;
   const flag = flagUrl(game.players[from.owner].country.code);
   const done = useEffectEvent(onDone);
+  const pace = useContext(PaceContext);
 
   function moveIn() {
     if (staying > 1) setMoved(moved + 1);
@@ -42,13 +44,13 @@ function OccupationScreen({ game, from, to, autoMoveIn, onDone }: OccupationScre
 
   useEffect(() => {
     if (autoMoveIn === null) return;
-    const steps = Array.from({ length: autoMoveIn }, (_, step) => setTimeout(() => setMoved(step + 1), 900 + step * 220));
-    const close = setTimeout(() => done(autoMoveIn), 1900 + autoMoveIn * 220);
+    const steps = Array.from({ length: autoMoveIn }, (_, step) => setTimeout(() => setMoved(step + 1), (900 + step * 220) / pace));
+    const close = setTimeout(() => done(autoMoveIn), (1900 + autoMoveIn * 220) / pace);
     return () => {
       steps.forEach(clearTimeout);
       clearTimeout(close);
     };
-  }, [autoMoveIn]);
+  }, [autoMoveIn, pace]);
 
   return (
     <div className="occupation-screen" onClick={autoMoveIn === null ? undefined : () => onDone(autoMoveIn)}>

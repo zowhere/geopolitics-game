@@ -1,7 +1,9 @@
+import { useContext, type CSSProperties } from "react";
 import { Battle } from "../game/Battle";
 import type { Game } from "../game/Game";
 import { fewestToAttackFrom, type Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
+import { PaceContext } from "../hooks/PaceContext";
 import "./StrategyBox.css";
 
 type StrategyBoxProps = {
@@ -37,8 +39,9 @@ function linesFor(game: Game, { deployed, attack }: TurnPlan, deploying: boolean
 
 function StrategyBox({ game, plan, deploying, transfer }: StrategyBoxProps) {
   const { reason, target, numbers } = linesFor(game, plan, deploying, transfer);
+  const pace = useContext(PaceContext);
   return (
-    <aside className="strategy-box">
+    <aside className="strategy-box" style={{ "--pace": pace } as CSSProperties}>
       <h2 className="strategy-title">Strategy</h2>
       <p>{reason}</p>
       <p className="strategy-calculating">Calculating</p>

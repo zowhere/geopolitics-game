@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
+import { PaceContext } from "../hooks/PaceContext";
 import { islandCentre } from "../map/islandCentre";
 import "./SoldierMarch.css";
 
@@ -13,6 +14,7 @@ const mostShown = 5;
 
 function SoldierMarch({ from, to, count }: SoldierMarchProps) {
   const layer = useRef<HTMLDivElement>(null);
+  const pace = useContext(PaceContext);
 
   useEffect(() => {
     if (!layer.current) return;
@@ -30,7 +32,7 @@ function SoldierMarch({ from, to, count }: SoldierMarchProps) {
           { transform: at(end.x, end.y), opacity: 1, offset: 0.9 },
           { transform: at(end.x, end.y), opacity: 0 },
         ],
-        { duration: 1100, delay: index * 140, fill: "both", easing: "ease-in-out" },
+        { duration: 1100 / pace, delay: (index * 140) / pace, fill: "both", easing: "ease-in-out" },
       ),
     );
     const [leaving, arriving] = [...layer.current.querySelectorAll(".march-label")];
@@ -41,12 +43,12 @@ function SoldierMarch({ from, to, count }: SoldierMarchProps) {
           { transform: at(point.x, point.y - 20), opacity: 1, offset: 0.2 },
           { transform: at(point.x, point.y - 50), opacity: 0 },
         ],
-        { duration: 1400, delay, fill: "both", easing: "ease-out" },
+        { duration: 1400 / pace, delay: delay / pace, fill: "both", easing: "ease-out" },
       );
     const labels = [float(leaving, start, 0), float(arriving, end, 900)];
 
     return () => [...soldiers, ...labels].forEach((animation) => animation.cancel());
-  }, [from, to]);
+  }, [from, to, pace]);
 
   return (
     <div ref={layer} className="soldier-march" aria-hidden="true">

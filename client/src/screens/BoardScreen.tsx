@@ -8,6 +8,7 @@ import type { Game } from "../game/Game";
 import type { Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
+import { PaceContext } from "../hooks/PaceContext";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
@@ -54,7 +55,8 @@ function strongest(territories: Territory[]) {
 }
 
 function BoardScreen({ game, onNewGame }: BoardScreenProps) {
-  const { phase, plan, war, out, transfer, advance, startWar, endWar, endTurn, watch } = useTurnFlow(game);
+  const { phase, plan, war, out, transfer, pace, advance, startWar, endWar, endTurn, watch, toggleFast } =
+    useTurnFlow(game);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
   const [chosen, setChosen] = useState<Territory | null>(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -114,7 +116,7 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
   }
 
   return (
-    <>
+    <PaceContext value={pace}>
       <main className="board-screen" onClick={advance}>
         <header className="board-hud">
           <span className="board-round">Round {game.round}</span>
@@ -245,7 +247,15 @@ function BoardScreen({ game, onNewGame }: BoardScreenProps) {
           onNewGame={onNewGame}
         />
       )}
-    </>
+      {!current.human && phase !== "gameOver" && phase !== "defeated" && (
+        <button className="btn btn-outline board-fast" type="button" aria-pressed={pace > 1} onClick={toggleFast}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" />
+          </svg>
+          Fast-forward
+        </button>
+      )}
+    </PaceContext>
   );
 }
 

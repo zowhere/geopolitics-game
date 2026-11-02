@@ -3,6 +3,7 @@ import type { Game } from "../game/Game";
 import type { Transfer } from "../game/NpcStrategy";
 import type { Player, TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
+import { fastForward } from "./PaceContext";
 
 export type Phase =
   | "start"
@@ -47,6 +48,8 @@ export function useTurnFlow(game: Game) {
   const [war, setWar] = useState<War | null>(null);
   const [out, setOut] = useState<Player | null>(null);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
+  const [fast, setFast] = useState(false);
+  const pace = fast ? fastForward : 1;
 
   function endTurn() {
     game.nextTurn();
@@ -105,6 +108,7 @@ export function useTurnFlow(game: Game) {
       const next = game.current.takeTurn(game);
       setPlan(next);
       if (next) return setPhase("thinking");
+      setFast(false);
       return setPhase(game.reserve > 0 ? "airdrop" : "yourTurn");
     }
     if (phase === "thinking" && plan?.deployed) {
@@ -127,9 +131,13 @@ export function useTurnFlow(game: Game) {
   useEffect(() => {
     const wait = durations[phase];
     if (wait === undefined) return;
-    const timer = setTimeout(timeUp, wait);
+    const timer = setTimeout(timeUp, wait / pace);
     return () => clearTimeout(timer);
-  }, [phase]);
+  }, [phase, pace]);
 
-  return { phase, plan, war, out, transfer, advance, startWar, endWar, endTurn, watch };
+  function toggleFast() {
+    setFast(!fast);
+  }
+
+  return { phase, plan, war, out, transfer, pace, advance, startWar, endWar, endTurn, watch, toggleFast };
 }

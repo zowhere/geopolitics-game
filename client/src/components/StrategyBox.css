@@ -33,19 +33,19 @@
 }
 
 .strategy-box p:nth-of-type(1) {
-  animation-delay: 0.3s;
+  animation-delay: calc(0.3s / var(--pace));
 }
 
 .strategy-box p:nth-of-type(2) {
-  animation-delay: 0.8s;
+  animation-delay: calc(0.8s / var(--pace));
 }
 
 .strategy-box p:nth-of-type(3) {
-  animation-delay: 2s;
+  animation-delay: calc(2s / var(--pace));
 }
 
 .strategy-box p:nth-of-type(4) {
-  animation-delay: 2.5s;
+  animation-delay: calc(2.5s / var(--pace));
 }
 
 .strategy-box b {
@@ -59,7 +59,7 @@
 
 .strategy-calculating::after {
   content: "";
-  animation: strategy-dots 0.4s steps(1) 0.8s 3 forwards;
+  animation: strategy-dots calc(0.4s / var(--pace)) steps(1) calc(0.8s / var(--pace)) 3 forwards;
 }
 
 .strategy-numbers {
