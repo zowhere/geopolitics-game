@@ -20,7 +20,7 @@ service cloud.firestore {
 
     function validGame(game) {
       return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'createdAt', 'updatedAt'])
-        && game.status in ['playing', 'won', 'lost']
+        && game.status in ['waiting', 'playing', 'won', 'lost']
         && game.human is int && game.human >= 0 && game.human < 10
         && game.turn is int && game.turn >= 0 && game.turn < 10
         && game.round is int && game.round >= 1
@@ -66,12 +66,12 @@ service cloud.firestore {
       allow read: if true;
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid
-        && request.resource.data.status == 'playing'
+        && request.resource.data.status in ['waiting', 'playing']
         && request.resource.data.createdAt == request.time
         && validGame(request.resource.data);
       allow update: if signedIn()
         && resource.data.ownerId == request.auth.uid
-        && resource.data.status == 'playing'
+        && resource.data.status in ['waiting', 'playing']
         && request.resource.data.ownerId == resource.data.ownerId
         && request.resource.data.human == resource.data.human
         && request.resource.data.createdAt == resource.data.createdAt
