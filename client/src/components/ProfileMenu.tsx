@@ -103,7 +103,7 @@ function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) 
             New game
           </button>
           <button className="profile-action" type="button" onClick={onLogout}>
-            Sign out
+            Log out
           </button>
         </div>
       )}

@@ -13,7 +13,7 @@
   border-radius: 6px;
   pointer-events: none;
   animation:
-    strategy-in 0.4s ease-out both,
+    strategy-in calc(0.4s / var(--pace)) ease-out both,
     strategy-glow 1.6s ease-in-out infinite;
 }
 
@@ -29,7 +29,7 @@
 .strategy-box p {
   margin: 0;
   opacity: 0;
-  animation: strategy-line 0.35s ease-out forwards;
+  animation: strategy-line calc(0.35s / var(--pace)) ease-out forwards;
 }
 
 .strategy-box p:nth-of-type(1) {

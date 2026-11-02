@@ -148,17 +148,14 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-content: center;
-  gap: 0 8px;
+  gap: 24px 8px;
+  padding-bottom: 90px;
 }
 
 .board-country {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.board-country:nth-child(even) {
-  margin-top: 34px;
 }
 
 .board-country .island {

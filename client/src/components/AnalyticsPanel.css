@@ -80,6 +80,10 @@
   color: #2b2820;
 }
 
+.record-overall small {
+  font-size: 0.9rem;
+}
+
 .record-section h3 {
   margin: 16px 0 6px;
   font: 400 0.95rem var(--font-display);

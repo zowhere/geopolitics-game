@@ -54,7 +54,11 @@ function AnalyticsPanel({ username, game, onClose }: AnalyticsPanelProps) {
             <b>{winRate}%</b>win rate
           </p>
           <p>
-            <b>{averageRounds}</b>rounds to win
+            <b>
+              {averageRounds}
+              {wins.length > 0 && <small> rounds</small>}
+            </b>
+            average win
           </p>
           <p>
             <b>{lostEver}</b>soldiers lost

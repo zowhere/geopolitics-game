@@ -27,16 +27,16 @@ type BoardScreenProps = {
 };
 
 const scatter = [
-  [-8, 6, -4],
-  [10, -10, 3],
-  [-4, 12, 5],
-  [6, -6, -3],
-  [-10, 4, 2],
-  [8, 10, -5],
-  [-6, -8, 4],
-  [4, 8, -2],
-  [-12, -4, 6],
-  [10, 6, -4],
+  [-18, 4, -6, 0.95],
+  [22, -26, 4, 1.05],
+  [-6, 24, 7, 0.9],
+  [16, -12, -4, 1.1],
+  [-24, 14, 3, 0.92],
+  [26, 48, -6, 1],
+  [-14, 74, 5, 1.08],
+  [12, 36, -3, 0.9],
+  [-28, 86, 7, 1.02],
+  [20, 56, -5, 0.95],
 ];
 
 const homeRule = "At least 1 soldier must stay home during an attack";
@@ -177,7 +177,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
 
             <div className="board-map">
               {game.territories.map((territory, index) => {
-                const [x, y, tilt] = scatter[index];
+                const [x, y, tilt, size] = scatter[index];
                 const owner = game.players[territory.owner];
                 const classes = ["board-country"];
                 if (owner.human) classes.push("you");
@@ -190,13 +190,14 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScree
                     key={territory.name}
                     className={classes.join(" ")}
                     data-territory={territory.name}
+                    style={{ translate: `${x}px ${y}px` }}
                     onClick={() => choose(territory)}
                   >
                     <Island
                       shape={countryShape(territory.country.mapName)}
                       flag={flagUrl(owner.country.code)}
                       soldiers={territory.soldiers}
-                      style={{ transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)` }}
+                      style={{ transform: `rotate(${tilt}deg) scale(${size})` }}
                     />
                     <span className="board-label">
                       {territory.name}
