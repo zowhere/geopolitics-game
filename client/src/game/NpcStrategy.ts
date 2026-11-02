@@ -25,11 +25,20 @@ function isBetterOption(a: AttackOption, b: AttackOption) {
   return a.to.soldiers < b.to.soldiers;
 }
 
+function strengthOf(territories: readonly Territory[], player: number) {
+  return territories
+    .filter((territory) => territory.owner === player)
+    .reduce((total, territory) => total + territory.soldiers, 0);
+}
+
 export class NpcStrategy {
   private bestOption(territories: readonly Territory[], player: number, extraSoldiers = 0) {
     const options = new PriorityQueue<AttackOption>(isBetterOption);
     const own = territories.filter((territory) => territory.owner === player);
-    const enemies = territories.filter((territory) => territory.owner !== player);
+    const strength = strengthOf(territories, player) + extraSoldiers;
+    const enemies = territories.filter(
+      (territory) => territory.owner !== player && strengthOf(territories, territory.owner) <= strength,
+    );
     for (const from of own) {
       const soldiers = from.soldiers + extraSoldiers;
       if (soldiers < fewestToAttackFrom) continue;
