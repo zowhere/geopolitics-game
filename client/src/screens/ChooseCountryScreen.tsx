@@ -179,7 +179,7 @@ function ChooseCountryScreen({ countries, onBack, onPlay }: ChooseCountryScreenP
           type="button"
           onClick={() => onPlay(selected)}
         >
-          Play
+          Next
         </button>
       </footer>
     </main>

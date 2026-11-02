@@ -9,7 +9,7 @@ import "./LoginScreen.css";
 type Mode = "login" | "signup" | "reset";
 
 const submitLabel: Record<Mode, string> = {
-  login: "Play",
+  login: "Log in",
   signup: "Create account",
   reset: "Reset password",
 };
