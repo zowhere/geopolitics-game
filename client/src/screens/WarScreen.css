@@ -101,14 +101,14 @@
   user-select: none;
 }
 
-.war-dice.ready .war-pair .die:nth-child(2) {
+.war-dice.ready .war-pair .die:first-child {
   animation: wobble 1.3s ease-in-out infinite;
   box-shadow: 0 3px 0 rgba(3, 12, 18, 0.78), 0 0 0 3px color-mix(in srgb, var(--gold) 45%, transparent);
 }
 
 .war-pair {
   display: grid;
-  grid-template-columns: 22px 42px 52px 42px 22px;
+  grid-template-columns: 42px 52px 42px;
   align-items: center;
   justify-items: center;
   gap: 6px;
@@ -126,17 +126,10 @@
   margin-left: 6px;
 }
 
-.war-home,
-.war-battle-head {
+.war-battle-row {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.war-battle-head {
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 4px;
 }
 
 .war-label {
@@ -149,15 +142,9 @@
 .war-troops {
   display: flex;
   flex-wrap: wrap;
-  gap: 1px 3px;
-  max-width: 150px;
-  min-height: 27px;
-}
-
-.war-soldier {
-  width: 16px;
-  height: 27px;
-  filter: drop-shadow(0 1px 0 rgba(3, 12, 18, 0.6));
+  gap: 2px 4px;
+  max-width: 220px;
+  min-height: 36px;
 }
 
 .war-number {
@@ -189,16 +176,8 @@
   animation: fall calc(1s / var(--pace)) ease-in forwards;
 }
 
-.war-fighter.gone {
-  visibility: hidden;
-}
-
-.war-pair .war-fighter.returning:first-child {
-  animation: return-left calc(0.9s / var(--pace)) ease-in forwards;
-}
-
-.war-pair .war-fighter.returning:last-child {
-  animation: return-right calc(0.9s / var(--pace)) ease-in forwards;
+.war-fighter.returning {
+  animation: return-home calc(0.9s / var(--pace)) ease-in forwards;
 }
 
 .war-actions {
@@ -235,16 +214,9 @@
   }
 }
 
-@keyframes return-left {
+@keyframes return-home {
   to {
-    transform: translateX(-90px);
-    opacity: 0;
-  }
-}
-
-@keyframes return-right {
-  to {
-    transform: translateX(90px);
+    transform: translateY(-70px);
     opacity: 0;
   }
 }
@@ -261,7 +233,7 @@
   }
 
   .war-pair {
-    grid-template-columns: 16px 32px 40px 32px 16px;
+    grid-template-columns: 32px 40px 32px;
     gap: 4px;
   }
 

@@ -256,12 +256,11 @@
 
 .board-notice {
   margin: 0;
-  padding: 8px 14px;
-  font: 600 0.9rem var(--font-label);
+  font: 600 1rem var(--font-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--sea-0);
-  background: var(--cream);
+  color: var(--cream);
+  text-shadow: 0 2px 4px var(--sea-0);
   animation: slam 0.3s ease-out both;
 }
 

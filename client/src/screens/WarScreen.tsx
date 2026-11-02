@@ -51,22 +51,6 @@ function Fighter({ state }: { state: FighterState }) {
   );
 }
 
-function Home({ count }: { count: number }) {
-  return (
-    <div className="war-home">
-      <span className="war-label">Home</span>
-      <div className="war-troops">
-        {Array.from({ length: Math.min(count, 12) }, (_, index) => (
-          <svg key={index} className="war-soldier" viewBox="0 0 12 20" aria-hidden="true">
-            <use href="#soldier" />
-          </svg>
-        ))}
-      </div>
-      <b className="war-number">{count}</b>
-    </div>
-  );
-}
-
 function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
   const { phase, battle, battleNumber, comment, salvos, canRoll, autoMoveIn, roll, stop, occupy, advance } =
     useWar(game, from, to, onChange, onEnd);
@@ -91,16 +75,26 @@ function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
     );
   }
 
-  function side(territory: Territory, survivors: number) {
+  function side(territory: Territory, survivors: number, lostAt: (index: number) => boolean) {
     const owner = game.players[territory.owner];
+    const fighters = Array.from({ length: pairs }, (_, index) => fighterState(phase, lostAt(index)));
     return (
       <div className="war-side">
-        <Island shape={countryShape(territory.country.mapName)} flag={flagUrl(owner.country.code)} />
+        <Island
+          shape={countryShape(territory.country.mapName)}
+          flag={flagUrl(owner.country.code)}
+          soldiers={territory.soldiers - survivors}
+        />
         <h3 className="war-name">
           {territory.name}
           <SoldierCount count={territory.soldiers} />
         </h3>
-        <Home count={territory.soldiers - survivors} />
+        <div className="war-battle-row">
+          <div className="war-troops">
+            {fighters.map((state, index) => state !== "gone" && <Fighter key={index} state={state} />)}
+          </div>
+          <b className="war-number">{survivors}</b>
+        </div>
       </div>
     );
   }
@@ -119,29 +113,23 @@ function WarScreen({ game, from, to, onChange, onEnd }: WarScreenProps) {
       </header>
 
       <div className="war-arena">
-        {side(from, attackerSurvivors)}
+        {side(from, attackerSurvivors, (index) => !!battle && battle.attackerDice[index] < battle.defenderDice[index])}
         <div className={canRoll ? "war-dice ready" : "war-dice"} onClick={canRoll ? roll : undefined}>
-          <div className="war-battle-head">
-            <b className="war-number">{attackerSurvivors}</b>
-            <span className="war-label">Battle</span>
-            <b className="war-number">{defenderSurvivors}</b>
-          </div>
+          <span className="war-label">Battle</span>
           {Array.from({ length: pairs }, (_, index) => {
             const attacker = battle?.attackerDice[index] ?? 0;
             const defender = battle?.defenderDice[index] ?? 0;
             const [attackerClass, defenderClass] = showResult ? dieResult(attacker, defender) : ["", ""];
             return (
               <div key={index} className="war-pair">
-                <Fighter state={fighterState(phase, attacker < defender)} />
                 <Die value={attacker} rolling={phase === "rolling"} className={attackerClass} />
                 <span className="war-mark">{showResult && `${attacker}–${defender}`}</span>
                 <Die value={defender} rolling={phase === "rolling"} className={defenderClass} />
-                <Fighter state={fighterState(phase, defender < attacker)} />
               </div>
             );
           })}
         </div>
-        {side(to, defenderSurvivors)}
+        {side(to, defenderSurvivors, (index) => !!battle && battle.defenderDice[index] < battle.attackerDice[index])}
       </div>
 
       <footer className="war-bottom">
