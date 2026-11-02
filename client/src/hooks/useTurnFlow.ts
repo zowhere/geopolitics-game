@@ -48,6 +48,7 @@ export function useTurnFlow(game: Game, fastPace: number) {
   const [out, setOut] = useState<Player | null>(null);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
   const [fast, setFast] = useState(false);
+  const [paused, setPaused] = useState(false);
   const pace = fast ? fastPace : 1;
 
   function endTurn() {
@@ -129,14 +130,14 @@ export function useTurnFlow(game: Game, fastPace: number) {
 
   useEffect(() => {
     const wait = durations[phase];
-    if (wait === undefined) return;
+    if (wait === undefined || paused) return;
     const timer = setTimeout(timeUp, wait / pace);
     return () => clearTimeout(timer);
-  }, [phase, pace]);
+  }, [phase, pace, paused]);
 
   function toggleFast() {
     setFast(!fast);
   }
 
-  return { phase, plan, war, out, transfer, pace, advance, startWar, endWar, endTurn, watch, toggleFast };
+  return { phase, plan, war, out, transfer, pace, paused, setPaused, advance, startWar, endWar, endTurn, watch, toggleFast };
 }

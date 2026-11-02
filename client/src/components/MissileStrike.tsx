@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
-import { PaceContext } from "../hooks/PaceContext";
+import { PaceContext, PausedContext } from "../hooks/PaceContext";
 import { strike, type Salvo } from "../hooks/useWar";
 import { islandCentre } from "../map/islandCentre";
 import { StrikeFx } from "../map/StrikeFx";
@@ -25,9 +25,10 @@ const shake = [
 function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
   const svg = useRef<SVGSVGElement>(null);
   const pace = useContext(PaceContext);
+  const paused = useContext(PausedContext);
 
   useEffect(() => {
-    if (!svg.current) return;
+    if (!svg.current || paused) return;
     const fx = new StrikeFx(svg.current);
     const attacker = islandCentre(from);
     const defender = islandCentre(to);
@@ -57,7 +58,7 @@ function MissileStrike({ from, to, salvos }: MissileStrikeProps) {
       timers.forEach(clearTimeout);
       fx.stop();
     };
-  }, [from, to, salvos, pace]);
+  }, [from, to, salvos, pace, paused]);
 
   return <svg ref={svg} className="missile-strike" aria-hidden="true" />;
 }

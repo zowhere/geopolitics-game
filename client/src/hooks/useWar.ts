@@ -4,7 +4,7 @@ import type { WarOutcome } from "../game/Commentator";
 import type { Game } from "../game/Game";
 import { NpcPlayer } from "../game/NpcPlayer";
 import type { Territory } from "../game/Territory";
-import { PaceContext } from "./PaceContext";
+import { PaceContext, PausedContext } from "./PaceContext";
 
 export type WarPhase =
   | "ready"
@@ -60,6 +60,7 @@ function strikeDuration(salvos: Salvo[]) {
 export function useWar(game: Game, from: Territory, to: Territory, onChange: () => void, onEnd: () => void) {
   const npc = game.current instanceof NpcPlayer ? game.current : null;
   const pace = useContext(PaceContext);
+  const paused = useContext(PausedContext);
   const [phase, setPhase] = useState<WarPhase>("ready");
   const [battle, setBattle] = useState<Battle | null>(null);
   const [battleNumber, setBattleNumber] = useState(1);
@@ -127,10 +128,10 @@ export function useWar(game: Game, from: Territory, to: Territory, onChange: () 
   const wait = phase === "strike" ? strikeDuration(salvos) : durations[phase];
 
   useEffect(() => {
-    if (wait === undefined || (phase === "ready" && !npc)) return;
+    if (wait === undefined || paused || (phase === "ready" && !npc)) return;
     const timer = setTimeout(timeUp, wait / pace);
     return () => clearTimeout(timer);
-  }, [phase, npc, wait, pace]);
+  }, [phase, npc, wait, pace, paused]);
 
   return {
     phase,

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { Game } from "../game/Game";
+import AnalyticsPanel from "./AnalyticsPanel";
 import "./ProfileMenu.css";
 
 type ProfileMenuProps = {
-  game: Game;
+  game: Game | null;
   username: string;
   onNewGame: () => void;
   onLogout: () => void;
@@ -40,9 +41,14 @@ function Avatar() {
 
 function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
-  const you = game.players.findIndex((player) => player.human);
-  const held = game.territoriesOf(you);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const held = game ? game.territoriesOf(game.players.findIndex((player) => player.human)) : [];
   const soldiers = held.reduce((total, territory) => total + territory.soldiers, 0);
+
+  function openAnalytics() {
+    setOpen(false);
+    setShowAnalytics(true);
+  }
 
   return (
     <div className="profile" onClick={(event) => event.stopPropagation()}>
@@ -61,10 +67,17 @@ function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) 
             <Avatar />
             <b>{username}</b>
           </div>
-          <p className="profile-label">Your empire</p>
-          <p className="profile-empire">
-            {held.length ? `${held.length} of 10 countries · ${soldiers} soldiers · Round ${game.round}` : "Out of the game"}
-          </p>
+          {game && (
+            <>
+              <p className="profile-label">Your empire</p>
+              <p className="profile-empire">
+                {held.length ? `${held.length} of 10 countries · ${soldiers} soldiers · Round ${game.round}` : "Out of the game"}
+              </p>
+            </>
+          )}
+          <button className="profile-action" type="button" onClick={openAnalytics}>
+            Analytics
+          </button>
           <button className="profile-action" type="button" onClick={onNewGame}>
             New game
           </button>
@@ -73,6 +86,7 @@ function ProfileMenu({ game, username, onNewGame, onLogout }: ProfileMenuProps) 
           </button>
         </div>
       )}
+      {showAnalytics && <AnalyticsPanel username={username} onClose={() => setShowAnalytics(false)} />}
     </div>
   );
 }

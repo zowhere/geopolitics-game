@@ -1,6 +1,5 @@
 import { useEffect, useReducer, useState } from "react";
 import Island from "../components/Island";
-import ProfileMenu from "../components/ProfileMenu";
 import ReserveBox from "../components/ReserveBox";
 import SettingsMenu from "../components/SettingsMenu";
 import SoldierMarch from "../components/SoldierMarch";
@@ -10,22 +9,21 @@ import type { Game } from "../game/Game";
 import type { Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
-import { PaceContext } from "../hooks/PaceContext";
+import { PaceContext, PausedContext } from "../hooks/PaceContext";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
 import EndScreen from "./EndScreen";
+import PauseScreen from "./PauseScreen";
 import WarScreen from "./WarScreen";
 import type { Settings } from "../settings";
 import "./BoardScreen.css";
 
 type BoardScreenProps = {
   game: Game;
-  username: string;
   settings: Settings;
   onSettingsChange: (settings: Settings) => void;
   onNewGame: () => void;
-  onLogout: () => void;
 };
 
 const scatter = [
@@ -61,8 +59,8 @@ function strongest(territories: Territory[]) {
   );
 }
 
-function BoardScreen({ game, username, settings, onSettingsChange, onNewGame, onLogout }: BoardScreenProps) {
-  const { phase, plan, war, out, transfer, pace, advance, startWar, endWar, endTurn, watch, toggleFast } =
+function BoardScreen({ game, settings, onSettingsChange, onNewGame }: BoardScreenProps) {
+  const { phase, plan, war, out, transfer, pace, paused, setPaused, advance, startWar, endWar, endTurn, watch, toggleFast } =
     useTurnFlow(game, settings.speed);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
   const [chosen, setChosen] = useState<Territory | null>(null);
@@ -124,155 +122,172 @@ function BoardScreen({ game, username, settings, onSettingsChange, onNewGame, on
 
   return (
     <PaceContext value={pace}>
-      <main className="board-screen" onClick={advance}>
-        <header className="board-hud">
-          <span className="board-round">Round {game.round}</span>
-          <ol className="board-turns" aria-label="Turn order">
-            {game.players.map((player) => (
-              <li
-                key={player.country.name}
-                className={player === current ? "board-turn now" : "board-turn"}
-                title={player.human ? `${player.country.name} (you)` : player.country.name}
-              >
-                <img src={squareFlagUrl(player.country.code)} alt={player.country.name} />
-              </li>
-            ))}
-          </ol>
-          <button
-            className="board-log-button"
-            type="button"
-            aria-expanded={logOpen}
-            onClick={(event) => {
-              event.stopPropagation();
-              setLogOpen(!logOpen);
-            }}
-          >
-            Log
-          </button>
-          {logOpen && (
-            <ol className="board-log" onClick={(event) => event.stopPropagation()}>
-              {[...game.commentator.entries].reverse().map((entry, index) => (
-                <li key={game.commentator.entries.length - index} className={entry.heading ? "heading" : undefined}>
-                  {entry.who && <b>{entry.who}</b>} {entry.text}
-                  {entry.reason && <em>{entry.reason}</em>}
-                </li>
-              ))}
-            </ol>
-          )}
-          <SettingsMenu settings={settings} onChange={onSettingsChange} />
-          <ProfileMenu game={game} username={username} onNewGame={onNewGame} onLogout={onLogout} />
-        </header>
-
-        <div className="board-map">
-          {game.territories.map((territory, index) => {
-            const [x, y, tilt] = scatter[index];
-            const owner = game.players[territory.owner];
-            const classes = ["board-country"];
-            if (owner.human) classes.push("you");
-            if (territory === attacker || territory === moving?.from || territory === moving?.to) classes.push("attacking");
-            if (aiming && targets.includes(territory)) classes.push("target");
-            if (war && territory !== war.from && territory !== war.to) classes.push("dim");
-            if (placing && territory.owner === game.currentIndex) classes.push("droppable");
-            return (
-              <div
-                key={territory.name}
-                className={classes.join(" ")}
-                data-territory={territory.name}
-                onClick={() => choose(territory)}
-              >
-                <Island
-                  shape={countryShape(territory.country.mapName)}
-                  flag={flagUrl(owner.country.code)}
-                  soldiers={territory.soldiers}
-                  style={{ transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)` }}
-                />
-                <span className="board-label">
-                  {territory.name}
-                  <SoldierCount count={territory.soldiers} />
-                </span>
-              </div>
-            );
-          })}
-          {phase === "skipStamp" && <div className="stamp">Skip turn</div>}
-          {phase === "eliminated" && out && (
-            <div className="stamp failed">{out.human ? "You are out" : `${out.country.name} is out`}</div>
-          )}
-        </div>
-
-        <footer className="board-footer">
-          {phase === "announce" && (
-            <p className="board-announce">
-              {current.human ? "Your turn" : `${current.country.name}'s turn`}
-            </p>
-          )}
-          {caption && (
-            <p key={caption} className="board-caption">
-              {caption}
-            </p>
-          )}
-          {notice && <p className="board-notice">{notice}</p>}
-          {phase === "yourTurn" && (
-            <div className="board-actions">
-              {game.attacked ? (
-                <button className="btn btn-gold" type="button" onClick={endTurn}>
-                  End turn
+      <PausedContext value={paused}>
+        <div className={paused ? "game game-paused" : "game"}>
+            <main className="board-screen" onClick={advance}>
+              <header className="board-hud">
+                <button
+                  className="board-pause"
+                  type="button"
+                  aria-label="Pause"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setPaused(true);
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
+                  </svg>
                 </button>
-              ) : (
-                <>
-                  <button
-                    className="btn btn-gold"
-                    type="button"
-                    aria-disabled={placing || !armies.length}
-                    aria-pressed={aiming}
-                    onClick={aim}
-                  >
-                    Attack
-                  </button>
-                  <button className="btn btn-outline" type="button" aria-disabled={placing} onClick={skip}>
-                    Skip
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </footer>
-      </main>
-      {caption && plan && (
-        <StrategyBox key={caption} game={game} plan={plan} deploying={phase === "deploy"} transfer={moving} />
-      )}
-      {moving && <SoldierMarch from={moving.from} to={moving.to} count={moving.count} />}
-      {(phase === "airdrop" || placing) && (
-        <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
-      )}
-      {war && (
-        <WarScreen
-          game={game}
-          from={war.from}
-          to={war.to}
-          commentary={settings.commentary}
-          onChange={refresh}
-          onEnd={endWar}
-        />
-      )}
-      {phase === "defeated" && (
-        <EndScreen headline="Defeated" tone="lose" player={current} onNewGame={onNewGame} onWatch={watch} />
-      )}
-      {phase === "gameOver" && game.winner && (
-        <EndScreen
-          headline={game.winner.human ? "Victory" : `${game.winner.country.name} wins`}
-          tone={game.winner.human ? "win" : "lose"}
-          player={game.winner}
-          onNewGame={onNewGame}
-        />
-      )}
-      {!current.human && phase !== "gameOver" && phase !== "defeated" && (
-        <button className="btn btn-outline board-fast" type="button" aria-pressed={pace > 1} onClick={toggleFast}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" />
-          </svg>
-          Fast-forward
-        </button>
-      )}
+                <span className="board-round">Round {game.round}</span>
+                <ol className="board-turns" aria-label="Turn order">
+                  {game.players.map((player) => (
+                    <li
+                      key={player.country.name}
+                      className={player === current ? "board-turn now" : "board-turn"}
+                      title={player.human ? `${player.country.name} (you)` : player.country.name}
+                    >
+                      <img src={squareFlagUrl(player.country.code)} alt={player.country.name} />
+                    </li>
+                  ))}
+                </ol>
+                <button
+                  className="board-log-button"
+                  type="button"
+                  aria-expanded={logOpen}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setLogOpen(!logOpen);
+                  }}
+                >
+                  Log
+                </button>
+                {logOpen && (
+                  <ol className="board-log" onClick={(event) => event.stopPropagation()}>
+                    {[...game.commentator.entries].reverse().map((entry, index) => (
+                      <li key={game.commentator.entries.length - index} className={entry.heading ? "heading" : undefined}>
+                        {entry.who && <b>{entry.who}</b>} {entry.text}
+                        {entry.reason && <em>{entry.reason}</em>}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                <SettingsMenu settings={settings} onChange={onSettingsChange} />
+              </header>
+
+              <div className="board-map">
+                {game.territories.map((territory, index) => {
+                  const [x, y, tilt] = scatter[index];
+                  const owner = game.players[territory.owner];
+                  const classes = ["board-country"];
+                  if (owner.human) classes.push("you");
+                  if (territory === attacker || territory === moving?.from || territory === moving?.to) classes.push("attacking");
+                  if (aiming && targets.includes(territory)) classes.push("target");
+                  if (war && territory !== war.from && territory !== war.to) classes.push("dim");
+                  if (placing && territory.owner === game.currentIndex) classes.push("droppable");
+                  return (
+                    <div
+                      key={territory.name}
+                      className={classes.join(" ")}
+                      data-territory={territory.name}
+                      onClick={() => choose(territory)}
+                    >
+                      <Island
+                        shape={countryShape(territory.country.mapName)}
+                        flag={flagUrl(owner.country.code)}
+                        soldiers={territory.soldiers}
+                        style={{ transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)` }}
+                      />
+                      <span className="board-label">
+                        {territory.name}
+                        <SoldierCount count={territory.soldiers} />
+                      </span>
+                    </div>
+                  );
+                })}
+                {phase === "skipStamp" && <div className="stamp">Skip turn</div>}
+                {phase === "eliminated" && out && (
+                  <div className="stamp failed">{out.human ? "You are out" : `${out.country.name} is out`}</div>
+                )}
+              </div>
+
+              <footer className="board-footer">
+                {phase === "announce" && (
+                  <p className="board-announce">
+                    {current.human ? "Your turn" : `${current.country.name}'s turn`}
+                  </p>
+                )}
+                {caption && (
+                  <p key={caption} className="board-caption">
+                    {caption}
+                  </p>
+                )}
+                {notice && <p className="board-notice">{notice}</p>}
+                {phase === "yourTurn" && (
+                  <div className="board-actions">
+                    {game.attacked ? (
+                      <button className="btn btn-gold" type="button" onClick={endTurn}>
+                        End turn
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          className="btn btn-gold"
+                          type="button"
+                          aria-disabled={placing || !armies.length}
+                          aria-pressed={aiming}
+                          onClick={aim}
+                        >
+                          Attack
+                        </button>
+                        <button className="btn btn-outline" type="button" aria-disabled={placing} onClick={skip}>
+                          Skip
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </footer>
+            </main>
+            {caption && plan && (
+              <StrategyBox key={caption} game={game} plan={plan} deploying={phase === "deploy"} transfer={moving} />
+            )}
+            {moving && <SoldierMarch from={moving.from} to={moving.to} count={moving.count} />}
+            {(phase === "airdrop" || placing) && (
+              <ReserveBox count={game.reserve} dropping={phase === "airdrop"} onDrop={placeOn} />
+            )}
+            {war && (
+              <WarScreen
+                game={game}
+                from={war.from}
+                to={war.to}
+                commentary={settings.commentary}
+                onChange={refresh}
+                onEnd={endWar}
+              />
+            )}
+            {phase === "defeated" && (
+              <EndScreen headline="Defeated" tone="lose" player={current} onNewGame={onNewGame} onWatch={watch} />
+            )}
+            {phase === "gameOver" && game.winner && (
+              <EndScreen
+                headline={game.winner.human ? "Victory" : `${game.winner.country.name} wins`}
+                tone={game.winner.human ? "win" : "lose"}
+                player={game.winner}
+                onNewGame={onNewGame}
+              />
+            )}
+            {!current.human && phase !== "gameOver" && phase !== "defeated" && (
+              <button className="btn btn-outline board-fast" type="button" aria-pressed={pace > 1} onClick={toggleFast}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" />
+                </svg>
+                Fast-forward
+              </button>
+            )}
+        </div>
+        {paused && <PauseScreen onResume={() => setPaused(false)} onNewGame={onNewGame} />}
+      </PausedContext>
     </PaceContext>
   );
 }

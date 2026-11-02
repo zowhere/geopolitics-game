@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from "react";
 import type { Territory } from "../game/Territory";
-import { PaceContext } from "../hooks/PaceContext";
+import { PaceContext, PausedContext } from "../hooks/PaceContext";
 import { islandCentre } from "../map/islandCentre";
 import "./SoldierMarch.css";
 
@@ -15,9 +15,10 @@ const mostShown = 5;
 function SoldierMarch({ from, to, count }: SoldierMarchProps) {
   const layer = useRef<HTMLDivElement>(null);
   const pace = useContext(PaceContext);
+  const paused = useContext(PausedContext);
 
   useEffect(() => {
-    if (!layer.current) return;
+    if (!layer.current || paused) return;
     const start = islandCentre(from);
     const end = islandCentre(to);
     const peak = { x: (start.x + end.x) / 2, y: Math.min(start.y, end.y) - 60 };
@@ -48,7 +49,7 @@ function SoldierMarch({ from, to, count }: SoldierMarchProps) {
     const labels = [float(leaving, start, 0), float(arriving, end, 900)];
 
     return () => [...soldiers, ...labels].forEach((animation) => animation.cancel());
-  }, [from, to, pace]);
+  }, [from, to, pace, paused]);
 
   return (
     <div ref={layer} className="soldier-march" aria-hidden="true">

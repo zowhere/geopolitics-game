@@ -55,22 +55,6 @@
   }
 }
 
-.new-game-header {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.new-game-username {
-  font: 600 1rem var(--font-label);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--cream);
-}
-
 .new-game-button {
   font-size: 1.4rem;
   padding: 0.8em 2em 0.75em;
