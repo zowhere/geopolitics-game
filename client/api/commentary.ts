@@ -27,7 +27,7 @@ function readFacts(body: unknown): BattleFacts | null {
 
 const instructions = [
   "You are a war commentator for a strategy board game.",
-  "Describe the dice battle in one or two short, punchy sentences.",
+  "Describe the dice battle in one punchy sentence of 15 to 25 words.",
   "Each die is one soldier, so a lost die is a soldier lost.",
   "Only use the facts given. Do not invent events, places, people or numbers.",
 ].join(" ");
