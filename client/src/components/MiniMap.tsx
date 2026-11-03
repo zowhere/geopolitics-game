@@ -8,6 +8,7 @@ import Island from "./Island";
 import SoldierCount from "./SoldierCount";
 import "./MiniMap.css";
 type MiniMapProps = { game: Game; fighting: readonly Territory[] };
+function MiniMap({ game, fighting }: MiniMapProps) {
   return (
     <ol className="mini-map" aria-label="All countries">
       {game.territories.map((territory, index) => {
