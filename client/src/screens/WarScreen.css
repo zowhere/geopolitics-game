@@ -243,6 +243,30 @@
   color: var(--cream);
 }
 
+.war-ai {
+  max-width: 34ch;
+  margin: 0;
+  font: 500 1.15rem / 1.4 var(--font-label);
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  animation: war-ai-in 0.4s ease-out;
+}
+
+.war-ai-attack {
+  color: var(--gold);
+}
+
+.war-ai-defend {
+  color: var(--fire);
+}
+
+@keyframes war-ai-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 @keyframes fall-left {
   30% {
     transform: translateY(-2px);

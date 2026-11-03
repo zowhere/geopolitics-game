@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, type CSSProperties } from "react";
-import { battleCommentary } from "../ai/BattleCommentary";
+import { battleCommentary, type Phrases } from "../ai/BattleCommentary";
 import Die from "../components/Die";
 import Island from "../components/Island";
 import MissileStrike from "../components/MissileStrike";
@@ -68,14 +68,14 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
   const attackerSurvivors = pairs - (lossesApplied && battle ? battle.attackerLosses : 0);
   const defenderSurvivors = pairs - (lossesApplied && battle ? battle.defenderLosses : 0);
   const showResult = phase === "score" || lossesApplied;
-  const [aiLine, setAiLine] = useState<{ battle: Battle; text: string } | null>(null);
-  const line = battle && aiLine?.battle === battle ? aiLine.text : comment;
+  const [aiLine, setAiLine] = useState<{ battle: Battle; phrases: Phrases } | null>(null);
+  const phrases = battle && aiLine?.battle === battle ? aiLine.phrases : null;
 
   useEffect(() => {
     if (!battle || !commentary) return;
     let live = true;
-    battleCommentary.describe(battle, from, to).then((text) => {
-      if (live && text) setAiLine({ battle, text });
+    battleCommentary.describe(battle, from, to).then((phrases) => {
+      if (live && phrases) setAiLine({ battle, phrases });
     });
     return () => {
       live = false;
@@ -156,7 +156,14 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
       </div>
 
       <footer className="war-bottom">
-        <p className="war-line">{commentary && showResult && line}</p>
+        <p className="war-line">{commentary && showResult && comment}</p>
+        {commentary && showResult && phrases && (
+          <p className="war-ai">
+            <span className="war-ai-attack">{phrases.attack},</span>{" "}
+            <span className="war-ai-defend">{phrases.defend},</span>{" "}
+            <span className="war-ai-result">{phrases.result}.</span>
+          </p>
+        )}
         {canRoll && (
           <div className="war-actions">
             <button className="btn btn-gold" type="button" onClick={roll}>

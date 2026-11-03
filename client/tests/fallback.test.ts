@@ -69,7 +69,8 @@ describe("game falls back when groq fails", () => {
   });
 
   it("game gets the ai line when everything works", async () => {
-    network.mockResolvedValue(Response.json({ text: "Kenya and Egypt each lose a soldier." }));
-    expect(await new BattleCommentary().describe(battle, kenya, egypt)).toBe("Kenya and Egypt each lose a soldier.");
+    const phrases = { attack: "Kenya charges in", defend: "Egypt holds firm", result: "each side loses a soldier" };
+    network.mockResolvedValue(Response.json({ phrases }));
+    expect(await new BattleCommentary().describe(battle, kenya, egypt)).toEqual(phrases);
   });
 });
