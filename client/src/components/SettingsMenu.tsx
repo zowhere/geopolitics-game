@@ -22,6 +22,7 @@ function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
         className="settings-button"
         type="button"
         aria-label="Settings"
+        data-tip="Menu"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >

@@ -67,6 +67,7 @@ function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMen
         className="profile-button"
         type="button"
         aria-label="Profile"
+        data-tip="Profile"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
