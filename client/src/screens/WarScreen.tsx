@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, type CSSProperties } from "react";
 import { battleCommentary, type Phrases } from "../ai/BattleCommentary";
 import Die from "../components/Die";
+import MiniMap from "../components/MiniMap";
 import Island from "../components/Island";
 import MissileStrike from "../components/MissileStrike";
 import SoldierCount from "../components/SoldierCount";
@@ -155,6 +156,7 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
         {side(to, defenderSurvivors)}
       </div>
 
+      <MiniMap game={game} fighting={[from, to]} />
       <footer className="war-bottom">
         <p className="war-line">{commentary && showResult && comment}</p>
         {commentary && showResult && phrases && (
