@@ -167,7 +167,6 @@ Firebase Firestore (NoSQL). All database code lives in `client/src/db`, separate
 
 - **Schema:** _add link or diagram_
 - **Database screenshots:** _add, e.g._ `![Firestore games collection](docs/firestore-games.png)`
-- **Access:** ammarcanani@gmail.com, mc.tanner@uct.ac.za, ridewaan.hanslo@uct.ac.za
 
 ### Diagram
 
