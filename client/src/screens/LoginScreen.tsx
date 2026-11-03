@@ -28,7 +28,7 @@ const drifters = [
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
 function validate(mode: Mode, email: string, username: string, password: string) {
-  if (mode === "reset") return username ? "" : "Enter your username";
+  if (mode === "reset") return /^\S+@\S+\.\S+$/.test(email) ? "" : "Enter your email";
   if (mode === "login")
     return username && password ? "" : "Enter your username and password";
   if (!/^\S+@\S+\.\S+$/.test(email)) return "That email doesn't look right";
@@ -53,9 +53,9 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
     setNote("");
   }
 
-  async function sendResetLink(name: string) {
+  async function sendResetLink(address: string) {
     try {
-      await accounts.resetPassword(name);
+      await accounts.resetPassword(address);
       setNote("If that account exists, a reset link is in its email");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Something went wrong");
@@ -72,7 +72,7 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
     if (problem) return;
 
     setBusy(true);
-    if (mode === "reset") return sendResetLink(name);
+    if (mode === "reset") return sendResetLink(email.trim());
     try {
       const account =
         mode === "signup"
@@ -128,7 +128,7 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
         </div>
 
         <form className="login-form" onSubmit={submit} noValidate>
-          {mode === "signup" && (
+          {mode !== "login" && (
             <input
               className="line-input"
               type="email"
@@ -139,14 +139,16 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
               onChange={(event) => setEmail(event.target.value)}
             />
           )}
-          <input
-            className="line-input"
-            placeholder="Username"
-            aria-label="Username"
-            autoComplete="username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
+          {mode !== "reset" && (
+            <input
+              className="line-input"
+              placeholder="Username"
+              aria-label="Username"
+              autoComplete="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+            />
+          )}
           {mode !== "reset" && (
             <PasswordInput
               placeholder="Password"
