@@ -5,7 +5,7 @@ import {
   deleteUser,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,
+  signInWithCustomToken,
   signOut,
   updateProfile,
   verifyPasswordResetCode,
@@ -45,14 +45,13 @@ export class AccountStore {
         email,
         password,
       );
-      const savedEmail = user.email ?? email;
       try {
         const batch = writeBatch(db);
         batch.set(doc(db, "users", user.uid), {
           username,
           createdAt: serverTimestamp(),
         });
-        batch.set(name, { uid: user.uid, email: savedEmail });
+        batch.set(name, { uid: user.uid });
         await batch.commit();
         await updateProfile(user, { displayName: username });
       } catch (error) {
@@ -65,23 +64,27 @@ export class AccountStore {
 
   async logIn(username: string, password: string): Promise<Account> {
     return this.friendly(async () => {
-      const name = await getDoc(doc(db, "usernames", username.toLowerCase()));
-      if (!name.exists()) throw new Error(messages["auth/invalid-credential"]);
-
-      const { user } = await signInWithEmailAndPassword(
-        auth,
-        name.data().email,
-        password,
-      );
+      const { token } = await this.callServer({ action: "login", username, password });
+      const { user } = await signInWithCustomToken(auth, token);
       return { uid: user.uid, username: user.displayName ?? username };
     });
   }
 
-  async resetPassword(username: string) {
-    return this.friendly(async () => {
-      const name = await getDoc(doc(db, "usernames", username.toLowerCase()));
-      if (name.exists()) await sendPasswordResetEmail(auth, name.data().email);
+  async resetPassword(email: string) {
+    return this.friendly(() => sendPasswordResetEmail(auth, email));
+  }
+
+  private async callServer(body: Record<string, string>) {
+    const response = await fetch("/api/account", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch(() => {
+      throw new Error(messages["auth/network-request-failed"]);
     });
+    const reply = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(reply.error ?? "Something went wrong");
+    return reply;
   }
 
   checkResetLink(code: string) {
