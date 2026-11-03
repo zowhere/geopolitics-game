@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useDismiss } from "../hooks/useDismiss";
 import { speeds, type Settings } from "../settings";
 import "./SettingsMenu.css";
 
@@ -10,6 +11,8 @@ type SettingsMenuProps = {
 
 function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useDismiss(root, open, useCallback(() => setOpen(false), []));
 
   function transfer() {
     setOpen(false);
@@ -17,7 +20,7 @@ function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
   }
 
   return (
-    <div className="settings" onClick={(event) => event.stopPropagation()}>
+    <div ref={root} className="settings" onClick={(event) => event.stopPropagation()}>
       <button
         className="settings-button"
         type="button"
