@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
+import { useDismiss } from "../hooks/useDismiss";
 import type { Game } from "../game/Game";
 import AnalyticsPanel from "./AnalyticsPanel";
 import ShareButton from "./ShareButton";
@@ -53,6 +54,8 @@ function Avatar() {
 function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useDismiss(root, open, useCallback(() => setOpen(false), []));
   const held = game ? game.territoriesOf(game.players.findIndex((player) => player.human)) : [];
   const soldiers = held.reduce((total, territory) => total + territory.soldiers, 0);
 
@@ -62,7 +65,7 @@ function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMen
   }
 
   return (
-    <div className="profile" onClick={(event) => event.stopPropagation()}>
+    <div ref={root} className="profile" onClick={(event) => event.stopPropagation()}>
       <button
         className="profile-button"
         type="button"
