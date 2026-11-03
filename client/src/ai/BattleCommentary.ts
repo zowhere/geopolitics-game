@@ -4,7 +4,7 @@ import type { Territory } from "../game/Territory";
 export class BattleCommentary {
   readonly #url = "/api/commentary";
   readonly #timeout = 4000;
-  readonly #perMinute = 10;
+  readonly #perMinute = 25;
   #sent: number[] = [];
 
   #allow() {
