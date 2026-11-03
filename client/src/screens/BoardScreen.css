@@ -67,7 +67,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-right: 96px;
+  padding-right: 146px;
 }
 
 .board-round {
@@ -341,13 +341,13 @@
   .board-hud {
     flex-wrap: wrap;
     gap: 6px 10px;
-    padding-right: 104px;
+    padding-right: 140px;
   }
 
   .board-turns {
     order: 3;
-    flex-basis: calc(100% + 104px);
-    margin-right: -104px;
+    flex-basis: calc(100% + 140px);
+    margin-right: -140px;
     gap: 5px;
     padding: 2px 0 8px;
   }

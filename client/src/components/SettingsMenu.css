@@ -1,7 +1,8 @@
 .settings {
-  position: relative;
-  align-self: flex-start;
-  margin-top: 4px;
+  position: fixed;
+  top: 8px;
+  right: 112px;
+  z-index: 40;
 }
 
 .settings-button {
