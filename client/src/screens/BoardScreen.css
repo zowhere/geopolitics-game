@@ -268,11 +268,22 @@
 
 .board-country.droppable {
   cursor: pointer;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 .board-country.droppable .island-coast {
   stroke: var(--gold);
   animation: pulse 1.3s ease-in-out infinite;
+}
+
+.board-country.droppable.drag-over {
+  transform: scale(1.08);
+}
+
+.board-country.droppable.drag-over .island-coast {
+  stroke-width: 4.5;
+  animation: none;
 }
 
 .board-country.target {
