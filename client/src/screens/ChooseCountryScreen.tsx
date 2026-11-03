@@ -173,7 +173,6 @@ function ChooseCountryScreen({ countries, onBack, onPlay }: ChooseCountryScreenP
       </div>
 
       <footer className="choose-bar">
-        <span className="choose-bar-name">{chosen.name}</span>
         <button
           className="btn btn-gold"
           type="button"
