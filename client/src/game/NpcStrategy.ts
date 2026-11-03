@@ -1,4 +1,4 @@
-import { PriorityQueue } from "../utils/PriorityQueue";
+import { PriorityQueue } from "../utils/PriorityQueue"; //npc's need to choose best country to attack
 import type { Territory } from "./Territory";
 
 export type Reinforcement = {
@@ -35,11 +35,15 @@ function isBetterOption(a: AttackOption, b: AttackOption) {
 }
 
 function strongest(territories: Territory[]) {
-  return territories.reduce((best, territory) => (territory.soldiers > best.soldiers ? territory : best));
+  return territories.reduce((best, territory) =>
+    territory.soldiers > best.soldiers ? territory : best,
+  );
 }
 
 function weakest(territories: Territory[]) {
-  return territories.reduce((worst, territory) => (territory.soldiers < worst.soldiers ? territory : worst));
+  return territories.reduce((worst, territory) =>
+    territory.soldiers < worst.soldiers ? territory : worst,
+  );
 }
 
 function strengthOf(territories: readonly Territory[], player: number) {
@@ -49,37 +53,69 @@ function strengthOf(territories: readonly Territory[], player: number) {
 }
 
 export class NpcStrategy {
-  private bestOption(territories: readonly Territory[], player: number, extraSoldiers = 0) {
-    const options = new PriorityQueue<AttackOption>(isBetterOption);
-    const own = territories.filter((territory) => territory.owner === player);
-    const strength = strengthOf(territories, player) + extraSoldiers;
+  private bestOption(
+    territories: readonly Territory[],
+    player: number,
+    extraSoldiers = 0,
+  ) {
+    const options = new PriorityQueue<AttackOption>(isBetterOption); //creates priority of possible attacks
+    const own = territories.filter((territory) => territory.owner === player); //get all territories owned by the npc
+    const strength = strengthOf(territories, player) + extraSoldiers; //calculates npc total soldier strenght
+
+    //Finds enemies with equal or weaker total soldier strength.
     const enemies = territories.filter(
-      (territory) => territory.owner !== player && strengthOf(territories, territory.owner) <= strength,
+      (territory) =>
+        territory.owner !== player &&
+        strengthOf(territories, territory.owner) <= strength,
     );
+    //loop through all owned territories and check if they have enough soldiers to attack any of the enemies.
+    // Yes- add the option to the priority queue.
     for (const from of own) {
       const soldiers = from.soldiers + extraSoldiers;
       if (soldiers < fewestToAttackFrom) continue;
       for (const to of enemies) {
-        if (soldiers > to.soldiers) options.push({ from, to, advantage: soldiers - to.soldiers });
+        if (soldiers > to.soldiers)
+          options.push({ from, to, advantage: soldiers - to.soldiers });
       }
     }
-    return options.pop();
+    return options.pop(); //returns highest priority attack
   }
 
-  placeReinforcements(territories: readonly Territory[], player: number, count: number): Reinforcement {
+  placeReinforcements(
+    territories: readonly Territory[],
+    player: number,
+    count: number,
+  ): Reinforcement {
     const plan = this.bestOption(territories, player, count);
-    if (plan) return { to: plan.from, count, target: plan.to, reason: `Mass troops to strike ${plan.to.name}` };
+    if (plan)
+      return {
+        to: plan.from,
+        count,
+        target: plan.to,
+        reason: `Mass troops to strike ${plan.to.name}`,
+      };
     const own = territories.filter((territory) => territory.owner === player);
     return { to: weakest(own), count, reason: "Shore up the weakest country" };
   }
 
-  chooseAttack(territories: readonly Territory[], player: number): AttackDecision {
+  chooseAttack(
+    territories: readonly Territory[],
+    player: number,
+  ): AttackDecision {
     const plan = this.bestOption(territories, player);
     if (!plan) return { kind: "hold", reason: "Build up before attacking" };
-    return { kind: "attack", from: plan.from, to: plan.to, reason: "Hit the weakest link" };
+    return {
+      kind: "attack",
+      from: plan.from,
+      to: plan.to,
+      reason: "Hit the weakest link",
+    };
   }
 
-  planTransfer(territories: readonly Territory[], player: number): Transfer | null {
+  planTransfer(
+    territories: readonly Territory[],
+    player: number,
+  ): Transfer | null {
     const own = territories.filter((territory) => territory.owner === player);
     const from = strongest(own);
     const to = weakest(own);
