@@ -416,6 +416,10 @@
   .game:has(.board-fast) .war-screen {
     padding-bottom: 56px;
   }
+
+  .war-ai {
+    font-size: 1rem;
+  }
 }
 
 @media (max-height: 500px) {

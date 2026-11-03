@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, type CSSProperties } from "react";
 import { battleCommentary, type Phrases } from "../ai/BattleCommentary";
 import Die from "../components/Die";
+import MiniMap from "../components/MiniMap";
 import Island from "../components/Island";
 import MissileStrike from "../components/MissileStrike";
 import SoldierCount from "../components/SoldierCount";
@@ -10,7 +11,7 @@ import type { Territory } from "../game/Territory";
 import { PaceContext } from "../hooks/PaceContext";
 import { useWar, type WarPhase } from "../hooks/useWar";
 import { countryShape } from "../map/countryShape";
-import { flagUrl, squareFlagUrl } from "../map/flagUrl";
+import { flagUrl } from "../map/flagUrl";
 import OccupationScreen from "./OccupationScreen";
 import "./WarScreen.css";
 
@@ -121,24 +122,6 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
           <span className="war-vs">vs</span>
           {to.name}
         </h2>
-        <ol className="war-board" aria-label="All countries">
-          {game.territories.map((territory) => {
-            const owner = game.players[territory.owner];
-            const fighting = territory === from || territory === to;
-            const classes = ["war-board-item", fighting && "fighting", owner.human && "yours"].filter(Boolean);
-            return (
-              <li
-                key={territory.name}
-                className={classes.join(" ")}
-                title={`${territory.name}, held by ${owner.human ? "you" : owner.country.name}`}
-              >
-                <img src={squareFlagUrl(owner.country.code)} alt="" />
-                <b>{territory.country.code.toUpperCase()}</b>
-                {territory.soldiers}
-              </li>
-            );
-          })}
-        </ol>
       </header>
 
       <div className="war-arena">
@@ -173,6 +156,7 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
         {side(to, defenderSurvivors)}
       </div>
 
+      <MiniMap game={game} fighting={[from, to]} />
       <footer className="war-bottom">
         <p className="war-line">{commentary && showResult && comment}</p>
         {commentary && showResult && phrases && (
