@@ -72,7 +72,7 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
   const line = battle && aiLine?.battle === battle ? aiLine.text : comment;
 
   useEffect(() => {
-    if (!battle || !commentary || pace > 1) return;
+    if (!battle || !commentary) return;
     let live = true;
     battleCommentary.describe(battle, from, to).then((text) => {
       if (live && text) setAiLine({ battle, text });
@@ -80,7 +80,7 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
     return () => {
       live = false;
     };
-  }, [battle, commentary, pace, from, to]);
+  }, [battle, commentary, from, to]);
 
   if (phase === "occupation") {
     return <OccupationScreen game={game} from={from} to={to} autoMoveIn={autoMoveIn} onDone={occupy} />;

@@ -4,8 +4,19 @@ import type { Territory } from "../game/Territory";
 export class BattleCommentary {
   readonly #url = "/api/commentary";
   readonly #timeout = 4000;
+  readonly #perMinute = 10;
+  #sent: number[] = [];
+
+  #allow() {
+    const now = Date.now();
+    this.#sent = this.#sent.filter((time) => now - time < 60_000);
+    if (this.#sent.length >= this.#perMinute) return false;
+    this.#sent.push(now);
+    return true;
+  }
 
   async describe(battle: Battle, from: Territory, to: Territory): Promise<string | null> {
+    if (!this.#allow()) return null;
     try {
       const response = await fetch(this.#url, {
         method: "POST",
