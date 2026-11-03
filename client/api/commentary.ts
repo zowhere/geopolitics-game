@@ -25,12 +25,30 @@ function readFacts(body: unknown): BattleFacts | null {
   return facts as BattleFacts;
 }
 
+type Phrases = { attack: string; defend: string; result: string };
+
 const instructions = [
-  "You are a war commentator for a strategy board game.",
-  "Describe the dice battle in one punchy sentence of 15 to 25 words.",
-  "Each die is one soldier, so a lost die is a soldier lost.",
-  "Only use the facts given. Do not invent events, places, people or numbers.",
+  "You are a lively war commentator for a strategy board game.",
+  'Describe one dice battle as JSON with three short phrases: "attack" (what the attacker did, 3 to 7 words),',
+  '"defend" (how the defender answered, 3 to 7 words) and "result" (who lost soldiers, 4 to 9 words).',
+  "Each die is one soldier. Never mention dice values or numbers rolled, the dice are already on screen.",
+  "Only use the facts given. Do not invent events, places or people.",
 ].join(" ");
+
+const isPhrase = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0 && value.length <= 80;
+
+function readPhrases(content: unknown): Phrases | null {
+  if (typeof content !== "string") return null;
+  try {
+    const { attack, defend, result } = JSON.parse(content);
+    if (!isPhrase(attack) || !isPhrase(defend) || !isPhrase(result)) return null;
+    const tidy = (phrase: string) => phrase.trim().replace(/[.,;!]+$/, "");
+    return { attack: tidy(attack), defend: tidy(defend), result: tidy(result) };
+  } catch {
+    return null;
+  }
+}
 
 class GroqCommentator {
   readonly #key: string;
@@ -48,6 +66,7 @@ class GroqCommentator {
         model: this.#model,
         reasoning_effort: "low",
         max_completion_tokens: 300,
+        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: instructions },
           { role: "user", content: JSON.stringify(facts) },
@@ -57,9 +76,9 @@ class GroqCommentator {
     });
     if (!response.ok) throw new Error(`groq ${response.status}`);
     const data = (await response.json()) as GroqReply;
-    const text = data.choices?.[0]?.message?.content;
-    if (typeof text !== "string" || !text.trim()) throw new Error("groq empty");
-    return text.trim();
+    const phrases = readPhrases(data.choices?.[0]?.message?.content);
+    if (!phrases) throw new Error("groq unreadable");
+    return phrases;
   }
 }
 
@@ -69,7 +88,9 @@ export async function POST(request: Request) {
   const facts = readFacts(await request.json().catch(() => null));
   if (!facts) return Response.json({ error: "bad battle" }, { status: 400 });
   try {
-    return Response.json({ text: await new GroqCommentator(key).describe(facts) });
+    const phrases = await new GroqCommentator(key).describe(facts);
+    const text = `${phrases.attack}, ${phrases.defend}, ${phrases.result}.`;
+    return Response.json({ text, phrases });
   } catch {
     return Response.json({ error: "no commentary" }, { status: 502 });
   }

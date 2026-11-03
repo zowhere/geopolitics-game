@@ -1,6 +1,10 @@
 import type { Battle } from "../game/Battle";
 import type { Territory } from "../game/Territory";
 
+export type Phrases = { attack: string; defend: string; result: string };
+
+const isPhrase = (value: unknown): value is string => typeof value === "string" && value.length > 0;
+
 export class BattleCommentary {
   readonly #url = "/api/commentary";
   readonly #timeout = 4000;
@@ -15,7 +19,7 @@ export class BattleCommentary {
     return true;
   }
 
-  async describe(battle: Battle, from: Territory, to: Territory): Promise<string | null> {
+  async describe(battle: Battle, from: Territory, to: Territory): Promise<Phrases | null> {
     if (!this.#allow()) return null;
     try {
       const response = await fetch(this.#url, {
@@ -32,8 +36,9 @@ export class BattleCommentary {
         signal: AbortSignal.timeout(this.#timeout),
       });
       if (!response.ok) return null;
-      const { text } = (await response.json()) as { text?: unknown };
-      return typeof text === "string" && text ? text : null;
+      const { phrases } = (await response.json()) as { phrases?: Partial<Record<keyof Phrases, unknown>> };
+      if (!phrases || !isPhrase(phrases.attack) || !isPhrase(phrases.defend) || !isPhrase(phrases.result)) return null;
+      return { attack: phrases.attack, defend: phrases.defend, result: phrases.result };
     } catch {
       return null;
     }
