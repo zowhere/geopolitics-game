@@ -12,7 +12,9 @@ describe("request limiter", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    server.mockImplementation(async () => Response.json({ text: "Kenya and Egypt each lose a soldier." }));
+    server.mockImplementation(async () =>
+      Response.json({ phrases: { attack: "Kenya charges in", defend: "Egypt holds firm", result: "each side loses a soldier" } }),
+    );
     vi.stubGlobal("fetch", server);
   });
 
