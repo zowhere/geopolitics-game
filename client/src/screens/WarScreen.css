@@ -63,6 +63,7 @@
 
 .war-side {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: 6px;
   min-width: 0;
@@ -322,6 +323,10 @@
 @media (max-width: 640px) {
   .war-side .island {
     max-width: 140px;
+  }
+
+  .war-name {
+    font-size: 0.9rem;
   }
 
   .war-pair {
