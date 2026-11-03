@@ -41,6 +41,8 @@ export type GameSnapshot = {
   turn: number;
   reserve: number;
   nations: Nation[];
+  attacked?: boolean;
+  war?: { from: number; to: number } | null;
 };
 
 export class Game {
@@ -80,8 +82,17 @@ export class Game {
       this.roundNumber = saved.round;
       this.turnIndex = saved.turn;
       this.reserveCount = saved.reserve;
+      this.warOver = saved.attacked ?? false;
+      if (saved.war) this.finishInterruptedWar(this.territories[saved.war.from], this.territories[saved.war.to]);
     }
     this.commentator.round(this.roundNumber);
+  }
+
+  private finishInterruptedWar(from: Territory, to: Territory) {
+    this.war = { from, to };
+    if (to.soldiers === 0) this.occupy(1);
+    this.war = null;
+    this.warOver = true;
   }
 
   static start(humanCountry: string, countries: readonly Country[]) {
@@ -130,6 +141,10 @@ export class Game {
         soldiers: territory.soldiers,
         soldiersLost: this.losses[index],
       })),
+      attacked: this.warOver,
+      war: this.war
+        ? { from: this.territories.indexOf(this.war.from), to: this.territories.indexOf(this.war.to) }
+        : null,
     };
   }
 

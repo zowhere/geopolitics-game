@@ -3,7 +3,7 @@ import MapFilters from "./components/MapFilters";
 import ProfileMenu from "./components/ProfileMenu";
 import { accounts } from "./db/AccountStore";
 import { countryStore } from "./db/CountryStore";
-import { gameStore, type SavedGame } from "./db/GameStore";
+import { gameStore, type SavedGame, type SaveState } from "./db/GameStore";
 import type { Country } from "./game/countries";
 import { Game } from "./game/Game";
 import BoardScreen from "./screens/BoardScreen";
@@ -46,6 +46,7 @@ function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [uid, setUid] = useState<string | null>(null);
   const [checkedLogin, setCheckedLogin] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
   const [resetCode, setResetCode] = useState(resetCodeFromLink);
   const [watchId, setWatchId] = useState(watchIdFromLink);
   const [watched, setWatched] = useState<Watched | null>(null);
@@ -64,9 +65,10 @@ function App() {
   }
 
   function saveGame(id = gameId, current = game) {
-    if (!id || !current) return;
-    gameStore.save(id, current).catch((error) => console.error("Couldn't save the game", error));
+    if (id && current) gameStore.save(id, current);
   }
+
+  useEffect(() => gameStore.onSaveState(setSaveState), []);
 
   useEffect(
     () =>
@@ -156,7 +158,7 @@ function App() {
     started.wait();
     setGame(started);
     setGameId(id);
-    saveGame(id, started);
+    gameStore.create(id, started).catch((error) => console.error("Couldn't create the game", error));
     setScreen("round");
   }
 
@@ -244,6 +246,20 @@ function App() {
     <>
       <MapFilters />
       {currentScreen()}
+      {game && saveState !== "idle" && (
+        <p className={`save-state ${saveState}`}>
+          {saveState === "saving" && "Saving…"}
+          {saveState === "saved" && "Saved"}
+          {saveState === "failed" && (
+            <>
+              Couldn't save
+              <button type="button" onClick={() => gameStore.retry()}>
+                Retry
+              </button>
+            </>
+          )}
+        </p>
+      )}
       {username && (
         <div className="app-profile">
           <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onLogout={logout} />

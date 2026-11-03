@@ -19,13 +19,15 @@ service cloud.firestore {
     }
 
     function validGame(game) {
-      return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'roll', 'createdAt', 'updatedAt'])
+      return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'attacked', 'war', 'roll', 'createdAt', 'updatedAt'])
         && game.status in ['waiting', 'playing', 'won', 'lost']
         && game.human is int && game.human >= 0 && game.human < 10
         && game.turn is int && game.turn >= 0 && game.turn < 10
         && game.round is int && game.round >= 1
         && game.reserve is int && game.reserve >= 0
         && game.nations is list && game.nations.size() == 10
+        && (!('attacked' in game) || game.attacked is bool)
+        && (!('war' in game) || game.war == null || (game.war is map && game.war.from is int && game.war.to is int))
         && game.updatedAt == request.time;
     }
 
