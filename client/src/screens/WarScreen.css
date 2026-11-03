@@ -253,10 +253,19 @@
   animation: war-ai-in 0.4s ease-out;
 }
 
+.war-ai span {
+  display: block;
+}
+
+.war-ai span::first-letter {
+  text-transform: uppercase;
+}
+
 @media (max-height: 500px) {
   .war-ai {
     max-width: 64ch;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.25;
   }
 }
 
