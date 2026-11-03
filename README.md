@@ -165,6 +165,7 @@ _how NPCs pick targets, place soldiers, transfer and stop attacking, and how eac
 
 Firebase Firestore (NoSQL). All database code lives in `client/src/db`, separate from the game engine and screens.
 
+- **Open the database:** [Firestore console](https://console.firebase.google.com/project/geopolitics-game-b9b31/firestore) ( emails on brief have been given access)
 - **Schema:** _add link or diagram_
 - **Database screenshots:** _add, e.g._ `![Firestore games collection](docs/firestore-games.png)`
 
