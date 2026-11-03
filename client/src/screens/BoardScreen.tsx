@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useReducer, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useCallback, useEffect, useEffectEvent, useReducer, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import Island from "../components/Island";
 import ReserveBox from "../components/ReserveBox";
 import SettingsMenu from "../components/SettingsMenu";
@@ -11,6 +11,7 @@ import type { Transfer } from "../game/NpcStrategy";
 import type { TurnPlan } from "../game/Player";
 import type { Territory } from "../game/Territory";
 import { PaceContext, PausedContext } from "../hooks/PaceContext";
+import { useDismiss } from "../hooks/useDismiss";
 import { useSoldierDrag } from "../hooks/useSoldierDrag";
 import { useTurnFlow, type Phase } from "../hooks/useTurnFlow";
 import { countryShape } from "../map/countryShape";
@@ -56,6 +57,8 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
   const [, refresh] = useReducer((count: number) => count + 1, 0);
   const [chosen, setChosen] = useState<Territory | null>(null);
   const [logOpen, setLogOpen] = useState(false);
+  const log = useRef<HTMLDivElement>(null);
+  useDismiss(log, logOpen, useCallback(() => setLogOpen(false), []));
   const [aiming, setAiming] = useState(false);
   const [notice, setNotice] = useState("");
   const [transferring, setTransferring] = useState(false);
@@ -205,27 +208,29 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                   </li>
                 ))}
               </ol>
-              <button
-                className="board-log-button"
-                type="button"
-                aria-expanded={logOpen}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setLogOpen(!logOpen);
-                }}
-              >
-                Log
-              </button>
-              {logOpen && (
-                <ol className="board-log" onClick={(event) => event.stopPropagation()}>
-                  {[...game.commentator.entries].reverse().map((entry, index) => (
-                    <li key={game.commentator.entries.length - index} className={entry.heading ? "heading" : undefined}>
-                      {entry.who && <b>{entry.who}</b>} {entry.text}
-                      {entry.reason && <em>{entry.reason}</em>}
-                    </li>
-                  ))}
-                </ol>
-              )}
+              <div ref={log} className="board-log-wrap">
+                <button
+                  className="board-log-button"
+                  type="button"
+                  aria-expanded={logOpen}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setLogOpen(!logOpen);
+                  }}
+                >
+                  Log
+                </button>
+                {logOpen && (
+                  <ol className="board-log" onClick={(event) => event.stopPropagation()}>
+                    {[...game.commentator.entries].reverse().map((entry, index) => (
+                      <li key={game.commentator.entries.length - index} className={entry.heading ? "heading" : undefined}>
+                        {entry.who && <b>{entry.who}</b>} {entry.text}
+                        {entry.reason && <em>{entry.reason}</em>}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
               <SettingsMenu
                 settings={settings}
                 onChange={onSettingsChange}

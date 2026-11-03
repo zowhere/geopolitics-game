@@ -110,6 +110,10 @@
   box-shadow: 0 0 0 2px var(--sea-0), 0 0 0 4px var(--gold);
 }
 
+.board-log-wrap {
+  display: contents;
+}
+
 .board-log-button {
   padding: 4px 2px;
   font: 600 0.78rem var(--font-label);
