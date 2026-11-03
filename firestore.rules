@@ -14,10 +14,6 @@ service cloud.firestore {
       return username is string && username.matches('^[A-Za-z0-9_]{3,20}$');
     }
 
-    function ownEmail(data) {
-      return data.email == request.auth.token.email;
-    }
-
     function validGame(game) {
       return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'attacked', 'war', 'roll', 'createdAt', 'updatedAt'])
         && game.status in ['waiting', 'playing', 'won', 'lost']
@@ -57,9 +53,8 @@ service cloud.firestore {
       allow read: if true;
       allow create: if signedIn()
         && name.matches('^[a-z0-9_]{3,20}$')
-        && request.resource.data.keys().hasOnly(['uid', 'email'])
+        && request.resource.data.keys().hasOnly(['uid'])
         && request.resource.data.uid == request.auth.uid
-        && ownEmail(request.resource.data)
         && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
       allow update, delete: if false;
     }
