@@ -25,16 +25,16 @@
   border: 0;
   cursor: pointer;
   filter: drop-shadow(0 3px 4px rgba(3, 12, 18, 0.6));
-  transition: transform 0.15s ease;
-}
-
-.board-pause:hover {
-  transform: rotate(-8deg) scale(1.08);
 }
 
 .board-pause svg {
   width: 100%;
   height: 100%;
+  transition: transform 0.15s ease;
+}
+
+.board-pause:hover svg {
+  transform: scale(1.08);
 }
 
 .bomb-fuse {

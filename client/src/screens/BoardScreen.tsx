@@ -162,6 +162,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                 className="board-pause"
                 type="button"
                 aria-label="Pause"
+                data-tip="Pause"
                 onClick={(event) => {
                   event.stopPropagation();
                   setPaused(true);
