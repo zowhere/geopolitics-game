@@ -405,3 +405,25 @@
     gap: 6px;
   }
 }
+
+@media (max-width: 1100px) and (min-height: 501px) {
+  .war-screen {
+    padding-top: 66px;
+  }
+}
+
+@media (max-width: 640px) {
+  .game:has(.board-fast) .war-screen {
+    padding-bottom: 56px;
+  }
+}
+
+@media (max-height: 500px) {
+  .game:has(.war-screen) .board-fast {
+    top: 8px;
+    right: auto;
+    bottom: auto;
+    left: 16px;
+    translate: none;
+  }
+}
