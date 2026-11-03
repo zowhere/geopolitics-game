@@ -54,7 +54,7 @@ service cloud.firestore {
     }
 
     match /usernames/{name} {
-      allow read: if true;
+      allow read: if signedIn();
       allow create: if signedIn()
         && name.matches('^[a-z0-9_]{3,20}$')
         && request.resource.data.keys().hasOnly(['uid', 'email'])
