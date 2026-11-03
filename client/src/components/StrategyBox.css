@@ -104,3 +104,11 @@
     content: "...";
   }
 }
+
+@media (max-width: 640px) {
+  .strategy-box {
+    left: 10px;
+    bottom: 50px;
+    width: calc(100vw - 20px);
+  }
+}
