@@ -77,8 +77,13 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
 
   const save = useEffectEvent(onSave);
   useEffect(() => {
-    if (phase === "announce" || phase === "gameOver" || phase === "defeated") save();
-  }, [phase]);
+    if (phase === "announce" || phase === "gameOver" || phase === "defeated" || (game.current.human && phase === "yourTurn")) save();
+  }, [phase, game]);
+
+  function changed() {
+    refresh();
+    if (game.current.human) onSave();
+  }
 
   useEffect(() => {
     if (!notice) return;
@@ -107,7 +112,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
   function place(territory: Territory) {
     if (territory.owner !== game.currentIndex) return;
     game.placeReinforcements(territory, 1);
-    refresh();
+    changed();
   }
 
   const transferDrag = useSoldierDrag((target) => {
@@ -117,6 +122,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
     if (!from || !to || to === from || to.owner !== game.currentIndex) return;
     game.moveSoldiers(from, to, 1);
     setMoves([...moves, { from, to }]);
+    changed();
   });
 
   function startTransfer() {
@@ -335,7 +341,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
               from={war.from}
               to={war.to}
               commentary={settings.commentary}
-              onChange={refresh}
+              onChange={changed}
               onEnd={endWar}
             />
           )}
