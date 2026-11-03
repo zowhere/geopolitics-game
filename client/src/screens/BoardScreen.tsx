@@ -246,6 +246,7 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                 if (owner.human) classes.push("you");
                 if (territory === attacker || territory === moving?.from || territory === moving?.to) classes.push("attacking");
                 if (aiming && targets.includes(territory)) classes.push("target");
+                if (!aiming && !placing && !transferring && !game.attacked && armies.includes(territory)) classes.push("ready");
                 if (war && territory !== war.from && territory !== war.to) classes.push("dim");
                 if ((placing || transferring) && territory.owner === game.currentIndex) classes.push("droppable");
                 if (transferring && territory.owner === game.currentIndex && territory.soldiers >= 2) classes.push("movable");

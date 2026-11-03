@@ -63,6 +63,7 @@
 
 .war-side {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: 6px;
   min-width: 0;
@@ -252,6 +253,64 @@
   animation: war-ai-in 0.4s ease-out;
 }
 
+.war-ai span {
+  display: block;
+}
+
+.war-ai span::first-letter {
+  text-transform: uppercase;
+}
+
+@media (max-height: 500px) {
+  .war-screen {
+    gap: 4px;
+    padding: 8px 16px;
+  }
+
+  .war-count {
+    font-size: 1.5rem;
+  }
+
+  .war-title {
+    font-size: 0.95rem;
+  }
+
+  .war-side .island {
+    max-width: 130px;
+  }
+
+  .war-dice {
+    gap: 4px;
+    padding: 2px 8px;
+  }
+
+  .war-pair .die {
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+  }
+
+  .war-fighter {
+    width: 16px;
+    height: 27px;
+  }
+
+  .war-number {
+    font-size: 1.5rem;
+  }
+
+  .war-bottom {
+    min-height: 0;
+    gap: 2px;
+  }
+
+  .war-ai {
+    max-width: 64ch;
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+}
+
 .war-ai-attack {
   color: var(--gold);
 }
@@ -315,6 +374,10 @@
 @media (max-width: 640px) {
   .war-side .island {
     max-width: 140px;
+  }
+
+  .war-name {
+    font-size: 0.9rem;
   }
 
   .war-pair {
