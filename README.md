@@ -119,7 +119,9 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
 
 ### Bonus feature: graphics and animations
 
-- Countries drawn as island shapes with their flags
+- Countries drawn as their land shapes with their flags
+- Did not use one solid world map as 10/195 countries would be on the battle screen
+  rather pieces of land floating on ocean
 - Olive helmet soldier counts
 - Airdrop plane and parachute crate for new soldiers, dragged onto your countries
 - Soldiers marching between countries during transfers
