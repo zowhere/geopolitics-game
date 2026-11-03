@@ -7,8 +7,8 @@ type BattleFacts = {
   defenderLosses: number;
 };
 
-type GeminiReply = {
-  candidates?: { content?: { parts?: { text?: unknown }[] } }[];
+type GroqReply = {
+  choices?: { message?: { content?: unknown } }[];
 };
 
 const isName =(value: unknown) => typeof value === "string" && value.length > 0 && value.length <= 40;
@@ -25,48 +25,51 @@ function readFacts(body: unknown): BattleFacts | null {
   return facts as BattleFacts;
 }
 
-class GeminiCommentator {
+const instructions = [
+  "You are a war commentator for a strategy board game.",
+  "Describe the dice battle in one or two short, punchy sentences.",
+  "Each die is one soldier, so a lost die is a soldier lost.",
+  "Only use the facts given. Do not invent events, places, people or numbers.",
+].join(" ");
+
+class GroqCommentator {
   readonly #key: string;
-  readonly #model = "gemini-3.5-flash-lite";
+  readonly #model = "openai/gpt-oss-20b";
 
   constructor(key: string) {
     this.#key = key;
   }
 
   async describe(facts: BattleFacts) {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${this.#model}:generateContent`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": this.#key },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: this.#prompt(facts) }] }] }),
-        signal: AbortSignal.timeout(5000),
-      },
-    );
-    if (!response.ok) throw new Error(`gemini ${response.status}`);
-    const data = (await response.json()) as GeminiReply;
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text !== "string" || !text.trim()) throw new Error("gemini empty");
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${this.#key}` },
+      body: JSON.stringify({
+        model: this.#model,
+        reasoning_effort: "low",
+        max_completion_tokens: 300,
+        messages: [
+          { role: "system", content: instructions },
+          { role: "user", content: JSON.stringify(facts) },
+        ],
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) throw new Error(`groq ${response.status}`);
+    const data = (await response.json()) as GroqReply;
+    const text = data.choices?.[0]?.message?.content;
+    if (typeof text !== "string" || !text.trim()) throw new Error("groq empty");
     return text.trim();
-  }
-
-  #prompt(facts: BattleFacts) {
-    return [
-      "You are a war commentator for a strategy board game.",
-      "Describe this dice battle in one or two short, punchy sentences.",
-      "Only use the facts given. Do not invent events, places, people or numbers.",
-      JSON.stringify(facts),
-    ].join("\n");
   }
 }
 
 export async function POST(request: Request) {
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GROQ_API_KEY;
   if (!key) return Response.json({ error: "not set up" }, { status: 503 });
   const facts = readFacts(await request.json().catch(() => null));
   if (!facts) return Response.json({ error: "bad battle" }, { status: 400 });
   try {
-    return Response.json({ text: await new GeminiCommentator(key).describe(facts) });
+    return Response.json({ text: await new GroqCommentator(key).describe(facts) });
   } catch {
     return Response.json({ error: "no commentary" }, { status: 502 });
   }
