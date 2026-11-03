@@ -27,7 +27,7 @@ function readFacts(body: unknown): BattleFacts | null {
 
 class GeminiCommentator {
   readonly #key: string;
-  readonly #model = "gemini-flash-latest";
+  readonly #model = "gemini-3.5-flash-lite";
 
   constructor(key: string) {
     this.#key = key;
