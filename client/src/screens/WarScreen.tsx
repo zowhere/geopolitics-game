@@ -159,9 +159,9 @@ function WarScreen({ game, from, to, commentary, onChange, onEnd }: WarScreenPro
         <p className="war-line">{commentary && showResult && comment}</p>
         {commentary && showResult && phrases && (
           <p className="war-ai">
-            <span className="war-ai-attack">{phrases.attack},</span>{" "}
-            <span className="war-ai-defend">{phrases.defend},</span>{" "}
-            <span className="war-ai-result">{phrases.result}.</span>
+            <span className="war-ai-attack">{phrases.attack}</span>
+            <span className="war-ai-defend">{phrases.defend}</span>
+            <span className="war-ai-result">{phrases.result}</span>
           </p>
         )}
         {canRoll && (
