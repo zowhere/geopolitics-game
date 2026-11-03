@@ -23,30 +23,75 @@ export type SavedGame = {
   roll: Roll | null;
 };
 
+export type SaveState = "idle" | "saving" | "saved" | "failed";
+
+type PendingSave = { id: string; game: Game };
+
 export class GameStore {
-  private readonly created = new Set<string>();
   private rollTimer: ReturnType<typeof setTimeout> | null = null;
-  private pendingRoll: { id: string; game: Game } | null = null;
+  private pendingRoll: PendingSave | null = null;
+  private creating: Promise<void> = Promise.resolve();
+  private latest: PendingSave | null = null;
+  private failed: PendingSave | null = null;
+  private saving = false;
+  private state: SaveState = "idle";
+  private readonly listeners = new Set<(state: SaveState) => void>();
 
   newId() {
     return doc(collection(db, "games")).id;
   }
 
-  async save(id: string, game: Game) {
+  create(id: string, game: Game) {
     const ownerId = auth.currentUser?.uid;
-    if (!ownerId) return;
+    if (!ownerId) return Promise.resolve();
+    const data = { ownerId, status: game.status, ...game.snapshot() };
+    this.creating = setDoc(doc(db, "games", id), { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    return this.creating;
+  }
 
-    const ref = doc(db, "games", id);
-    const data = { ownerId, status: game.status, ...game.snapshot(), updatedAt: serverTimestamp() };
-    if (this.created.has(id)) return updateDoc(ref, data);
+  save(id: string, game: Game) {
+    if (!auth.currentUser) return;
+    this.latest = { id, game };
+    void this.drain();
+  }
 
-    this.created.add(id);
-    try {
-      await setDoc(ref, { ...data, createdAt: serverTimestamp() });
-    } catch (error) {
-      this.created.delete(id);
-      throw error;
+  retry() {
+    if (this.failed) this.save(this.failed.id, this.failed.game);
+  }
+
+  onSaveState(listener: (state: SaveState) => void) {
+    this.listeners.add(listener);
+    listener(this.state);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private setState(state: SaveState) {
+    this.state = state;
+    for (const listener of this.listeners) listener(state);
+  }
+
+  private async drain() {
+    if (this.saving) return;
+    this.saving = true;
+    while (this.latest) {
+      const { id, game } = this.latest;
+      this.latest = null;
+      this.setState("saving");
+      try {
+        await this.creating;
+        await updateDoc(doc(db, "games", id), { status: game.status, ...game.snapshot(), updatedAt: serverTimestamp() });
+        this.failed = null;
+        this.setState("saved");
+      } catch (error) {
+        console.error("Couldn't save the game", error);
+        this.failed = { id, game };
+        this.setState("failed");
+        break;
+      }
     }
+    this.saving = false;
   }
 
   saveRoll(id: string, game: Game) {
@@ -75,10 +120,7 @@ export class GameStore {
     const snapshot = await getDocs(
       query(collection(db, "games"), where("ownerId", "==", ownerId), orderBy("updatedAt", "desc")),
     );
-    return snapshot.docs.map((entry) => {
-      this.created.add(entry.id);
-      return this.toSaved(entry.id, entry.data());
-    });
+    return snapshot.docs.map((entry) => this.toSaved(entry.id, entry.data()));
   }
 
   watch(id: string, onChange: (saved: SavedGame | null) => void, onError: () => void) {
@@ -97,8 +139,14 @@ export class GameStore {
   }
 
   private toSaved(id: string, data: DocumentData): SavedGame {
-    const { ownerId, status, human, round, turn, reserve, nations, roll } = data;
-    return { id, ownerId, status, snapshot: { human, round, turn, reserve, nations }, roll: roll ?? null };
+    const { ownerId, status, human, round, turn, reserve, nations, attacked, war, roll } = data;
+    return {
+      id,
+      ownerId,
+      status,
+      snapshot: { human, round, turn, reserve, nations, attacked: attacked ?? false, war: war ?? null },
+      roll: roll ?? null,
+    };
   }
 }
 
