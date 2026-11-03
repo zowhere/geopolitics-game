@@ -252,6 +252,13 @@
   animation: war-ai-in 0.4s ease-out;
 }
 
+@media (max-height: 500px) {
+  .war-ai {
+    max-width: 64ch;
+    font-size: 1rem;
+  }
+}
+
 .war-ai-attack {
   color: var(--gold);
 }
