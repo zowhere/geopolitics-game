@@ -1,4 +1,9 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { countryShape } from "../map/countryShape";
+import { flagUrl } from "../map/flagUrl";
+import Die from "./Die";
+import Island from "./Island";
+import SoldierCount from "./SoldierCount";
 import "./HowToPlay.css";
 
 const tourSteps = [
@@ -15,6 +20,15 @@ const tourSteps = [
   { title: "Profile", text: "Share your game, see your stats or start a new one." },
 ];
 
+const tourArt: Record<number, ReactNode> = {
+  0: ["South Africa:za", "Brazil:br", "India:in"].map((pair) => {
+    const [name, code] = pair.split(":");
+    return <Island key={code} shape={countryShape(name)} flag={flagUrl(code)} />;
+  }),
+  1: <SoldierCount count={7} />,
+  4: [<Die key="win" value={6} />, <Die key="lose" value={3} />],
+};
+
 type HowToPlayProps = { onDone: () => void; onPractice: () => void };
 
 function HowToPlay({ onDone, onPractice }: HowToPlayProps) {
@@ -23,6 +37,7 @@ function HowToPlay({ onDone, onPractice }: HowToPlayProps) {
   return (
     <div className="tour" role="dialog" aria-label="How to play" onClick={(event) => event.stopPropagation()}>
       <div key={step} className="tour-card">
+        {current && tourArt[step] && <div className="tour-art">{tourArt[step]}</div>}
         <h2>{current ? current.title : "Ready to play?"}</h2>
         <p>{current ? current.text : "Try a practice game. It isn't saved and won't count in your stats."}</p>
         <div className="tour-actions">
