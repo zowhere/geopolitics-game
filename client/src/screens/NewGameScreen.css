@@ -102,6 +102,22 @@
   padding: 0.8em 2em 0.75em;
 }
 
+.new-game-help {
+  position: fixed;
+  top: 18px;
+  right: 64px;
+  z-index: 40;
+  padding: 4px 10px;
+  font: 600 0.8rem var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--cream) 40%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .new-game-screen::before,
   .new-game-screen::after {
