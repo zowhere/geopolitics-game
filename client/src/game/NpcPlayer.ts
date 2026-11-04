@@ -14,7 +14,10 @@ export class NpcPlayer extends Player {
     const player = game.currentIndex;
     const deployed = game.reserve > 0 ? strategy.placeReinforcements(game.territories, player, game.reserve) : null;
     if (deployed) game.placeReinforcements(deployed.to, deployed.count);
-    return { deployed, attack: strategy.chooseAttack(game.territories, player) };
+    const attack = game.attacked
+      ? { kind: "hold" as const, reason: "Already attacked this turn" }
+      : strategy.chooseAttack(game.territories, player);
+    return { deployed, attack };
   }
 
   fortify(game: Game) {
