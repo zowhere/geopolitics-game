@@ -21,7 +21,16 @@ export type SavedGame = {
   status: GameStatus;
   snapshot: GameSnapshot;
   roll: Roll | null;
+  news: News | null;
 };
+
+//news is the latest move and its reason, saved so people watching a shared game can see it
+export type News = { who: string; text: string; reason: string | null };
+
+function latestNews(game: Game): News | null {
+  const entry = game.commentator.entries.findLast((line) => !line.heading);
+  return entry ? { who: entry.who, text: entry.text, reason: entry.reason ?? null } : null;
+}
 
 export type SaveState = "idle" | "saving" | "saved" | "failed";
 
@@ -81,7 +90,8 @@ export class GameStore {
       this.setState("saving");
       try {
         await this.creating;
-        await updateDoc(doc(db, "games", id), { status: game.status, ...game.snapshot(), updatedAt: serverTimestamp() });
+        const news = latestNews(game);
+        await updateDoc(doc(db, "games", id), { status: game.status, ...game.snapshot(), ...(news && { news }), updatedAt: serverTimestamp() });
         this.failed = null;
         this.setState("saved");
       } catch (error) {
@@ -139,13 +149,14 @@ export class GameStore {
   }
 
   private toSaved(id: string, data: DocumentData): SavedGame {
-    const { ownerId, status, human, round, turn, reserve, nations, attacked, war, roll } = data;
+    const { ownerId, status, human, round, turn, reserve, nations, attacked, war, roll, news } = data;
     return {
       id,
       ownerId,
       status,
       snapshot: { human, round, turn, reserve, nations, attacked: attacked ?? false, war: war ?? null },
       roll: roll ?? null,
+      news: news ?? null,
     };
   }
 }

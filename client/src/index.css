@@ -240,3 +240,8 @@ body {
     opacity: 0;
   }
 }
+
+.app-message-actions {
+  display: flex;
+  gap: 12px;
+}

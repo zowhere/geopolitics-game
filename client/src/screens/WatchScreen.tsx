@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import Die from "../components/Die";
 import Island from "../components/Island";
 import SoldierCount from "../components/SoldierCount";
+import type { News } from "../db/GameStore";
 import type { Game, Roll } from "../game/Game";
 import { countryShape } from "../map/countryShape";
 import { flagUrl, squareFlagUrl } from "../map/flagUrl";
@@ -13,6 +14,7 @@ type WatchScreenProps = {
   game: Game;
   owner: string;
   roll: Roll | null;
+  news: News | null;
   actionLabel: string;
   onAction: () => void;
 };
@@ -47,7 +49,7 @@ function Dice({ values }: { values: number[] }) {
   );
 }
 
-function WatchScreen({ game, owner, roll, actionLabel, onAction }: WatchScreenProps) {
+function WatchScreen({ game, owner, roll, news, actionLabel, onAction }: WatchScreenProps) {
   const war = roll && roll.round === game.round && roll.turn === game.currentIndex ? roll : null;
   const [shown, setShown] = useState(game);
   const [before, setBefore] = useState<Board | null>(null);
@@ -63,6 +65,7 @@ function WatchScreen({ game, owner, roll, actionLabel, onAction }: WatchScreenPr
         .map((territory) => `${nameOf(territory.owner)} occupied ${territory.name}`)
     : [];
   const update = `${game.round}-${game.currentIndex}`;
+  const newsLine = news ? `${news.who === "You" ? owner : news.who} ${news.text}`.toLowerCase() : "";
 
   return (
     <main className="board-screen watch-screen">
@@ -128,11 +131,17 @@ function WatchScreen({ game, owner, roll, actionLabel, onAction }: WatchScreenPr
             <span>{game.territories[war.to].name}</span>
           </div>
         )}
-        {occupied.slice(0, 3).map((line) => (
+        {occupied.filter((line) => line.toLowerCase() !== newsLine).slice(0, 3).map((line) => (
           <p key={`${line}-${update}`} className="watch-news">
             {line}
           </p>
         ))}
+        {news && (
+          <p key={`${news.who}-${news.text}`} className="watch-move">
+            {news.who === "You" ? owner : news.who} {news.text}
+            {news.reason && <em>Best strategy: {news.reason}</em>}
+          </p>
+        )}
         <p className="board-announce">{headline(game, owner)}</p>
         <button className="btn btn-gold" type="button" onClick={onAction}>
           {actionLabel}
