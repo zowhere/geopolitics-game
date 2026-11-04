@@ -77,7 +77,8 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
 
   const save = useEffectEvent(onSave);
   useEffect(() => {
-    if (phase === "announce" || phase === "gameOver" || phase === "defeated" || (game.current.human && phase === "yourTurn")) save();
+    const npcMove = phase === "deploy" || phase === "afterWar" || phase === "transfer";
+    if (phase === "announce" || phase === "gameOver" || phase === "defeated" || npcMove || (game.current.human && phase === "yourTurn")) save();
   }, [phase, game]);
 
   function changed() {
