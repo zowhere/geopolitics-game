@@ -65,7 +65,9 @@ function WatchScreen({ game, owner, roll, news, actionLabel, onAction }: WatchSc
         .map((territory) => `${nameOf(territory.owner)} occupied ${territory.name}`)
     : [];
   const update = `${game.round}-${game.currentIndex}`;
-  const newsLine = news ? `${news.who === "You" ? owner : news.who} ${news.text}`.toLowerCase() : "";
+  const current = game.current.human ? "You" : game.current.country.name;
+  const move = news && !(game.current.human && news.who !== "You" && news.who !== current) ? news : null;
+  const newsLine = move ? `${move.who === "You" ? owner : move.who} ${move.text}`.toLowerCase() : "";
 
   return (
     <main className="board-screen watch-screen">
@@ -136,10 +138,10 @@ function WatchScreen({ game, owner, roll, news, actionLabel, onAction }: WatchSc
             {line}
           </p>
         ))}
-        {news && (
-          <p key={`${news.who}-${news.text}`} className="watch-move">
-            {news.who === "You" ? owner : news.who} {news.text}
-            {news.reason && <em>Best strategy: {news.reason}</em>}
+        {move && (
+          <p key={`${move.who}-${move.text}`} className="watch-move">
+            {move.who === "You" ? owner : move.who} {move.text}
+            {move.reason && <em>Best strategy: {move.reason}</em>}
           </p>
         )}
         <p className="board-announce">{headline(game, owner)}</p>
