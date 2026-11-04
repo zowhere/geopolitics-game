@@ -72,8 +72,8 @@ export function useWar(game: Game, from: Territory, to: Territory, onChange: () 
     setPhase("rolling");
   }
 
-  function finish(outcome: WarOutcome) {
-    game.commentator.warEnded(game.current, outcome, to);
+  function finish(outcome: WarOutcome, reason?: string) {
+    game.commentator.warEnded(game.current, outcome, to, reason);
     setPhase(outcome);
   }
 
@@ -84,7 +84,7 @@ export function useWar(game: Game, from: Territory, to: Territory, onChange: () 
   function endBattle() {
     if (to.soldiers === 0) finish("occupied");
     else if (from.soldiers < 2) finish("failed");
-    else if (npc && !npc.keepAttacking(from)) finish("retreat");
+    else if (npc && !npc.keepAttacking(from)) finish("retreat", `Keep ${from.soldiers} soldiers to hold ${from.name}`);
     else nextBattle();
   }
 
