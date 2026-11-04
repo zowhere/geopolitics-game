@@ -10,6 +10,7 @@ type ProfileMenuProps = {
   gameId: string | null;
   username: string;
   onNewGame: () => void;
+  onHowToPlay: () => void;
   onLogout: () => void;
 };
 
@@ -51,7 +52,7 @@ function Avatar() {
   );
 }
 
-function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMenuProps) {
+function ProfileMenu({ game, gameId, username, onNewGame, onHowToPlay, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -108,6 +109,9 @@ function ProfileMenu({ game, gameId, username, onNewGame, onLogout }: ProfileMen
           </button>
           <button className="profile-action" type="button" onClick={onNewGame}>
             New game
+          </button>
+          <button className="profile-action" type="button" onClick={() => (setOpen(false), onHowToPlay())}>
+            How to play
           </button>
           <button className="profile-action" type="button" onClick={onLogout}>
             Log out

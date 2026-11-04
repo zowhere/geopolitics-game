@@ -6,9 +6,10 @@ type NewGameScreenProps = {
   savedGames: readonly SavedGame[];
   onNewGame: () => void;
   onResume: (saved: SavedGame) => void;
+  onHowToPlay: () => void;
 };
 
-function NewGameScreen({ savedGames, onNewGame, onResume }: NewGameScreenProps) {
+function NewGameScreen({ savedGames, onNewGame, onResume, onHowToPlay }: NewGameScreenProps) {
   return (
     <main className="new-game-screen">
       <div className="new-game-menu">
@@ -18,6 +19,9 @@ function NewGameScreen({ savedGames, onNewGame, onResume }: NewGameScreenProps) 
           onClick={onNewGame}
         >
           New game
+        </button>
+        <button className="btn btn-outline" type="button" onClick={onHowToPlay}>
+          How to play
         </button>
         {savedGames.length > 0 && (
           <div className="saved-games">

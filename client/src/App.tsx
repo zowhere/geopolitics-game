@@ -271,6 +271,7 @@ function App() {
         savedGames={savedGames}
         onNewGame={() => setScreen("choose")}
         onResume={resume}
+        onHowToPlay={startPractice}
       />
     );
   }
@@ -282,7 +283,7 @@ function App() {
       {touring && <HowToPlay onDone={() => setTouring(false)} />}
       {username && (
         <div className="app-profile">
-          <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onLogout={logout} />
+          <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onHowToPlay={startPractice} onLogout={logout} />
         </div>
       )}
     </>
