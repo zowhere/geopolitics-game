@@ -1,32 +1,34 @@
-.tour {
+.coach-ring {
   position: fixed;
-  inset: 0;
   z-index: 60;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgba(3, 12, 18, 0.72);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(3, 12, 18, 0.55);
+  pointer-events: none;
+  transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+  animation: coach-pulse 1.4s ease-in-out infinite;
 }
 
-.tour-card {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  width: min(380px, 100%);
-  padding: 24px 22px 14px;
+@keyframes coach-pulse {
+  50% {
+    border-color: var(--cream);
+  }
+}
+
+.coach-bubble {
+  position: fixed;
+  left: 50%;
+  z-index: 61;
+  width: min(340px, calc(100vw - 24px));
+  padding: 12px 16px;
+  translate: -50% 0;
   text-align: center;
   color: var(--cream);
   background: var(--sea-1);
   border: 1.5px solid var(--gold);
   border-radius: 10px;
-  animation: strategy-in 0.35s ease-out both;
 }
 
-.tour-card h2 { margin: 0; font: 400 1.4rem var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); }
-.tour-card p { margin: 0; font: 500 1.05rem / 1.4 var(--font-body); }
-.tour-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-.tour-skip { padding: 4px 8px; font: 600 0.8rem var(--font-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: none; border: 0; cursor: pointer; }
-.tour-count { font: 600 0.7rem var(--font-label); letter-spacing: 0.14em; color: var(--muted); }
-.tour-art { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; }
-.tour-art .island { width: 64px; aspect-ratio: 4 / 3; }
-.tour-art .soldier-count { transform: scale(2); }
+.coach-bubble p { margin: 0 0 8px; font: 500 1.05rem / 1.35 var(--font-body); }
+.coach-actions { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.coach-skip { padding: 4px 8px; font: 600 0.8rem var(--font-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: none; border: 0; cursor: pointer; }
