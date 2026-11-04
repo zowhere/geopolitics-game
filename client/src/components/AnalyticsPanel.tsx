@@ -73,7 +73,7 @@ function AnalyticsPanel({ username, game, gameId, onClose }: AnalyticsPanelProps
     : "–";
   const you = game ? game.players.findIndex((player) => player.human) : -1;
   const lostThisGame = game ? game.soldiersLostBy(you) : 0;
-  const lostEver = history.reduce((total, record) => total + record.soldiersLost, 0) + lostThisGame;
+  const lostEver = history.reduce((total, record) => total + record.soldiersLost, 0) + (gameId ? lostThisGame : 0);
 
   return (
     <div className="record-backdrop" onClick={onClose}>

@@ -29,6 +29,7 @@ type BoardScreenProps = {
   onSettingsChange: (settings: Settings) => void;
   onNewGame: () => void;
   onSave: () => void;
+  onHowToPlay?: () => void;
 };
 
 const homeRule = "At least 1 soldier must stay home during an attack";
@@ -51,7 +52,7 @@ function strongest(territories: Territory[]) {
   );
 }
 
-function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: BoardScreenProps) {
+function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave, onHowToPlay }: BoardScreenProps) {
   const { phase, plan, war, out, transfer, pace, paused, setPaused, advance, startWar, endWar, endTurn, watch, toggleFast } =
     useTurnFlow(game, settings.speed);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
@@ -242,6 +243,10 @@ function BoardScreen({ game, settings, onSettingsChange, onNewGame, onSave }: Bo
                 settings={settings}
                 onChange={onSettingsChange}
                 onTransfer={phase === "yourTurn" && !placing && !transferring ? startTransfer : undefined}
+                onHowToPlay={() => {
+                  setPaused(true);
+                  onHowToPlay?.();
+                }}
               />
             </header>
 

@@ -7,9 +7,10 @@ type SettingsMenuProps = {
   settings: Settings;
   onChange: (settings: Settings) => void;
   onTransfer?: () => void;
+  onHowToPlay?: () => void;
 };
 
-function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
+function SettingsMenu({ settings, onChange, onTransfer, onHowToPlay }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useDismiss(root, open, useCallback(() => setOpen(false), []));
@@ -17,6 +18,11 @@ function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
   function transfer() {
     setOpen(false);
     onTransfer?.();
+  }
+
+  function howToPlay() {
+    setOpen(false);
+    onHowToPlay?.();
   }
 
   return (
@@ -66,6 +72,9 @@ function SettingsMenu({ settings, onChange, onTransfer }: SettingsMenuProps) {
               </button>
             ))}
           </div>
+          <button className="settings-help" type="button" onClick={howToPlay}>
+            How to play
+          </button>
         </div>
       )}
     </div>
