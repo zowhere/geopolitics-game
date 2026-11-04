@@ -198,49 +198,6 @@ body {
   display: none;
 }
 
-.save-state {
-  position: fixed;
-  left: 16px;
-  bottom: 12px;
-  z-index: 6;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font: 600 0.72rem var(--font-label);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.save-state.saved {
-  animation: save-fade 2s ease-out forwards;
-}
-
-.save-state.failed {
-  color: var(--red);
-  pointer-events: auto;
-}
-
-.save-state button {
-  padding: 2px 8px;
-  font: inherit;
-  color: var(--cream);
-  background: none;
-  border: 1px solid currentColor;
-  cursor: pointer;
-}
-
-@keyframes save-fade {
-  70% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
 .app-message-actions {
   display: flex;
   gap: 12px;
