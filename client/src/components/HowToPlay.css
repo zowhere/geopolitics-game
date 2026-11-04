@@ -1,0 +1,29 @@
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(3, 12, 18, 0.72);
+}
+
+.tour-card {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(380px, 100%);
+  padding: 24px 22px 14px;
+  text-align: center;
+  color: var(--cream);
+  background: var(--sea-1);
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  animation: strategy-in 0.35s ease-out both;
+}
+
+.tour-card h2 { margin: 0; font: 400 1.4rem var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); }
+.tour-card p { margin: 0; font: 500 1.05rem / 1.4 var(--font-body); }
+.tour-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.tour-skip { padding: 4px 8px; font: 600 0.8rem var(--font-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: none; border: 0; cursor: pointer; }
+.tour-count { font: 600 0.7rem var(--font-label); letter-spacing: 0.14em; color: var(--muted); }

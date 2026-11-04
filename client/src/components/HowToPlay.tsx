@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./HowToPlay.css";
 
 const tourSteps = [
   { title: "Conquer the world", text: "Take all 10 countries to win." },
