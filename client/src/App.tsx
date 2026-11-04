@@ -248,6 +248,7 @@ function App() {
           onSettingsChange={setSettings}
           onNewGame={newGame}
           onSave={() => saveGame()}
+          onHowToPlay={() => setTouring(true)}
         />
       );
     }
