@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import "./HowToPlay.css";
 
 type Step = { at: string; text: string; tap?: boolean; when?: string };
@@ -20,25 +20,38 @@ const steps: Step[] = [
   { at: ".profile-button", text: "Your profile: share a game, see your stats or start a new one." },
 ];
 
-type HowToPlayProps = { onDone: () => void; onPractice: () => void };
+type HowToPlayProps = { onDone: () => void };
 
-function HowToPlay({ onDone, onPractice }: HowToPlayProps) {
-  const [step, setStep] = useState(0);
-  const current = steps[step];
+function HowToPlay({ onDone }: HowToPlayProps) {
+  const [index, setIndex] = useState(0);
+  const [box, setBox] = useState<DOMRect | null>(null);
+  const step = steps[index];
+  const advance = () => (index + 1 < steps.length ? setIndex(index + 1) : onDone());
+  const next = useEffectEvent(advance);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBox(document.querySelector(step.at)?.getBoundingClientRect() ?? null);
+      if (step.when && document.querySelector(step.when)) next();
+    }, 250);
+    const onTap = (event: MouseEvent) => {
+      if (step.tap && (event.target as Element).closest(step.at)) setTimeout(next, 0);
+    };
+    document.addEventListener("click", onTap, true);
+    return () => (clearInterval(timer), document.removeEventListener("click", onTap, true));
+  }, [step]);
+  const below = box ? box.bottom + 150 < window.innerHeight : true;
   return (
-    <div className="tour" role="dialog" aria-label="How to play" onClick={(event) => event.stopPropagation()}>
-      <div key={step} className="tour-card">
-        <p>{current ? current.text : "Try a practice game. It isn't saved and won't count in your stats."}</p>
-        <div className="tour-actions">
-          <button className="tour-skip" type="button" onClick={onDone}>{current ? "Skip" : "Not now"}</button>
-          {step > 0 && <button className="btn btn-outline" type="button" onClick={() => setStep(step - 1)}>Back</button>}
-          <button className="btn btn-gold" type="button" onClick={current ? () => setStep(step + 1) : onPractice}>
-            {current ? "Next" : "Practice"}
-          </button>
+    <>
+      {box && <div className="coach-ring" style={{ left: box.left - 6, top: box.top - 6, width: box.width + 12, height: box.height + 12 }} />}
+      <div className="coach-bubble" style={box ? (below ? { top: box.bottom + 16 } : { bottom: window.innerHeight - box.top + 16 }) : { bottom: 24 }}>
+        {box && <p>{step.text}</p>}
+        <div className="coach-actions">
+          <button className="coach-skip" type="button" onClick={onDone}>Skip tour</button>
+          {box && !step.tap && !step.when && <button className="btn btn-gold" type="button" onClick={advance}>Got it</button>}
         </div>
-        <span className="tour-count">{Math.min(step + 1, steps.length)} / {steps.length}</span>
       </div>
-    </div>
+    </>
   );
 }
 

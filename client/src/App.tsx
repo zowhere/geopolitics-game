@@ -165,7 +165,7 @@ function App() {
   }
 
   function startPractice() {
-    setTouring(false);
+    setTouring(true);
     leaveGame();
     setPractice(true);
     setScreen("choose");
@@ -239,7 +239,7 @@ function App() {
       );
     }
     if (!checkedLogin) return null;
-    if (!username) return <LoginScreen startMode={signUpFirst ? "signup" : "login"} onLogin={(name, isNew) => { setUsername(name); setTouring(isNew); }} />;
+    if (!username) return <LoginScreen startMode={signUpFirst ? "signup" : "login"} onLogin={(name, isNew) => { setUsername(name); if (isNew) startPractice(); }} />;
     if (screen === "board" && game) {
       return (
         <BoardScreen
@@ -248,7 +248,7 @@ function App() {
           onSettingsChange={setSettings}
           onNewGame={newGame}
           onSave={() => saveGame()}
-          onHowToPlay={() => setTouring(true)}
+          onHowToPlay={startPractice}
         />
       );
     }
@@ -279,7 +279,7 @@ function App() {
     <>
       <MapFilters />
       {currentScreen()}
-      {touring && <HowToPlay onDone={() => setTouring(false)} onPractice={startPractice} />}
+      {touring && <HowToPlay onDone={() => setTouring(false)} />}
       {username && (
         <div className="app-profile">
           <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onLogout={logout} />
