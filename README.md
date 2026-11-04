@@ -4,6 +4,7 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
 
 - **Play:** [geopolitics-game-xi.vercel.app](https://geopolitics-game-xi.vercel.app)
 - **Demo video:** _add link_
+- **Best on:** a laptop, PC or other wide screen, where the map and battles have the most room. It also works on modern phones and tablets, upright or sideways.
 
 ## Try it
 
