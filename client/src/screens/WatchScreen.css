@@ -107,3 +107,21 @@
     animation: none;
   }
 }
+
+.watch-move {
+  margin: 0;
+  font: 400 1.1rem / 1.2 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--cream);
+  text-shadow: 0 2px 4px var(--sea-0);
+}
+
+.watch-move em {
+  display: block;
+  font: 500 0.95rem var(--font-label);
+  font-style: normal;
+  text-transform: none;
+  color: var(--gold);
+}
