@@ -271,6 +271,7 @@ function App() {
         savedGames={savedGames}
         onNewGame={() => setScreen("choose")}
         onResume={resume}
+        onHowToPlay={startPractice}
       />
     );
   }
