@@ -24,6 +24,7 @@ export type SavedGame = {
   news: News | null;
 };
 
+//news is the latest move and its reason, saved so people watching a shared game can see it
 export type News = { who: string; text: string; reason: string | null };
 
 function latestNews(game: Game): News | null {
