@@ -109,3 +109,16 @@
   background: var(--gold);
   border-color: var(--gold);
 }
+
+.settings-help {
+  width: 100%;
+  margin-top: 14px;
+  padding: 6px 0;
+  font: 600 0.8rem var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: none;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
