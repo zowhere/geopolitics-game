@@ -368,6 +368,10 @@ Most players stop an attack because they can see their soldier numbers dropping.
 
 The game remain fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns.
 
+### Per-move event log
+
+Recording each move as an individual event would enable full replays and allow late spectators to catch up. However, Firebase's free tier is limited to 20,000 writes per day. My current design supports approximately 20 complete games daily, and introducing a per-move event log would reduce this to approximately 10. Therefore, I kept the snapshot-based approach.
+
 ## Limitations and known bugs
 
 _add_
