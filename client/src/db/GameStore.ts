@@ -91,7 +91,7 @@ export class GameStore {
       try {
         await this.creating;
         const news = latestNews(game);
-        await updateDoc(doc(db, "games", id), { status: game.status, ...game.snapshot(), news, updatedAt: serverTimestamp() });
+        await updateDoc(doc(db, "games", id), { status: game.status, ...game.snapshot(), ...(news && { news }), updatedAt: serverTimestamp() });
         this.failed = null;
         this.setState("saved");
       } catch (error) {

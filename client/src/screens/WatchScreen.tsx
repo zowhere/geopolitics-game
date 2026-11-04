@@ -65,6 +65,7 @@ function WatchScreen({ game, owner, roll, news, actionLabel, onAction }: WatchSc
         .map((territory) => `${nameOf(territory.owner)} occupied ${territory.name}`)
     : [];
   const update = `${game.round}-${game.currentIndex}`;
+  const newsLine = news ? `${news.who === "You" ? owner : news.who} ${news.text}`.toLowerCase() : "";
 
   return (
     <main className="board-screen watch-screen">
@@ -130,7 +131,7 @@ function WatchScreen({ game, owner, roll, news, actionLabel, onAction }: WatchSc
             <span>{game.territories[war.to].name}</span>
           </div>
         )}
-        {occupied.slice(0, 3).map((line) => (
+        {occupied.filter((line) => line.toLowerCase() !== newsLine).slice(0, 3).map((line) => (
           <p key={`${line}-${update}`} className="watch-news">
             {line}
           </p>
