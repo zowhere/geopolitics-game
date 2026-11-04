@@ -20,7 +20,7 @@ function NewGameScreen({ savedGames, onNewGame, onResume, onHowToPlay }: NewGame
         >
           New game
         </button>
-        <button className="btn btn-outline" type="button" onClick={onHowToPlay}>
+        <button className="new-game-help" type="button" onClick={onHowToPlay}>
           How to play
         </button>
         {savedGames.length > 0 && (
