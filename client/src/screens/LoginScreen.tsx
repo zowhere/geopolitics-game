@@ -16,7 +16,7 @@ const submitLabel: Record<Mode, string> = {
 
 type LoginScreenProps = {
   startMode?: Mode;
-  onLogin: (username: string) => void;
+  onLogin: (username: string, isNew: boolean) => void;
 };
 
 const drifters = [
@@ -78,7 +78,7 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
         mode === "signup"
           ? await accounts.signUp(email.trim(), name, password)
           : await accounts.logIn(name, password);
-      onLogin(account.username);
+      onLogin(account.username, mode === "signup");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Something went wrong");
       setBusy(false);

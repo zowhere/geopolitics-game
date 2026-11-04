@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import HowToPlay from "./components/HowToPlay";
 import MapFilters from "./components/MapFilters";
 import ProfileMenu from "./components/ProfileMenu";
 import { accounts } from "./db/AccountStore";
@@ -53,6 +54,8 @@ function App() {
   const [watchId, setWatchId] = useState(watchIdFromLink);
   const [watched, setWatched] = useState<Watched | null>(null);
   const [watchTry, setWatchTry] = useState(0);
+  const [touring, setTouring] = useState(false);
+  const [practice, setPractice] = useState(false);
   const badLink = watchId !== null && !gameIdShape.test(watchId);
   const [signUpFirst, setSignUpFirst] = useState(false);
   const [countries, setCountries] = useState<Country[] | null>(null);
@@ -157,17 +160,25 @@ function App() {
 
   function newGame() {
     leaveGame();
+    setPractice(false);
+    setScreen("choose");
+  }
+
+  function startPractice() {
+    setTouring(false);
+    leaveGame();
+    setPractice(true);
     setScreen("choose");
   }
 
   function play(country: string) {
     if (!countries) return;
     const started = Game.start(country, countries);
-    const id = gameStore.newId();
+    const id = practice ? null : gameStore.newId();
     started.wait();
     setGame(started);
     setGameId(id);
-    gameStore.create(id, started).catch((error) => console.error("Couldn't create the game", error));
+    if (id) gameStore.create(id, started).catch((error) => console.error("Couldn't create the game", error));
     setScreen("round");
   }
 
@@ -228,7 +239,7 @@ function App() {
       );
     }
     if (!checkedLogin) return null;
-    if (!username) return <LoginScreen startMode={signUpFirst ? "signup" : "login"} onLogin={setUsername} />;
+    if (!username) return <LoginScreen startMode={signUpFirst ? "signup" : "login"} onLogin={(name, isNew) => { setUsername(name); setTouring(isNew); }} />;
     if (screen === "board" && game) {
       return (
         <BoardScreen
@@ -267,6 +278,7 @@ function App() {
     <>
       <MapFilters />
       {currentScreen()}
+      {touring && <HowToPlay onDone={() => setTouring(false)} onPractice={startPractice} />}
       {username && (
         <div className="app-profile">
           <ProfileMenu game={game} gameId={gameId} username={username} onNewGame={newGame} onLogout={logout} />
