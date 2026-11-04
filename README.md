@@ -364,9 +364,9 @@ From `client`, run `npm test`.
 
 The brief says that stopping an attack ends the turn. In this game, stopping ends the attack, but the player can still transfer soldiers before the turn ends.
 
-Most players stop an attack because they can see their soldier numbers dropping. Their attacking country is then left weak, and an opponent can occupy it in the same round. Letting them move soldiers in to reinforce it first makes the game more competitive and interesting users.
+Most players stop an attack because they can see their soldier numbers dropping. Their attacking country is then left weak, and an opponent can occupy it in the same round. Letting them move soldiers in to reinforce it first makes the game more competitive and interesting for users.
 
-The game remain fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns.
+The game remains fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns.
 
 ### Per-move event log
 
