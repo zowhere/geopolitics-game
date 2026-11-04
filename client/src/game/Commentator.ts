@@ -58,8 +58,8 @@ export class Commentator {
     return text;
   }
 
-  warEnded(player: Player, outcome: WarOutcome, target: Territory) {
-    this.lines.push({ who: nameOf(player), text: outcomeText[outcome](target.name) });
+  warEnded(player: Player, outcome: WarOutcome, target: Territory, reason?: string) {
+    this.lines.push({ who: nameOf(player), text: outcomeText[outcome](target.name), reason });
   }
 
   transferred(player: Player, { from, to, count, reason }: Transfer) {
