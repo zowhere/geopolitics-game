@@ -223,6 +223,7 @@ function App() {
           game={watched.game}
           owner={watched.owner}
           roll={watched.saved.roll}
+          news={watched.saved.news}
           actionLabel={watchActionLabel()}
           onAction={watchAction}
         />
