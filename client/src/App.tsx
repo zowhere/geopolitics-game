@@ -42,6 +42,9 @@ function watchIdFromLink() {
   return new URLSearchParams(window.location.search).get("watch");
 }
 
+const gameIdShape = /^[A-Za-z0-9]{1,40}$/;
+const unavailable = "This game isn't available";
+
 function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [uid, setUid] = useState<string | null>(null);
@@ -50,6 +53,8 @@ function App() {
   const [resetCode, setResetCode] = useState(resetCodeFromLink);
   const [watchId, setWatchId] = useState(watchIdFromLink);
   const [watched, setWatched] = useState<Watched | null>(null);
+  const [watchTry, setWatchTry] = useState(0);
+  const badLink = watchId !== null && !gameIdShape.test(watchId);
   const [signUpFirst, setSignUpFirst] = useState(false);
   const [countries, setCountries] = useState<Country[] | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -102,12 +107,14 @@ function App() {
   }, [game, gameId]);
 
   useEffect(() => {
-    if (!watchId) return;
+    if (!watchId || badLink) return;
     let owner = "";
-    return gameStore.watch(
+    const giveUp = setTimeout(() => setLoadError(unavailable), 60_000);
+    const stop = gameStore.watch(
       watchId,
       async (saved) => {
         if (!saved) return setLoadError("Looking for this game…");
+        clearTimeout(giveUp);
         const list = await countryStore.load();
         owner ||= await gameStore.ownerName(saved.ownerId);
         setLoadError("");
@@ -115,7 +122,11 @@ function App() {
       },
       () => setLoadError("Couldn't load that game"),
     );
-  }, [watchId]);
+    return () => {
+      clearTimeout(giveUp);
+      stop();
+    };
+  }, [watchId, badLink, watchTry]);
 
   function leaveWatch() {
     window.history.replaceState(null, "", "/");
@@ -194,7 +205,18 @@ function App() {
       );
     }
     if (watchId) {
-      if (loadError) return <p className="app-message">{loadError}</p>;
+      if (badLink || loadError)
+        return (
+          <div className="app-message">
+            <p>{badLink ? unavailable : loadError}</p>
+            <div className="app-message-actions">
+              <button className="btn btn-outline" type="button" onClick={leaveWatch}>Back</button>
+              <button className="btn btn-gold" type="button" onClick={() => { setLoadError(""); setWatchTry(watchTry + 1); }}>
+                Retry
+              </button>
+            </div>
+          </div>
+        );
       if (!watched) return null;
       return (
         <WatchScreen
