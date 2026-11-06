@@ -27,11 +27,20 @@ const drifters = [
   { name: "Brazil", code: "br", left: "74%", top: "56%" },
 ].map((drifter) => ({ ...drifter, shape: countryShape(drifter.name) }));
 
-function validate(mode: Mode, email: string, username: string, password: string) {
-  if (mode === "reset") return /^\S+@\S+\.\S+$/.test(email) ? "" : "Enter your email";
+//client-side validation
+// checks the form before anything is sent to the server
+function validate(
+  mode: Mode,
+  email: string,
+  username: string,
+  password: string,
+) {
+  if (mode === "reset")
+    return /^\S+@\S+\.\S+$/.test(email) ? "" : "Enter your email";
   if (mode === "login")
     return username && password ? "" : "Enter your username and password";
   if (!/^\S+@\S+\.\S+$/.test(email)) return "That email doesn't look right";
+  //username must be 3-20 letters, numbers or _
   if (!/^[A-Za-z0-9_]{3,20}$/.test(username))
     return "Username: 3 to 20 letters, numbers or _";
   if (password.length < 6) return "Password: at least 6 characters";
@@ -58,7 +67,9 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
       await accounts.resetPassword(address);
       setNote("If that account exists, a reset link is in its email");
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Something went wrong");
+      setError(
+        failure instanceof Error ? failure.message : "Something went wrong",
+      );
     }
     setBusy(false);
   }
@@ -69,10 +80,10 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
     const problem = validate(mode, email.trim(), name, password);
     setError(problem);
     setNote("");
-    if (problem) return;
+    if (problem) return; //stops here if the form is invalid
 
-    setBusy(true);
-    if (mode === "reset") return sendResetLink(email.trim());
+    setBusy(true); //busy status true so button is disabled while waiting for server response
+    if (mode === "reset") return sendResetLink(email.trim()); //
     try {
       const account =
         mode === "signup"
@@ -80,12 +91,15 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
           : await accounts.logIn(name, password);
       onLogin(account.username, mode === "signup");
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Something went wrong");
+      setError(
+        failure instanceof Error ? failure.message : "Something went wrong",
+      );
       setBusy(false);
     }
   }
 
   return (
+    //container for the login screen, including the background islands/lands and the login panel
     <main className="login-screen">
       <div className="login-drifters">
         {drifters.map((drifter, index) => (
@@ -152,7 +166,9 @@ function LoginScreen({ startMode = "login", onLogin }: LoginScreenProps) {
           {mode !== "reset" && (
             <PasswordInput
               placeholder="Password"
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              autoComplete={
+                mode === "login" ? "current-password" : "new-password"
+              }
               value={password}
               onChange={setPassword}
             />

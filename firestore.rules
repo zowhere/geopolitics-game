@@ -10,10 +10,12 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    //database validation: usernames must be 3-20 letters, numbers or _
     function validUsername(username) {
       return username is string && username.matches('^[A-Za-z0-9_]{3,20}$');
     }
 
+    //every saved game must have only these fields, the right types and exactly 10 countries
     function validGame(game) {
       return game.keys().hasOnly(['ownerId', 'status', 'human', 'round', 'turn', 'reserve', 'nations', 'attacked', 'war', 'news', 'roll', 'createdAt', 'updatedAt'])
         && game.status in ['waiting', 'playing', 'won', 'lost']

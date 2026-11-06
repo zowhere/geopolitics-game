@@ -2,18 +2,30 @@ import { createSign } from "node:crypto";
 
 const webApiKey = "AIzaSyB5Y-RWE1DxrtB7DruA0gH3opo5ANoTA40";
 const identity = "https://identitytoolkit.googleapis.com/v1";
-const customTokenAudience = "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit";
+const customTokenAudience =
+  "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit";
 const failsBeforeWait = 3;
 const failsBeforeLock = 10;
 const waitTime = 15 * 60 * 1000;
 const wrongLogin = "Wrong username or password";
 
 type Body = { action?: unknown; username?: unknown; password?: unknown };
-type ServiceAccount = { project_id: string; client_email: string; private_key: string };
-type Fields = Record<string, { stringValue?: string; integerValue?: string; timestampValue?: string }>;
+type ServiceAccount = {
+  project_id: string;
+  client_email: string;
+  private_key: string;
+};
+type Fields = Record<
+  string,
+  { stringValue?: string; integerValue?: string; timestampValue?: string }
+>;
 
-const isUsername = (value: unknown): value is string => typeof value === "string" && /^[A-Za-z0-9_]{3,20}$/.test(value);
-const encode = (value: object) => Buffer.from(JSON.stringify(value)).toString("base64url");
+//server-side validation
+//username must be 3-20 letters, numbers or _
+const isUsername = (value: unknown): value is string =>
+  typeof value === "string" && /^[A-Za-z0-9_]{3,20}$/.test(value);
+const encode = (value: object) =>
+  Buffer.from(JSON.stringify(value)).toString("base64url");
 
 class AccountService {
   readonly #account: ServiceAccount;
@@ -33,9 +45,17 @@ class AccountService {
     const lastFail = Date.parse(record?.lastFail?.timestampValue ?? "") || 0;
     const recent = Date.now() - lastFail < waitTime;
     if (total >= failsBeforeLock)
-      return Response.json({ error: "This account is locked. Contact the game owner to unlock it" }, { status: 403 });
+      return Response.json(
+        {
+          error: "This account is locked. Contact the game owner to unlock it",
+        },
+        { status: 403 },
+      );
     if (recent && fails >= failsBeforeWait)
-      return Response.json({ error: "Too many tries. Wait 15 minutes" }, { status: 429 });
+      return Response.json(
+        { error: "Too many tries. Wait 15 minutes" },
+        { status: 429 },
+      );
 
     const account = await this.#accountFor(username);
     if (!account || !(await this.#passwordMatches(account.email, password))) {
@@ -47,47 +67,68 @@ class AccountService {
       return Response.json({ error: wrongLogin }, { status: 401 });
     }
 
-    if (record) await this.#call(`${this.#documents}/${attemptsPath}`, { method: "DELETE" });
+    if (record)
+      await this.#call(`${this.#documents}/${attemptsPath}`, {
+        method: "DELETE",
+      });
     return Response.json({ token: this.#customToken(account.uid) });
   }
 
   async #accountFor(username: string) {
-    const uid = (await this.#read(`usernames/${username.toLowerCase()}`))?.uid?.stringValue;
+    const uid = (await this.#read(`usernames/${username.toLowerCase()}`))?.uid
+      ?.stringValue;
     if (!uid) return null;
-    const response = await this.#call(`${identity}/projects/${this.#account.project_id}/accounts:lookup`, {
-      method: "POST",
-      body: JSON.stringify({ localId: [uid] }),
-    });
-    const { users } = (await response.json()) as { users?: { email?: unknown }[] };
+    const response = await this.#call(
+      `${identity}/projects/${this.#account.project_id}/accounts:lookup`,
+      {
+        method: "POST",
+        body: JSON.stringify({ localId: [uid] }),
+      },
+    );
+    const { users } = (await response.json()) as {
+      users?: { email?: unknown }[];
+    };
     const email = users?.[0]?.email;
     return typeof email === "string" ? { uid, email } : null;
   }
 
   async #passwordMatches(email: string, password: string) {
-    const response = await fetch(`${identity}/accounts:signInWithPassword?key=${webApiKey}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password, returnSecureToken: false }),
-    });
+    const response = await fetch(
+      `${identity}/accounts:signInWithPassword?key=${webApiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password, returnSecureToken: false }),
+      },
+    );
     return response.ok;
   }
 
   async #read(path: string): Promise<Fields | null> {
-    const response = await this.#call(`${this.#documents}/${path}`, { method: "GET" });
+    const response = await this.#call(`${this.#documents}/${path}`, {
+      method: "GET",
+    });
     if (response.status === 404) return null;
     return ((await response.json()) as { fields?: Fields }).fields ?? {};
   }
 
   async #write(path: string, fields: Fields) {
-    await this.#call(`${this.#documents}/${path}`, { method: "PATCH", body: JSON.stringify({ fields }) });
+    await this.#call(`${this.#documents}/${path}`, {
+      method: "PATCH",
+      body: JSON.stringify({ fields }),
+    });
   }
 
   async #call(url: string, init: RequestInit) {
     const response = await fetch(url, {
       ...init,
-      headers: { "content-type": "application/json", authorization: `Bearer ${await this.#token()}` },
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${await this.#token()}`,
+      },
     });
-    if (!response.ok && response.status !== 404) throw new Error(`google ${response.status} ${await response.text()}`);
+    if (!response.ok && response.status !== 404)
+      throw new Error(`google ${response.status} ${await response.text()}`);
     return response;
   }
 
@@ -101,7 +142,10 @@ class AccountService {
       const response = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "content-type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion }),
+        body: new URLSearchParams({
+          grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+          assertion,
+        }),
       });
       if (!response.ok) throw new Error(`google token ${response.status}`);
       return ((await response.json()) as { access_token: string }).access_token;
@@ -110,7 +154,12 @@ class AccountService {
   }
 
   #customToken(uid: string) {
-    return this.#sign({ iss: this.#account.client_email, sub: this.#account.client_email, aud: customTokenAudience, uid });
+    return this.#sign({
+      iss: this.#account.client_email,
+      sub: this.#account.client_email,
+      aud: customTokenAudience,
+      uid,
+    });
   }
 
   #sign(claims: object) {
@@ -126,15 +175,21 @@ function service() {
 }
 
 export async function POST(request: Request) {
-  const { action, username, password } = ((await request.json().catch(() => null)) ?? {}) as Body;
-  if (!isUsername(username)) return Response.json({ error: wrongLogin }, { status: 400 });
+  const { action, username, password } = ((await request
+    .json()
+    .catch(() => null)) ?? {}) as Body;
+  //checks the request again on the server, so a bad request is refused before touching the database
+  if (!isUsername(username))
+    return Response.json({ error: wrongLogin }, { status: 400 });
   if (action === "login" && (typeof password !== "string" || !password))
     return Response.json({ error: wrongLogin }, { status: 400 });
-  if (action !== "login") return Response.json({ error: "bad request" }, { status: 400 });
+  if (action !== "login")
+    return Response.json({ error: "bad request" }, { status: 400 });
 
   try {
     const accounts = service();
-    if (!accounts) return Response.json({ error: "Login is not set up" }, { status: 503 });
+    if (!accounts)
+      return Response.json({ error: "Login is not set up" }, { status: 503 });
     return await accounts.logIn(username, password as string);
   } catch (error) {
     console.error("account error", error);
