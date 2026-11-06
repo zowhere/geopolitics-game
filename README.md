@@ -391,13 +391,13 @@ They show very decision shown with a short reason, also during fast-forward
 
 ### Extras
 
-- Player analytics ![alt text](images/s5.png)
+- Player analytics ![Player analytics panel](images/s5.png)
 - Live shared-game viewing ([WatchScreen.tsx](client/src/screens/WatchScreen.tsx)) with a shareable link ([ShareButton.tsx](client/src/components/ShareButton.tsx))
 - Saves after every move, so a refresh can't replay a roll or a second attack preventing cheating
 
 ### NPC Strategy
 
-All NPCs use the same strategy to compete to win. They prioritise strengthening their weakest countries, identify the best available attacks using a priority queue, and only attack when they have at least 3 soldiers and a numerical advantage over the defender.
+All NPCs use the same strategy to compete to win. They place new soldiers where they plan to attack, or on their weakest country if no good attack is available, identify the best available attacks using a priority queue, and only attack when they have at least 3 soldiers and a numerical advantage over the defender.
 
 They also avoid attacking players who are stronger overall.
 
