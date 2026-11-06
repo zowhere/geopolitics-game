@@ -278,6 +278,13 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
 
 - Priority queue implemented as a binary max-heap ([PriorityQueue.ts](client/src/utils/PriorityQueue.ts)). In [NpcStrategy.ts](client/src/game/NpcStrategy.ts), every valid attack an NPC could make is pushed onto the heap, ordered by `isBetterOption` that ranks by soldier advantage, with the weakest defender as the tie-break. `pop()` returns the highest-priority attack first, allowing the NPC to choose its best move without sorting the entire list.
 
+- On the choose country screen ([ChooseCountryScreen.tsx](client/src/screens/ChooseCountryScreen.tsx)), players type into a search box to find their country among all 234 countries loaded from Firestore. The list narrows as they type.
+- The same screen has soldier filters (**All, 1–3, 4–6, 7–9**), so players can show only countries with a certain starting strength.
+- The menu ([NewGameScreen.tsx](client/src/screens/NewGameScreen.tsx)) lists unfinished games as flag badges with their round, loaded from Firestore ([GameStore.ts](client/src/db/GameStore.ts)).
+- The analytics panel ([AnalyticsPanel.tsx](client/src/components/AnalyticsPanel.tsx)) lists past games with the country, rounds, soldiers lost and a won/lost/unfinished stamp, plus overall stats like win rate.
+- The board's log ([BoardScreen.tsx](client/src/screens/BoardScreen.tsx)) lists every move in order, with each NPC's reason.
+- A shared link opens a read-only live view of a game ([WatchScreen.tsx](client/src/screens/WatchScreen.tsx)), showing the board, whose turn it is and each dice roll as it happens. This allows third party viewing.
+
 ## Ease of navigation
 
 - On each page there's button that guides players on what to do next e.g log in, next, play, pause, fast forward
@@ -440,7 +447,7 @@ A player can manipulate their soldier counts through the browser's developer too
 
 I plan to integrate Firebase Analytics to track gameplay activity and better understand how players interact with the game.
 
-# Security rules
+## Security rules
 
 A player can only read their own account, and a username record can only hold a user ID:
 
