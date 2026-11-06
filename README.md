@@ -190,7 +190,27 @@ The same applies to methods: in [Territory](client/src/game/Territory.ts), `addS
 
 Implemented input validation at three levels: client-side form validation ([LoginScreen.tsx](client/src/screens/LoginScreen.tsx)), server-side API validation ([api/account.ts](client/api/account.ts)) and Firestore Security Rules ([firestore.rules](firestore.rules)), providing protection against invalid or unauthorised data.
 
-## Screenshots
+- Implemented Firestore Security Rules ([firestore.rules](firestore.rules)) to ensure players only modify their own data and read their own profile while anyone can watch a shared game.
+- Initially, player emails were stored alongside usernames, meaning other users could potentially access them.
+- fixed by storing only the player ID in the `usernames` collection and moving login (user based login)to a Vercel serverless function ([api/account.ts](client/api/account.ts)), which looks up the email privately through Firebase Authentication which keeps email addresses private.
+- Implemented rate limiting ([BattleCommentary.ts](client/src/ai/BattleCommentary.ts)) to restrict AI commentary requests to 25 per minute. This prevents excessive API calls and control usage of the external Groq AI service, as I am using a free tier that has limits.
+- Groq limits for openai/gpt-oss-20b:
+
+- 30 requests a minute. The game is capped at 25 ([BattleCommentary.ts](client/src/ai/BattleCommentary.ts#L11)).
+- 1,000 requests a day.
+- 8,000 tokens a minute.
+
+## AI Application
+
+## Functionality
+
+lists; searching; filtering; viewing;
+
+Ease of navigation  
+Security – authentication & authorization  
+Sophistication & Complexity – Battle engine, game engine, AI integration, access control etc.
+
+## User Interface
 
 **Game screenshots:** _add_
 
