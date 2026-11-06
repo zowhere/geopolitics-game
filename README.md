@@ -63,12 +63,51 @@ Single player geopolitics game. Play against 9 NPS and try to be the conquerer o
 
 Game uses Firebase for storage so the database is hosted separately on Google's cloud infrastructure.
 
-The database classes found in [client/src/db](client/src/db) use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
+The database classes found in [client/src/db](client/src/db) listed below, use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
 
 - [AccountStore.ts](client/src/db/AccountStore.ts)
 - [CountryStore.ts](client/src/db/CountryStore.ts)
 - [firebase.ts](client/src/db/firebase.ts)
 - [GameStore.ts](client/src/db/GameStore.ts)
+
+### Firebase Cloud Firestore
+
+I used Firebase Cloud Firestore, the NoSQL database, because its document-based structure is flexible and suited my game data.
+
+My game uses Firebase Cloud Firestore (NoSQL) with one database (`default`) containing five collections:
+
+| Collection  | Documents                                          |                                  |
+| ----------- | -------------------------------------------------- | -------------------------------- |
+| `countries` | 234 documents, one per country.                    | this will likely remain the same |
+| `games`     | 21 documents, one per saved game.n                 | this will grow dynamically       |
+| `meta`      | 1 document storing the source of the country data. | this will likely remain the same |
+| `usernames` | 12 documents, one per username.                    | this will grow                   |
+| `users`     | 12 documents, one per player.                      | this will grow                   |
+
+**note:** it uses collection → document → fields. I am able to add multiple field
+
+An example collection in my database (named `(default)`):
+
+```
+collection: usernames
+document:   zoe
+field:      uid: "zoe's account ID"
+```
+
+### Benefits
+
+- It uses Google-hosted infrastructure so my databases scale automatically reducing the administration of maintaining my owner server. With Firebase, the google server comes with patches and data is online most of the time.
+- Firebase has real-time listeners `onSnapshot` and this was beneficial my shared-link live watching feature where players share their play to viewers.
+- Firebase comes with Authentication and providd secure sign-up, login, password reset and session tokens and it stores passwords only as salted hashes.
+- It includes Firestore Security Rules which let me set rules such as:
+
+  > A game can only be updated by the signed-in player whose ID matches its `ownerId`, however anyone can watch it.
+
+  This was important for ensuring viewers do no interfere with game play.
+
+- Firebase provides a Web SDK allowing my game to communicate directly and securely with Firestore from the browser. It removes the need for me to build a separate database API or manage a database server. This reduced my project size (code-wise) and saves me money, as I did not have to invest in infrastructure upfront. As the number of users playing the game grows, it will scale dynamically until I reach my free-plan limits.
+- I used Firebase's free Spark plan because it covered the game's data needs at no cost. It allowed me to build the game and have a few users test it.
+- It also has Firebase Analytics which i have not set up at the moment but in the future I plan to and it will help me see analytics related to Reach, game Engagement and custom events such as Tracking how many game invitation links are shared and how many of those links are clicked, helping me measure word-of-mouth growth.
 
 ## Screenshots
 
