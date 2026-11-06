@@ -234,97 +234,114 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
 - On each page there's button that guides players on what to do next e.g log in, next, play, pause, fast forward
 - New players are shown an interactive how-to-play and a demo
 - The how to play remains in the settings and users can go over it again, at any given time
-
-Security – authentication & authorization  
-Sophistication & Complexity – Battle engine, game engine, AI integration, access control etc.
+- Unfinished games show as flag badges on the menu allowing players to resume
+- Security – authentication & authorization  
+  Sophistication & Complexity – Battle engine, game engine, AI integration, access control etc.
+- The layout looks very similar on different screens. I tested on Mac laptop, Iphone 16, Iphone SE, Samsung Galaxy, Redmi Tablet
 
 ## User Interface
 
-**Game screenshots:** _add_
+<img src="images/sc2.png" alt="Game screenshot 2" width="420"> <img src="images/sc3.png" alt="Game screenshot 3" width="420">
+<img src="images/sc4.png" alt="Game screenshot 4" width="260"> <img src="images/sc5.png" alt="Game screenshot 5" width="420">
+<img src="images/sc6.png" alt="Game screenshot 6" width="420"> <img src="images/sc7.png" alt="Game screenshot 7" width="420">
+<img src="images/sc8.png" alt="Game screenshot 8" width="420"> <img src="images/sc9.png" alt="Game screenshot 9" width="420">
+<img src="images/sc10.png" alt="Game screenshot 10" width="260">
 
-| Laptop | iPhone 15 | Samsung |
-| ------ | --------- | ------- |
-| _add_  | _add_     | _add_   |
+| Laptop                                                       | iPhone 16                                                        | Samsung                                                        |
+| ------------------------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| <img src="images/sc2.png" alt="Board on laptop" width="300"> | <img src="images/sc10.png" alt="Board on iPhone 16" width="150"> | <img src="images/sc11.png" alt="Board on Samsung" width="150"> |
 
-## Features
-
-### From the brief
-
-**Game logic**
-
-- [x] Single player against 9 NPCs, 10 countries in total
-- [x] Pick your country from the full list; the other 9 are chosen at random
-- [x] Soldiers based on population, using the brief's table
-- [x] Random first player
-- [x] Several saved games; continue whichever you want
-
-**Turns**
-
-- [x] Attack once per turn or skip
-- [x] Transfer soldiers between your countries when no attack is in progress, leaving at least 1 behind
-- [x] From round 2, 2 new soldiers per country you hold, placed wherever you like
-- [x] Fast-forward through NPC turns while still showing every move
-- [x] Eliminated players are skipped; holding all 10 countries wins
-
-**Battles**
-
-- [x] Need at least 2 soldiers to attack; at least 1 always stays behind
-- [x] Dice rolled = the smaller army that can fight; dice are paired, higher roll wins, ties lose nothing
-- [x] Attack continues until the country falls, you're down to 1 soldier, or you stop
-- [x] Conquering gives max(2, value ÷ 2) soldiers, and you choose how many move in
-- [x] Stopping an attack ends your attack; you can still transfer, then the turn ends _(see Trade-offs)_
-- [x] Every attack, dice roll, loss and outcome is shown as it happens
-- [x] AI commentary describes each battle as it unfolds
-- [x] All countries and soldier counts stay visible, including the world map during battles
-
-**NPCs**
-
-- [x] Play to win: choose whether to attack, which target and when to stop
-- [x] Place reinforcements and transfer soldiers
-- [x] Every decision shown with a short reason, also during fast-forward
-- [ ] Reason shown when an NPC stops an attack _(in progress)_
-
-**Access**
-
-- [x] Anyone with the link can watch a game
-- [x] Only the logged-in owner can play their game
-- [x] Anyone can sign up and start their own game
-
-**Technical**
-
-- [x] Web app
-- [x] NoSQL database (Firebase Firestore)
-- [x] Deployed on Vercel
-
-### Bonus feature: graphics and animations
+## Bonus feature: graphics and animations
 
 - Countries drawn as their land shapes with their flags
-- Did not use one solid world map as 10/195 countries would be on the battle screen
-  rather pieces of land floating on ocean
+- I didn't use a full world map, because only 10 countries are in each game. Instead, each country floats as its own piece of land on the ocean
 - Olive helmet soldier counts
+- I used a retro-looking theme and used colours that work well together and are easy on user's eyes
+- Main colours used in the game:
+  - `#0b2232` deep navy (darkest sea)
+  - `#133a52` ocean blue
+  - `#1f5574` lighter sea blue
+  - `#9fd0e0` foam (wave lines)
+  - `#e3b04b` yellow main buttons, your country
+  - `#f1e6c8` cream white headings
+- Some icons used:
+  - Bomb pause button with fuse and spark ([BoardScreen.tsx](client/src/screens/BoardScreen.tsx))
+  - Cartoon soldier avatar for the profile ([ProfileMenu.tsx](client/src/components/ProfileMenu.tsx))
+  - Army helmets next to soldier counts ([Helmet.tsx](client/src/components/Helmet.tsx))
+  - Airdrop crate for reinforcements ([ReserveBox.tsx](client/src/components/ReserveBox.tsx))
+  - Missiles ([MissileStrike.tsx](client/src/components/MissileStrike.tsx))
+
 - Airdrop plane and parachute crate for new soldiers, dragged onto your countries
 - Soldiers marching between countries during transfers
 - Rolling dice, falling soldiers and missile strikes in battle
 - Stamped results: occupied, failed, retreat
-- Your countries glow gold on your turn
+- Your countries glow yellow on Single Player Turn, so it easily stands out
 - Framed world map of all 10 countries during battles
 - Bomb pause button, hover labels and fast-forward
 
+- The how-to-play also uses animations
+
+## Game logic
+
+- Single player against 9 NPCs, 10 countries in total
+- Pick your country from the full list; the other 9 are chosen at random
+- Soldiers based on population, using the brief's table
+- Random first player
+- Several saved game continue whichever you want
+
+**Turns**
+
+- Attack once per turn or skip
+- Transfer soldiers between your countries when no attack is in progress, leaving at least 1 behind
+- From round 2, 2 new soldiers per country you hold, placed wherever you like
+- Fast-forward through NPC turns while still showing every move
+- Eliminated players are skipped; holding all 10 countries wins
+
+**Battles**
+
+- Need at least 2 soldiers to attack; at least 1 always stays behind
+- number of dice rolled is = to the smaller army that can fight.
+- dice are paired, higher roll wins, ties lose nothing
+- Each die roll you lose, a soldier dies
+- Attack continues until the country falls, you're down to 1 soldier, or you stop
+- Conquering gives max(2, value ÷ 2) soldiers, and you choose how many move in to your new conquered country
+- Stopping an attack ends your attack; you can still transfer, then the turn ends
+
+- Every attack, dice roll, loss and outcome is shown as it happens
+- AI commentary describes each battle as it happens
+- All countries and soldier counts stay visible, including the world map during battles
+
+**NPCs**
+These are computer-controlled players that make their own decisions during the game using the NpcStrategy.ts class.
+They play to win and choose whether to attack, which target and when to stop
+They can Place reinforcements and transfer soldiers
+They show very decision shown with a short reason, also during fast-forward
+
+**Access**
+
+- Anyone with the link can watch a game
+- Only the logged-in owner can play their game
+- Anyone can sign up and start their own game
+
+## Tech Stack
+
+- Web app
+- NoSQL database (Firebase Firestore)
+- Deployed on Vercel
+
+- React, TypeScript, Vite
+- Firebase Auth and Firestore
+- Vercel (hosting and server endpoints)
+- Groq (AI commentary)
+- Vitest, oxlint
+
 ### Extras
 
-- Player analytics
+- Player analytics ![alt text](images/s5.png)
 - Live shared-game viewing with a shareable link
 - Saves after every move, so a refresh can't replay a roll or a second attack preventing cheating
 
-## How the game works
-
-### Game logic
-
-_turns, dice, reinforcements, conquest, elimination, winning_
-
 ### NPC strategy
-
-_how NPCs pick targets, place soldiers, transfer and stop attacking, and how each move is explained_
 
 ### AI battle commentary
 
@@ -333,14 +350,6 @@ _how NPCs pick targets, place soldiers, transfer and stop attacking, and how eac
 - The AI only describes the dice; it never changes the result
 - If the AI is slow, down or over the limit, the written line shows instead
 - _how tokens are saved and the free limits_
-
-## Tech stack
-
-- React, TypeScript, Vite
-- Firebase Auth and Firestore
-- Vercel (hosting and server endpoints)
-- Groq (AI commentary)
-- Vitest, oxlint
 
 ## Database
 
