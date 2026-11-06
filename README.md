@@ -160,6 +160,24 @@ Objects are instantiated from these classes. For example, when a new game is cre
 - I used inheritance through an abstract [Player](client/src/game/Player.ts) class, which provides shared functionality and defines methods such as `takeTurn()` and `fortify()`.
 - [HumanPlayer](client/src/game/HumanPlayer.ts) and [NpcPlayer](client/src/game/NpcPlayer.ts) inherit from `Player` and implement their own versions of these methods. Different player types can use the same method interface and perform different actions.
 
+### Coding Practises
+
+I implemented automated tests using Vitest, with five test files covering account management, commentary, fallback behaviour, rate limiting and game saving/restoring. These tests can be executed using `npm test`.
+
+- [account.test.ts](client/tests/account.test.ts)
+- [commentary.test.ts](client/tests/commentary.test.ts)
+- [fallback.test.ts](client/tests/fallback.test.ts)
+- [rateLimiter.test.ts](client/tests/rateLimiter.test.ts)
+- [saveRestore.test.ts](client/tests/saveRestore.test.ts)
+
+I separated functionality into classes, each with a clear responsibility, so that each function, method or class performs a single, well-defined task.
+
+For example, [Battle](client/src/game/Battle.ts) handles battle calculations, [Territory](client/src/game/Territory.ts) manages individual country state, and [GameStore](client/src/db/GameStore.ts) handles game persistence.
+
+The same applies to methods: in [Territory](client/src/game/Territory.ts), `addSoldiers()` only adds soldiers, `loseSoldiers()` only removes them, and `moveSoldiersTo()` only moves them between countries. This makes the code easier to maintain and modify.
+
+## Data Validation, Controls & Security
+
 ## Screenshots
 
 **Game screenshots:** _add_
