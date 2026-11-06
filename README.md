@@ -70,8 +70,6 @@ The database classes found in [client/src/db](client/src/db) listed below, use F
 - [firebase.ts](client/src/db/firebase.ts)
 - [GameStore.ts](client/src/db/GameStore.ts)
 
-### Firebase Cloud Firestore
-
 I used Firebase Cloud Firestore, the NoSQL database, because its document-based structure is flexible and suited my game data.
 
 My game uses Firebase Cloud Firestore (NoSQL) with one database (`default`) containing five collections:
