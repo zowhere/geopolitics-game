@@ -311,7 +311,7 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
   - `#133a52` ocean blue
   - `#1f5574` lighter sea blue
   - `#9fd0e0` foam (wave lines)
-  - `#e3b04b` yellow main buttons, your country
+  - `#e3b04b` yellow main buttons, 'your country'
   - `#f1e6c8` cream white headings
 - Some icons used:
   - Bomb pause button with fuse and spark ([BoardScreen.tsx](client/src/screens/BoardScreen.tsx))
@@ -324,7 +324,7 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
 - Soldiers marching between countries during transfers
 - Rolling dice, falling soldiers and missile strikes in battle
 - Stamped results: occupied, failed, retreat
-- Your countries glow yellow on Single Player Turn, so it easily stands out
+- 'Your countries' glow yellow on 'your turn', so they easily stand out
 - Framed world map of all 10 countries during battles
 - Bomb pause button, hover labels and fast-forward
 
