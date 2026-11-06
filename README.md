@@ -129,9 +129,36 @@ Countries were loaded with a [seed script](client/scripts/seed-countries.mjs).
 
 **Integration:** Firebase Web SDK, in [client/src/db](client/src/db), connects the browser directly to [Firestore](https://console.firebase.google.com/project/geopolitics-game-b9b31/firestore) with no separate server.
 
-## How to connect to Database
+## Database Connection
 
 The game connects to Firestore in [firebase.ts](client/src/db/firebase.ts).
+
+## Design of the database
+
+- The application uses a Singleton pattern by creating one Firebase app instance and one Firestore database instance in [firebase.ts](client/src/db/firebase.ts).
+- These instances are exported and reused throughout the application. I don't make new connections in individual files, which avoids unnecessary initialisation and ensures centralised access to the database.
+- The application follows MVC by separating the Model ([src/game](client/src/game) and [src/db](client/src/db)), View ([src/screens](client/src/screens) and [src/components](client/src/components)) and Controller ([src/hooks](client/src/hooks) and [App.tsx](client/src/App.tsx)).
+- The Model handles game logic and database operations, while the View handles the user interface and the Controller coordinates interactions.
+- This separates database access from the presentation layer and database changes can be made without requiring changes to the UI.
+
+## Coding Structure
+
+### 1. Classes and Objects
+
+I used classes to structure the application into reusable components. These include game classes ([Game](client/src/game/Game.ts), [Territory](client/src/game/Territory.ts), [Battle](client/src/game/Battle.ts), [Player](client/src/game/Player.ts), [HumanPlayer](client/src/game/HumanPlayer.ts), [NpcPlayer](client/src/game/NpcPlayer.ts), [NpcStrategy](client/src/game/NpcStrategy.ts) and [Commentator](client/src/game/Commentator.ts)), database classes ([AccountStore](client/src/db/AccountStore.ts), [CountryStore](client/src/db/CountryStore.ts) and [GameStore](client/src/db/GameStore.ts)) and server classes ([AccountService](client/api/account.ts) and [GroqCommentator](client/api/commentary.ts)).
+
+Objects are instantiated from these classes. For example, when a new game is created, [Game](client/src/game/Game.ts) creates a [Territory](client/src/game/Territory.ts) and a player for each country. A new game is started through [App.tsx](client/src/App.tsx). When a user starts a game, they are represented by a new [HumanPlayer](client/src/game/HumanPlayer.ts) object, and each of the 9 rival countries becomes a new [NpcPlayer](client/src/game/NpcPlayer.ts) object.
+
+### 2. Encapsulation
+
+- I used encapsulation to protect internal data and control how it is accessed or modified.
+- In [Territory.ts](client/src/game/Territory.ts), `ownerIndex` and `soldierCount` are private and can only be modified through methods such as `addSoldiers()`, `loseSoldiers()` and `moveSoldiersTo()`. These methods enforce game rules, such as ensuring every country retains at least one soldier.
+- In [Game.ts](client/src/game/Game.ts), properties such as `round`, `turn`, `reserve` and war state are private and accessed through getters. The private constructor also ensures games are created through `Game.start()` or `Game.restore()`.
+
+### 3. Inheritance and Polymorphism
+
+- I used inheritance through an abstract [Player](client/src/game/Player.ts) class, which provides shared functionality and defines methods such as `takeTurn()` and `fortify()`.
+- [HumanPlayer](client/src/game/HumanPlayer.ts) and [NpcPlayer](client/src/game/NpcPlayer.ts) inherit from `Player` and implement their own versions of these methods. Different player types can use the same method interface and perform different actions.
 
 ## Screenshots
 
