@@ -9,8 +9,8 @@ Single player geopolitics game. Play against 9 NPS and try to be the conquerer o
 
 - **Sign up:** open the game, choose Sign up, and create an account with your email, a username and a password
 - **Demo login:**
-  user: examiner
-  password:examiner-2026-bulle!
+  - Username: `examiner`
+  - Password: `examiner-2026-bulle!`
 
 ## Running it locally
 
@@ -47,13 +47,11 @@ Single player geopolitics game. Play against 9 NPS and try to be the conquerer o
    FIREBASE_SERVICE_ACCOUNT= enter service account key
    ```
 
-   PS examiner/account with access for firebase:
-   Go to [firebase console][https://console.firebase.google.com/]> and sign in with account with access
-   Open geopolitics-game-b9b31
-   Click gear icon> Project settings> Service accounts> Firebase Admin SDK >click Generate new private key
-   A .json file downloads.
-
-   Open the file > copy all of it onto one line> paste it after FIREBASE_SERVICE_ACCOUNT= in client/.env.local.
+   **Getting the service account key** (examiners, or any account with access to the Firebase project):
+   1. Go to the [Firebase console](https://console.firebase.google.com/) and sign in with the account that has access.
+   2. Open **geopolitics-game-b9b31**.
+   3. Click the gear icon → **Project settings** → **Service accounts** → **Firebase Admin SDK** → **Generate new private key**. A `.json` file downloads.
+   4. Open the file, copy all of it onto one line, and paste it after `FIREBASE_SERVICE_ACCOUNT=` in `client/.env.local`.
 
 6. Start the game and its server, then open [localhost:3000](http://localhost:3000)
 
@@ -67,9 +65,9 @@ Game uses Firebase for storage so the database is hosted separately on Google's 
 
 The database classes found in client/src/db use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
 
-- [firebase.ts](client/src/db/firebase.ts)
-- [AccountStore.ts](client/src/db/AccountStore.ts)
+- [AccountStore.ts](client/src/db/)
 - [CountryStore.ts](client/src/db/CountryStore.ts)
+- [firebase.ts](client/src/db/firebase.ts)
 - [GameStore.ts](client/src/db/GameStore.ts)
 
 ## Screenshots
