@@ -117,7 +117,14 @@ field:      uid: "zoe's account ID"
 - Each country is one document in `countries`, named by country code and holding the name, map name and population.
 - The data source is one document in `meta`, holding where the population figures came from and which year.
 
-**Security:** Firebase Authentication and Firestore Security Rules.
+**Security:**
+
+- Firebase Authentication and Firestore Security Rules.
+- Emails are never stored in public records or sent to the browser
+- Username login is checked on the [server](client/api/account.ts)
+- 3 wrong passwords means a 15 minute wait, 10 locks the account
+- Firestore rules: players can only read their own account; games can be watched by anyone but only played by the owner
+- API keys stay on the [server](client/api)
 
 **Configuration files:**
 
@@ -201,6 +208,9 @@ Implemented input validation at three levels: client-side form validation ([Logi
 - 8,000 tokens a minute.
 
 ## AI Application
+
+- Groq API (openai/gpt-oss-20b) generates battle commentary that describes battle events as they take place.
+  ![AI battle commentary on the battle screen](images/sc1.png)
 
 ## Functionality
 
@@ -491,38 +501,18 @@ The full rules are in [`firestore.rules`](firestore.rules).
    node scripts/seed-countries.mjs --project=YOUR_PROJECT_ID --confirm
    ```
 
-## Security
-
-- Emails are never stored in public records or sent to the browser
-- Username login is checked on the server
-- 3 wrong passwords means a 15 minute wait, 10 locks the account
-- Firestore rules: players can only read their own account; games can be watched by anyone but only played by the owner
-- API keys stay on the server
-
-## Tests
-
-From `client`, run `npm test`.
-
-- **Server rejects invalid battle data:** prevents incorrect or manipulated battle information from reaching Groq
-- **Game falls back when Groq fails:** the game keeps working and shows written commentary instead
-- **Rate limiter:** the game allows 25 requests per minute and blocks the 26th, preventing excessive API usage
-- **Saving and resuming:** a refresh can't replay an attack, and a battle cut off mid-way ends cleanly
-- **Account server:** rejects invalid usernames and never sends an email back to the browser
-
 ## Trade-offs
 
 ### Transfers after stopping an attack
 
-The brief says that stopping an attack ends the turn. In this game, stopping ends the attack, but the player can still transfer soldiers before the turn ends.
+Stopping an attack should immediately end the turn but in this game, stopping ends the attack, but the player can still transfer soldiers before the turn ends.
 
 Most players stop an attack because they can see their soldier numbers dropping. Their attacking country is then left weak, and an opponent can occupy it in the same round. Letting them move soldiers in to reinforce it first makes the game more competitive and interesting for users.
 
-The game remains fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns.
+The game remains fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns. The attack still ends. Just not the turn.
 
 ### Per-move event log
 
-Recording each move as an individual event would enable full replays and allow late spectators to catch up. However, Firebase's free tier is limited to 20,000 writes per day. My current design supports approximately 20 complete games daily, and introducing a per-move event log would reduce this to approximately 10. Therefore, I kept the snapshot-based approach.
+Recording each move as an individual event would enable full replays. However, Firebase's free tier is limited to 20,000 writes per day. My current design supports about 20 complete games daily, and introducing a per-move event log would reduce this drastically. To have more people play the game whilst I use the free tier, I used the snapshot-based approach ([Game.ts](client/src/game/Game.ts#L132), [GameStore.ts](client/src/db/GameStore.ts#L61)).
 
 ## Limitations and known bugs
-
-_add_
