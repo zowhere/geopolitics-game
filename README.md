@@ -354,6 +354,7 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
 - Each die roll you lose, a soldier dies
 - Attack continues until the country falls, you're down to 1 soldier, or you stop
 - Conquering gives max(2, value ÷ 2) soldiers, and you choose how many move in to your new conquered country
+- **Occupation bonus:** when a country is taken, the bonus soldiers (the larger of 2 or half the country's starting soldiers, rounded down) go to the attacking country, and then at least 1 soldier must be moved into the new country.
 - Stopping an attack ends your attack; you can still transfer, then the turn ends
 
 - Every attack, dice roll, loss and outcome is shown as it happens
@@ -374,9 +375,9 @@ They show very decision shown with a short reason, also during fast-forward
 
 ## Tech Stack
 
-- **Frontend:** React, TypeScript 7, Vite
+- **Frontend:** React, TypeScript, Vite
 - **Backend:** Node.js, Vercel Serverless Functions
-- **Database:** Firebase Cloud Firestore, Firebase Authentication, Firebase Web SDK 13
+- **Database:** Firebase Cloud Firestore, Firebase Authentication, Firebase Web SDK
 - **AI:** Groq API (openai/gpt-oss-20b)
 - **Hosting:** Vercel
 - **Testing:** Vitest
@@ -384,12 +385,62 @@ They show very decision shown with a short reason, also during fast-forward
 ### Extras
 
 - Player analytics ![alt text](images/s5.png)
-- Live shared-game viewing with a shareable link
+- Live shared-game viewing ([WatchScreen.tsx](client/src/screens/WatchScreen.tsx)) with a shareable link ([ShareButton.tsx](client/src/components/ShareButton.tsx))
 - Saves after every move, so a refresh can't replay a roll or a second attack preventing cheating
+
+### NPC Strategy
+
+All NPCs use the same strategy to compete to win. They prioritise strengthening their weakest countries, identify the best available attacks using a priority queue, and only attack when they have at least 3 soldiers and a numerical advantage over the defender.
+
+They also avoid attacking players who are stronger overall.
+
+NPCs continue attacking until their attacking country has only 2 soldiers remaining, preventing it from being left vulnerable. After conquering a country, they move about half of their remaining attacking soldiers (at least 1) into it. They redistribute troops from their strongest country to their weakest to balance their defences. Each decision includes a reason displayed in the game commentary and log.
+
+## Trade-offs
+
+### Transfers after stopping an attack
+
+Stopping an attack should immediately end the turn but in this game, stopping ends the attack, but the player can still transfer soldiers before the turn ends.
+
+Most players stop an attack because they can see their soldier numbers dropping. Their attacking country is then left weak, and an opponent can occupy it in the same round. Letting them move soldiers in to reinforce it first makes the game more competitive and interesting for users.
+
+The game remains fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns. The attack still ends. Just not the turn.
+
+### Per-move event log
+
+Recording each move as an individual event would enable full replays. However, Firebase's free tier is limited to 20,000 writes per day. My current design supports about 20 complete games daily, and introducing a per-move event log would reduce this drastically. To have more people play the game whilst I use the free tier, I used the snapshot-based approach ([Game.ts](client/src/game/Game.ts#L132), [GameStore.ts](client/src/db/GameStore.ts#L61)).
+
+## Limitations and known bugs
+
+### Save validation
+
+Firestore Security Rules validate the structure of saved games but do not verify whether moves are legal. A player could potentially manipulate their soldier counts through the browser console and save unauthorised game states.
 
 ### NPC strategy
 
-### Security rules
+The NPC strategy could be better.
+Decision explanations don't use statistics just a phrase "attacking weakest link". It can show the numberes e.g Japan has 1 soldier which adds expalnation to the phrase.
+
+NPCs don't attack players who are stronger overall, even when an attack might be strategic e.g reduce their soldier numbers reducing their die rolling turns. Sometimes sacrificing 1 conquered country can help NPC win entire game (reinforce other countries they own).
+
+The troop-balancing strategy can also undo the concentration of soldiers intended for an attack. Target selection is based only on soldier differences, without considering win probabilities, country value or opportunities to eliminate opponents.
+
+NPCs also stop attacking when they have 2 soldiers remaining, even if another attack might be winnable. Player strength is recalculated by counting soldiers across all their countries. It can be better to maintain a running total.
+
+### Tests
+
+Dedicated tests are still needed for dice calculations, ties, occupation bonuses and player elimination. Existing save/restore tests ([saveRestore.test.ts](client/tests/saveRestore.test.ts)) only cover a few battle-related items.
+
+### Security
+
+Firestore Security Rules validate the structure of saved games but do not verify whether moves are legal.
+A player can manipulate their soldier counts through the browser's developer tools to change the soldier counts in their own game and save an unauthorised game state.
+
+### Future
+
+I plan to integrate Firebase Analytics to track gameplay activity and better understand how players interact with the game.
+
+# Security rules
 
 A player can only read their own account, and a username record can only hold a user ID:
 
@@ -434,19 +485,3 @@ The full rules are in [`firestore.rules`](firestore.rules).
    gcloud auth application-default login
    node scripts/seed-countries.mjs --project=YOUR_PROJECT_ID --confirm
    ```
-
-## Trade-offs
-
-### Transfers after stopping an attack
-
-Stopping an attack should immediately end the turn but in this game, stopping ends the attack, but the player can still transfer soldiers before the turn ends.
-
-Most players stop an attack because they can see their soldier numbers dropping. Their attacking country is then left weak, and an opponent can occupy it in the same round. Letting them move soldiers in to reinforce it first makes the game more competitive and interesting for users.
-
-The game remains fair because once the attack is stopped, the player can't attack again that turn, and NPCs follow the same rules, so they can still win on their own turns. The attack still ends. Just not the turn.
-
-### Per-move event log
-
-Recording each move as an individual event would enable full replays. However, Firebase's free tier is limited to 20,000 writes per day. My current design supports about 20 complete games daily, and introducing a per-move event log would reduce this drastically. To have more people play the game whilst I use the free tier, I used the snapshot-based approach ([Game.ts](client/src/game/Game.ts#L132), [GameStore.ts](client/src/db/GameStore.ts#L61)).
-
-## Limitations and known bugs
