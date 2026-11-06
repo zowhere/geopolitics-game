@@ -3,7 +3,6 @@
 Single player geopolitics game. Play against 9 NPS and try to be the conquerer of all 10 countries, including yours.
 
 - **Play:** [geopolitics-game-xi.vercel.app](https://geopolitics-game-xi.vercel.app)
-- **Demo video:** _add link_
 
 ## Try it
 
