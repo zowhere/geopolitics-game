@@ -101,7 +101,7 @@ field:      uid: "zoe's account ID"
 
 - Firebase provides a Web SDK allowing my game to communicate directly and securely with Firestore from the browser. It removes the need for me to build a separate database API or manage a database server. This reduced my project size (code-wise) and saves me money, as I did not have to invest in infrastructure upfront. As the number of users playing the game grows, it will scale dynamically until I reach my free-plan limits.
 - I used Firebase's free Spark plan because it covered the game's data needs at no cost. It allowed me to build the game and have a few users test it.
-- It also has Firebase Analytics which i have not set up at the moment but in the future I plan to and it will help me see analytics related to Reach, game Engagement and custom events such as Tracking how many game invitation links are shared and how many of those links are clicked, helping me measure word-of-mouth growth.
+- It also has Firebase Analytics (not connected currently) which I plan to use in the future to see analytics related to reach, game engagement and custom events such as tracking how many game invitation links are shared and how many of those links are clicked, helping me measure word-of-mouth growth.
 
 ## Databse Configuration
 
@@ -145,14 +145,24 @@ The game connects to Firestore in [firebase.ts](client/src/db/firebase.ts).
 
 ### 1. Classes and Objects
 
-I used classes to structure the application into reusable components. These include game classes ([Game](client/src/game/Game.ts), [Territory](client/src/game/Territory.ts), [Battle](client/src/game/Battle.ts), [Player](client/src/game/Player.ts), [HumanPlayer](client/src/game/HumanPlayer.ts), [NpcPlayer](client/src/game/NpcPlayer.ts), [NpcStrategy](client/src/game/NpcStrategy.ts) and [Commentator](client/src/game/Commentator.ts)), database classes ([AccountStore](client/src/db/AccountStore.ts), [CountryStore](client/src/db/CountryStore.ts) and [GameStore](client/src/db/GameStore.ts)) and server classes ([AccountService](client/api/account.ts) and [GroqCommentator](client/api/commentary.ts)).
+I used classes to structure the application into reusable components. These include
+game classes ([Game](client/src/game/Game.ts), [Territory](client/src/game/Territory.ts), [Battle](client/src/game/Battle.ts), [Player](client/src/game/Player.ts), [HumanPlayer](client/src/game/HumanPlayer.ts), [NpcPlayer](client/src/game/NpcPlayer.ts), [NpcStrategy](client/src/game/NpcStrategy.ts) and [Commentator](client/src/game/Commentator.ts)),
 
-Objects are instantiated from these classes. For example, when a new game is created, [Game](client/src/game/Game.ts) creates a [Territory](client/src/game/Territory.ts) and a player for each country. A new game is started through [App.tsx](client/src/App.tsx). When a user starts a game, they are represented by a new [HumanPlayer](client/src/game/HumanPlayer.ts) object, and each of the 9 rival countries becomes a new [NpcPlayer](client/src/game/NpcPlayer.ts) object.
+database classes ([AccountStore](client/src/db/AccountStore.ts), [CountryStore](client/src/db/CountryStore.ts) and [GameStore](client/src/db/GameStore.ts)) and
+
+server classes ([AccountService](client/api/account.ts) and [GroqCommentator](client/api/commentary.ts)).
+
+Objects are instantiated from these classes.
+
+For example, when a new game is created, [Game](client/src/game/Game.ts) creates a [Territory](client/src/game/Territory.ts) and a player for each country.
+A new game is started through [App.tsx](client/src/App.tsx).
+When a user starts a game, they are represented by a new [HumanPlayer](client/src/game/HumanPlayer.ts) object, and each of the 9 rival countries becomes a new [NpcPlayer](client/src/game/NpcPlayer.ts) object.
 
 ### 2. Encapsulation
 
 - I used encapsulation to protect internal data and control how it is accessed or modified.
-- In [Territory.ts](client/src/game/Territory.ts), `ownerIndex` and `soldierCount` are private and can only be modified through methods such as `addSoldiers()`, `loseSoldiers()` and `moveSoldiersTo()`. These methods enforce game rules, such as ensuring every country retains at least one soldier.
+- In [Territory.ts](client/src/game/Territory.ts), `ownerIndex` and `soldierCount` are private and can only be modified through methods such as `addSoldiers()`, `loseSoldiers()` and `moveSoldiersTo()`.
+  These methods enforce game rules like making sure every country retains at least one soldier.
 - In [Game.ts](client/src/game/Game.ts), properties such as `round`, `turn`, `reserve` and war state are private and accessed through getters. The private constructor also ensures games are created through `Game.start()` or `Game.restore()`.
 
 ### 3. Inheritance and Polymorphism
