@@ -63,9 +63,9 @@ Single player geopolitics game. Play against 9 NPS and try to be the conquerer o
 
 Game uses Firebase for storage so the database is hosted separately on Google's cloud infrastructure.
 
-The database classes found in client/src/db use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
+The database classes found in [client/src/db](client/src/db) use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
 
-- [AccountStore.ts](client/src/db/)
+- [AccountStore.ts](client/src/db/AccountStore.ts)
 - [CountryStore.ts](client/src/db/CountryStore.ts)
 - [firebase.ts](client/src/db/firebase.ts)
 - [GameStore.ts](client/src/db/GameStore.ts)
