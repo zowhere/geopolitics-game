@@ -70,7 +70,7 @@ The database classes found in [client/src/db](client/src/db) listed below, use F
 - [firebase.ts](client/src/db/firebase.ts)
 - [GameStore.ts](client/src/db/GameStore.ts)
 
-I used Firebase Cloud Firestore, the NoSQL database, because its document-based structure is flexible and suited my game data.
+I used Firebase Cloud Firestore, the online NoSQL database, because its document-based structure is flexible and suited my game data.
 
 My game uses Firebase Cloud Firestore (NoSQL) with one database (`default`) containing five collections:
 
@@ -95,17 +95,43 @@ field:      uid: "zoe's account ID"
 ### Benefits
 
 - It uses Google-hosted infrastructure so my databases scale automatically reducing the administration of maintaining my owner server. With Firebase, the google server comes with patches and data is online most of the time.
-- Firebase has real-time listeners `onSnapshot` and this was beneficial my shared-link live watching feature where players share their play to viewers.
+- Firebase has real-time listeners (`onSnapshot`), which were beneficial for my shared-link live watching feature, where players share their game with viewers.
 - Firebase comes with Authentication and providd secure sign-up, login, password reset and session tokens and it stores passwords only as salted hashes.
-- It includes Firestore Security Rules which let me set rules such as:
-
-  > A game can only be updated by the signed-in player whose ID matches its `ownerId`, however anyone can watch it.
-
-  This was important for ensuring viewers do no interfere with game play.
+- It includes Firestore Security Rules which let me set rules such as: a game can only be updated by the signed-in player whose ID matches its `ownerId`, however anyone can watch it. This was important for ensuring viewers do no interfere with game play.
 
 - Firebase provides a Web SDK allowing my game to communicate directly and securely with Firestore from the browser. It removes the need for me to build a separate database API or manage a database server. This reduced my project size (code-wise) and saves me money, as I did not have to invest in infrastructure upfront. As the number of users playing the game grows, it will scale dynamically until I reach my free-plan limits.
 - I used Firebase's free Spark plan because it covered the game's data needs at no cost. It allowed me to build the game and have a few users test it.
 - It also has Firebase Analytics which i have not set up at the moment but in the future I plan to and it will help me see analytics related to Reach, game Engagement and custom events such as Tracking how many game invitation links are shared and how many of those links are clicked, helping me measure word-of-mouth growth.
+
+## Databse Configuration
+
+**Platform:** Firebase Cloud Firestore, an online NoSQL document database hosted on Google's cloud, on the free Spark plan.
+
+**Structure:** one database (`default`) with five collections: `countries`, `games`, `meta`, `usernames`, `users`.
+
+**Data organisation:** documents with key-value fields.
+
+- Each saved game is one document holding the board, soldiers, turn, round and status.
+- Each account is one document in `users`, holding the username and when it was created. Its ID matches the player's login ID.
+- Each username is one document in `usernames`, named after the username the player chose, and holding the player's ID, ensuring no duplication.
+- Each country is one document in `countries`, named by country code and holding the name, map name and population.
+- The data source is one document in `meta`, holding where the population figures came from and which year.
+
+**Security:** Firebase Authentication and Firestore Security Rules.
+
+**Configuration files:**
+
+- [firestore.rules](firestore.rules) (access)
+- [firestore.indexes.json](firestore.indexes.json) (fast game lists)
+- [firebase.json](firebase.json) links the rules and indexes, deployed with the Firebase CLI
+
+Countries were loaded with a [seed script](client/scripts/seed-countries.mjs).
+
+**Integration:** Firebase Web SDK, in [client/src/db](client/src/db), connects the browser directly to [Firestore](https://console.firebase.google.com/project/geopolitics-game-b9b31/firestore) with no separate server.
+
+## How to connect to Database
+
+The game connects to Firestore in [firebase.ts](client/src/db/firebase.ts).
 
 ## Screenshots
 
