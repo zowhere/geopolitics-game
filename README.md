@@ -188,6 +188,8 @@ The same applies to methods: in [Territory](client/src/game/Territory.ts), `addS
 
 ## Data Validation, Controls & Security
 
+Implemented input validation at three levels: client-side form validation ([LoginScreen.tsx](client/src/screens/LoginScreen.tsx)), server-side API validation ([api/account.ts](client/api/account.ts)) and Firestore Security Rules ([firestore.rules](firestore.rules)), providing protection against invalid or unauthorised data.
+
 ## Screenshots
 
 **Game screenshots:** _add_
