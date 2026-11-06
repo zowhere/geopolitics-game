@@ -1,6 +1,6 @@
 # Geopolitics 101
 
-Single player geopolitics game. Play against 9 NPS and try to be conquerer of all 10 countries, including yours.
+Single player geopolitics game. Play against 9 NPS and try to be the conquerer of all 10 countries, including yours.
 
 - **Play:** [geopolitics-game-xi.vercel.app](https://geopolitics-game-xi.vercel.app)
 - **Demo video:** _add link_
@@ -8,8 +8,9 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
 ## Try it
 
 - **Sign up:** open the game, choose Sign up, and create an account with your email, a username and a password
-  --**Demo login:** user: examiner password:examiner-2026-bulle!
-- **Shared link:** _ anyone with the link can watch the game live without logging in, but only the owner can play_
+- **Demo login:**
+  user: examiner
+  password:examiner-2026-bulle!
 
 ## Running it locally
 
@@ -42,9 +43,17 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
 5. Enter your keys in `client/.env.local`
 
    ```
-   GROQ_API_KEY=ENTER YOUR GROQ KEY
-   FIREBASE_SERVICE_ACCOUNT=ENTER YOUR SERVICE ACCOUNT JSON ON ONE LINE
+   GROQ_API_KEY= enter your Groq Key
+   FIREBASE_SERVICE_ACCOUNT= enter service account key
    ```
+
+   PS examiner/account with access for firebase:
+   Go to [firebase console][https://console.firebase.google.com/]> and sign in with account with access
+   Open geopolitics-game-b9b31
+   Click gear icon> Project settings> Service accounts> Firebase Admin SDK >click Generate new private key
+   A .json file downloads.
+
+   Open the file > copy all of it onto one line> paste it after FIREBASE_SERVICE_ACCOUNT= in client/.env.local.
 
 6. Start the game and its server, then open [localhost:3000](http://localhost:3000)
 
@@ -52,12 +61,16 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
    vercel dev
    ```
 
-7. Change the git remote url to avoid accidental pushes to the base project
+## Database seperate to rest of application
 
-   ```bash
-   git remote set-url origin github_username/repo_name
-   git remote -v
-   ```
+Game uses Firebase for storage so the database is hosted separately on Google's cloud infrastructure.
+
+The database classes found in client/src/db use Firebase SDK to send requests over the internet and Firebase answers, dependent on security rules.
+
+- [firebase.ts](client/src/db/firebase.ts)
+- [AccountStore.ts](client/src/db/AccountStore.ts)
+- [CountryStore.ts](client/src/db/CountryStore.ts)
+- [GameStore.ts](client/src/db/GameStore.ts)
 
 ## Screenshots
 
@@ -134,7 +147,7 @@ Single player geopolitics game. Play against 9 NPS and try to be conquerer of al
 ### Extras
 
 - Player analytics
-- Live shared-game viewing
+- Live shared-game viewing with a shareable link
 - Saves after every move, so a refresh can't replay a roll or a second attack preventing cheating
 
 ## How the game works
