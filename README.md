@@ -293,12 +293,12 @@ Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoa
 <img src="images/sc2.png" alt="Game screenshot 2" width="420"> <img src="images/sc3.png" alt="Game screenshot 3" width="420">
 <img src="images/sc4.png" alt="Game screenshot 4" width="260"> <img src="images/sc5.png" alt="Game screenshot 5" width="420">
 <img src="images/sc6.png" alt="Game screenshot 6" width="420"> <img src="images/sc7.png" alt="Game screenshot 7" width="420">
-<img src="images/sc8.png" alt="Game screenshot 8" width="420"> <img src="images/sc9.png" alt="Game screenshot 9" width="420">
+<img src="images/sc8.png" alt="Game screenshot 8" width="420">
 <img src="images/sc10.png" alt="Game screenshot 10" width="260">
 
 | Laptop                                                       | iPhone 16                                                        | Samsung                                                        |
 | ------------------------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------- |
-| <img src="images/sc2.png" alt="Board on laptop" width="300"> | <img src="images/sc10.png" alt="Board on iPhone 16" width="150"> | <img src="images/sc11.png" alt="Board on Samsung" width="150"> |
+| <img src="images/sc2.png" alt="Board on laptop" width="300"> | <img src="images/sc11.png" alt="Board on iPhone 16" width="150"> | <img src="images/sc12.png" alt="Board on Samsung" width="150"> |
 
 ## Bonus feature: graphics and animations
 
