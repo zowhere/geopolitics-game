@@ -210,12 +210,31 @@ Implemented input validation at three levels: client-side form validation ([Logi
 
 - Groq API (openai/gpt-oss-20b) generates battle commentary that describes battle events as they take place.
   ![AI battle commentary on the battle screen](images/sc1.png)
+  Above is example of AI generated battle commenatry
+
+- [api/commentary.ts](client/api/commentary.ts) handles requests and keeps the Groq API key secure on the server.
+- The LLM is instructed in [api/commentary.ts](client/api/commentary.ts) to use only the supplied battle facts, without inventing events or repeating dice values.
+- AI then generates three short commentary phrases, which are validated in [api/commentary.ts](client/api/commentary.ts) and [BattleCommentary.ts](client/src/ai/BattleCommentary.ts) before display.
+- [Commentator.ts](client/src/game/Commentator.ts) provides commentary if the AI request times out, fails or reaches its rate limit.
+- Responses are limited to 300 tokens and use low reasoning effort in [api/commentary.ts](client/api/commentary.ts) to control API usage.
+- The AI only generates commentary; it does not determine dice rolls, battle outcomes or NPC decisions. Dice and outcomes are controlled by [Battle.ts](client/src/game/Battle.ts) and [Game.ts](client/src/game/Game.ts), and NPC decisions by [NpcStrategy.ts](client/src/game/NpcStrategy.ts).
 
 ## Functionality
 
-lists; searching; filtering; viewing;
+Implemented a `useLoadedImage` hook ([useLoadedImage.ts](client/src/hooks/useLoadedImage.ts)), used in [Island.tsx](client/src/components/Island.tsx), to manage flag images displayed on the map.
 
-Ease of navigation  
+- It waits for flag images to finish loading before displaying them, preventing flickering or partially loaded images.
+  It has a shared set of loaded flags so previously downloaded images can be reused and displayed immediately without loading them again.
+  This makes the game look cohesive.
+
+- Priority queue implemented as a binary max-heap ([PriorityQueue.ts](client/src/utils/PriorityQueue.ts)). In [NpcStrategy.ts](client/src/game/NpcStrategy.ts), every valid attack an NPC could make is pushed onto the heap, ordered by `isBetterOption` that ranks by soldier advantage, with the weakest defender as the tie-break. `pop()` returns the highest-priority attack first, allowing the NPC to choose its best move without sorting the entire list.
+
+## Ease of navigation
+
+- On each page there's button that guides players on what to do next e.g log in, next, play, pause, fast forward
+- New players are shown an interactive how-to-play and a demo
+- The how to play remains in the settings and users can go over it again, at any given time
+
 Security – authentication & authorization  
 Sophistication & Complexity – Battle engine, game engine, AI integration, access control etc.
 
